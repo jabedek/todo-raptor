@@ -1,12 +1,18 @@
 {
   "name": "todo-raptor",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
-  "repository": {},
+  "repository": {
+    "url": "https://github.com/jabedek/todo-raptor"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "up-patch": "npm version patch --no-git-tag-version",
+    "up-minor": "npm version minor --no-git-tag-version",
+    "up-major": "npm version major --no-git-tag-version",
+    "pub-gh": "npm run up-patch  &&  git add .  &&  git commit -m 'next'  &&  git push"
   },
   "dependencies": {
     "react": "^18.2.0",

@@ -1,9 +1,8 @@
 import "./App.css";
-import { MovieSplitter } from "./classes/movie-splitter";
+import * as test from "./services/testing";
 
 function App() {
-  const ms = new MovieSplitter();
-  ms.uploadMovie();
+  console.log(test);
 
   return <h1 className="text-3xl font-bold underline text-black">Hello world!</h1>;
 }
