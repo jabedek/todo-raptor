@@ -1,12 +1,12 @@
 import React from "react";
 
-const About: React.FC = () => {
+const AboutPage: React.FC = () => {
   throw new Error();
 
-  return <div>About</div>;
+  return <div>AboutPage</div>;
 };
 
-export default About;
+export default AboutPage;
 
 export const ErrorBoundary = () => {
   return <h3>Some Error Boundary</h3>;

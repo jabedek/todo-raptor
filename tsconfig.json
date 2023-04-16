@@ -22,6 +22,8 @@
       "@@utils/*": ["src/utils/*"],
       "@@components/*": ["src/components/*"],
       "@@services/*": ["src/services/*"],
+      "@@context/*": ["src/context/*"],
+      "@@hooks/*": ["src/hooks/*"],
       "@@types/*": ["src/types/*"]
     }
   },

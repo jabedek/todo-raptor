@@ -8,7 +8,7 @@ type Props = {
 };
 
 const Layout = (props: Props) => {
-  const [sidebarOpen, setsidebarOpen] = useState(true);
+  const [sidebarOpen, setsidebarOpen] = useState(false);
 
   return (
     <div className="bg-gray-500 text-black h-screen w-screen">

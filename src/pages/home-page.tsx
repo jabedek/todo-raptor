@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Home: React.FC = () => {
+const HomePage: React.FC = () => {
   return (
     <div>
       <Link to="auth/register">Register</Link>
-      Home
+      HomePage
     </div>
   );
 };
 
-export default Home;
+export default HomePage;

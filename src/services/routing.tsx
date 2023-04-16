@@ -2,20 +2,15 @@ import { RoutingState } from "@@types/common";
 import { createContext, useEffect, useState } from "react";
 import { Link, createBrowserRouter, RouteObject, useLocation, useNavigation } from "react-router-dom";
 import Root from "src/Root";
-import Home from "src/pages";
-import RegisterPage from "src/pages/auth/register";
-import Dashboard from "src/pages/dashboard";
-import WrongRoute from "src/pages/[wrong-route]";
-import Account from "src/pages/account";
-import Analytics from "src/pages/dashboard/analytics";
-import Landing from "src/pages/landing";
-
-type SimpleRoute = {
-  path: string;
-  name: string;
-  forAuth?: boolean;
-  forAdmin?: boolean;
-};
+import Home from "src/pages/home-page";
+import RegisterPage from "src/pages/auth/register-page";
+import Dashboard from "src/pages/dashboard/dashboard-page";
+import WrongRoute from "src/pages/[wrong-route-page]";
+import Account from "src/pages/account/account-page";
+import Analytics from "src/pages/dashboard/analytics-page";
+import Landing from "src/pages/landing-page";
+import LoginPage from "src/pages/auth/login-page";
+import AccountPage from "src/pages/account/account-page";
 
 const routes: RouteObject[] = [
   {
@@ -35,18 +30,22 @@ const routes: RouteObject[] = [
         // loader: teamLoader,
       },
       {
+        path: "login",
+        element: <LoginPage />,
+        // loader: teamLoader,
+      },
+      {
         path: "register",
         element: <RegisterPage />,
         // loader: teamLoader,
       },
+      {
+        path: "account",
+        element: <AccountPage />,
+        // loader: teamLoader,
+      },
     ],
   },
-];
-
-const simpleRoutes: SimpleRoute[] = [
-  { path: "/home", name: "Home" },
-  { path: "/dashboard", name: "Dashboard" },
-  { path: "/register", name: "Register" },
 ];
 
 const AppRouter = createBrowserRouter(routes, { basename: "" });
@@ -71,4 +70,4 @@ const RoutingStateProvider = ({ children }: any) => {
   );
 };
 
-export { simpleRoutes, AppRouter, RoutingStateContext, RoutingStateProvider };
+export { AppRouter, RoutingStateContext, RoutingStateProvider };

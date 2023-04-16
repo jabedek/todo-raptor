@@ -6,11 +6,11 @@ import { useLocalStorage } from "src/hooks/useLocalStorage";
 
 type AuthContext = {
   user: User | undefined;
-  login: (user: User) => void;
-  logout: () => void;
+  putAuth: (user: User) => void;
+  clearAuth: () => void;
 };
 
-export const AuthContext = createContext<AuthContext | undefined>(undefined);
+export const AuthContext = createContext<AuthContext>({ user: undefined, putAuth: (user: User) => {}, clearAuth: () => {} });
 
 export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -19,23 +19,23 @@ export const AuthProvider = ({ children }: any) => {
   useEffect(() => {
     const user = getItem(StorageItem.USER);
     if (user) {
-      login(JSON.parse(user));
+      putAuth(JSON.parse(user));
     }
   }, []);
 
-  const login = (user: User) => {
+  const putAuth = (user: User) => {
     setUser(user);
     setItem(StorageItem.USER, JSON.stringify(user));
   };
 
-  const logout = () => {
+  const clearAuth = () => {
     setUser(undefined);
     setItem(StorageItem.USER, "");
   };
 
   return (
     <>
-      <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
+      <AuthContext.Provider value={{ user, putAuth, clearAuth }}>{children}</AuthContext.Provider>
     </>
   );
 };

@@ -1,15 +1,18 @@
-import { useState } from "react";
-import { User, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
-import { firebaseAuth, firebaseDB } from "@@services/firebase";
+import { useState, useContext } from "react";
+import { User as FirebaseUser, signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "@@context/AuthContext";
+import { firebaseAuth, firebaseDB } from "@@services/firebase/firebase-config";
 import { ResultDisplay } from "@@types/common";
 import { FormWrapper, InputWritten, FormButton, Validator } from "@@components/FormElements";
+import { User } from "@@types/User";
 
 const Login: React.FC = () => {
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
-  const [user, setuser] = useState<User | undefined>(undefined);
+  const { putAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const validateForm = (email: string, password: string) => {
     let isValid = true;
@@ -42,53 +45,30 @@ const Login: React.FC = () => {
     return { isValid, message: isValid ? "Credentials are error-free. Sending..." : message };
   };
 
-  const login = async () => {
+  const loginUser = async () => {
     const { isValid, message } = validateForm(email, password);
 
     setmessage({ text: message, isError: !isValid });
     if (!!isValid) {
-      createUserWithEmailAndPassword(firebaseAuth, email, password).then(
+      signInWithEmailAndPassword(firebaseAuth, email, password).then(
         (result) => {
-          setuser(result.user);
-          addNewUserToData(result.user);
-          sendEmailVerification(result.user).then(
-            (res) => {
-              reset();
-              setmessage({ text: `User has been registered and verification email has been sent.`, isError: false });
-              setTimeout(() => {}, 1000 * 60);
-            },
-            (error: Error) => {
-              setmessage({
-                text: `Something went wrong while sending verification email: ${error.message}`,
-                isError: true,
-              });
-              console.error(error);
-            }
-          );
+          console.log(result);
+
+          const appUser: User = {
+            uid: result.user?.uid,
+            email: result.user?.email,
+            displayName: result.user?.displayName,
+            firebaseData: result.user,
+          };
+
+          putAuth(appUser);
+          navigate("/account", { relative: "route" });
         },
         (error: Error) => {
-          setmessage({ text: `Something went wrong while creating user: ${error.message}`, isError: true });
+          setmessage({ text: `Something went wrong while authenticating user: ${error.message}`, isError: true });
           console.error(error);
         }
       );
-    }
-  };
-
-  const addNewUserToData = async (user: User) => {
-    setDoc(doc(firebaseDB, "users", user.uid), {
-      email: user.email,
-      joinedAt: new Date().toISOString(),
-    }).then(
-      (r) => console.log(r),
-      (error) => console.log(error)
-    );
-  };
-
-  const resend = async () => {
-    if (user) {
-      sendEmailVerification(user);
-      setmessage({ text: `Verification email has been resent.`, isError: false });
-      setuser(undefined);
     }
   };
 
@@ -125,7 +105,7 @@ const Login: React.FC = () => {
 
         <div className="w-full flex justify-evenly ">
           <FormButton
-            action={login}
+            action={loginUser}
             style="primary"
             label="Submit"
           />

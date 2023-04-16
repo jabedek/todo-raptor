@@ -1,6 +1,8 @@
+import { User as FirebaseUser } from "firebase/auth";
+
 export type User = {
-  id: string;
-  name: string;
-  email: string;
-  authToken?: string;
+  uid: string | null | undefined;
+  displayName: string | null | undefined;
+  email: string | null | undefined;
+  firebaseData: FirebaseUser | undefined;
 };

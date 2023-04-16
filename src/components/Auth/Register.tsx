@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { User, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { User as FirebaseUser, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { firebaseAuth, firebaseDB } from "@@services/firebase/firebase-config";
 
@@ -12,7 +12,7 @@ const Register: React.FC = () => {
   const [confirmPassword, setconfirmPassword] = useState("");
   const [email, setemail] = useState("");
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
-  const [user, setuser] = useState<User | undefined>(undefined);
+  const [user, setuser] = useState<FirebaseUser | undefined>(undefined);
   const [resendDisabled, setresendDisabled] = useState(true);
 
   const validateForm = (email: string, password: string, confirmPassword: string) => {
@@ -87,7 +87,7 @@ const Register: React.FC = () => {
     }
   };
 
-  const addNewUserToData = async (user: User) => {
+  const addNewUserToData = async (user: FirebaseUser) => {
     setDoc(doc(firebaseDB, "users", user.uid), {
       email: user.email,
       joinedAt: new Date().toISOString(),
