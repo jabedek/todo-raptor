@@ -1,0 +1,30 @@
+.render-object {
+  min-width: 300px;
+  white-space: pre;
+  text-align: left;
+  letter-spacing: 0.5px;
+  line-height: 1.5em;
+  word-spacing: 2px;
+  font-size: 12px;
+  font-family: "Roboto Mono";
+  text-shadow: 0.1px 0.3px 2px rgba(0, 0, 0, 0.2);
+}
+
+$header_height: 56px;
+
+.app_header_height {
+  height: $header_height !important;
+}
+
+.app_header_top {
+  top: $header_height !important;
+}
+
+.sidebar-overlay {
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-blur {
+  backdrop-filter: blur(16px);
+}

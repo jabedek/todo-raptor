@@ -50,7 +50,7 @@
     },
 
     {
-      "files": ["*.html"],
+      "files": ["*.html", "*.tsx"],
       "extends": ["plugin:prettier/recommended"],
       "rules": {
         "prettier/prettier": [

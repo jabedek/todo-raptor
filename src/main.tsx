@@ -1,10 +1,12 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.css'
+import "frotsi";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.scss";
+import { RouterProvider } from "react-router-dom";
+import { AppRouter } from "@@services/routing";
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+    <RouterProvider router={AppRouter} />
+  </React.StrictMode>
+);

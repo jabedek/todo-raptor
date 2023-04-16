@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap");
+// @import url("https://fonts.googleapis.com/css?family=Poppins:100,300,400,500,600,700,800,900&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Azeret+Mono:100,300,400,500,600,700,800,900&display=swap");
+
+@import-normalize;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .app_flex_center {
+    @apply flex justify-center items-center content-center;
+  }
+
+  .app_layout_padding {
+    @apply px-[6vw] sm:px-[6vw] md:px-[6vw] mdx:px-[6vw] lg:px-[10vw] xl:px-[14vw] 2xl:px-[16vw];
+  }
+}
+
+@layer components {
+  // ## Regular input ##
+  .app_input_top {
+    // this has to match 'app_input_label' below.
+    @apply top-5;
+  }
+
+  .app_input {
+    @apply transition-app_input_border duration-200 font-app_primary shadow-none cursor-pointer  rounded-none h-10 w-full  focus:ring-0 px-0   font-normal focus:border-b-app_tertiary focus:ring-app_tertiary text-gray-900 focus:outline-none placeholder-transparent 
+    disabled:bg-gray-100 disabled:border-b-gray-100 disabled:text-gray-400  border-0  border-b-2 border-b-gray-300  invalid:text-red-700 focus:invalid:border-b-red-500;
+  }
+
+  .app_input_label {
+    // '-top-5' has to match 'app_input_top' above.
+    @apply transition-all duration-200 font-app_primary absolute left-0 -top-5 text-gray-600 peer-placeholder-shown:text-base text-sm  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-5
+    peer-focus:text-gray-600 peer-focus:text-sm select-none peer-required:after:content-['*'];
+  }
+
+  .app_input_info {
+    @apply transition-all duration-200 absolute right-0 bottom-[0.1em] text-[.62rem] tracking-[-.4px] font-app_mono text-black;
+  }
+
+  // ## Date input ##
+  .app_input_info_date {
+    @apply transition-all duration-200  text-[.62rem] tracking-[-.4px] font-app_mono text-black;
+  }
+
+  // ## Checkbox input ##
+  .app_input_checkbox {
+    @apply transition-app_input_border duration-200  font-app_primary shadow-none cursor-pointer  h-6 w-6 focus:ring-0 px-0   font-normal focus:border-b-app_tertiary focus:ring-app_tertiary text-app_secondary rounded-sm mr-2 focus:outline-none placeholder-gray-300 
+    disabled:bg-gray-100 disabled:border-b-gray-100 disabled:text-gray-400  border-0  border-b-2 border-b-gray-300  invalid:text-red-700 focus:invalid:border-b-red-500;
+  }
+
+  .app_input_label_checkbox {
+    @apply transition-all whitespace-pre  duration-200 font-app_primary text-gray-600 peer-placeholder-shown:text-base text-base  font-normal peer-placeholder-shown:text-gray-400
+       peer-required:after:content-['*'];
+  }
+
+  // ## Radio input ##
+  .app_radios_title {
+    @apply transition-all whitespace-pre  duration-200 font-app_primary text-gray-600 peer-placeholder-shown:text-base text-sm  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-5
+    peer-focus:text-gray-600 peer-focus:text-sm select-none;
+  }
+
+  .app_input_radio {
+    @apply duration-200  font-app_primary shadow-none   h-6 w-6 ring-2 px-0   font-normal focus:border-b-app_tertiary  ring-gray-300 focus:ring-app_tertiary text-app_secondary rounded-full mr-2  placeholder-gray-300 
+     disabled:text-gray-400 disabled:bg-gray-100 disabled:ring-gray-100 cursor-pointer border-0  invalid:text-red-700 focus:invalid:border-b-red-500;
+  }
+
+  .app_input_label_radio {
+    @apply transition-all whitespace-pre peer-disabled:text-gray-400 cursor-pointer  duration-200 font-app_primary text-gray-600 peer-placeholder-shown:text-base text-base  font-normal peer-placeholder-shown:text-gray-400;
+  }
+
+  // ## Label (no input, just info) ##
+  .app_label {
+    @apply transition-all duration-200 font-app_primary text-gray-600 text-sm  font-normal select-none;
+  }
+
+  .app_form_button {
+    @apply transition-all duration-200 font-app_primary h-[32px] px-[32px] cursor-pointer rounded-[5px] uppercase focus-visible:outline-none outline-none border-gray-300 border-[1px];
+  }
+}

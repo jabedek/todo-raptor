@@ -15,7 +15,15 @@
     "isolatedModules": true,
     "noEmit": true,
     "noImplicitAny": false,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "baseUrl": "./",
+    "paths": {
+      "@@utils/*": ["src/utils/*"],
+      "@@components/*": ["src/components/*"],
+      "@@services/*": ["src/services/*"],
+      "@@types/*": ["src/types/*"]
+    }
   },
   "include": ["src", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
   "references": [{ "path": "./tsconfig.node.json" }],
