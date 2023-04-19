@@ -41,3 +41,103 @@ $header_height: 56px;
   background-color: rgba(0, 0, 0, 0);
   width: 0;
 }
+
+// Input Label
+.app_input_label.required.after\:pl-1::after {
+  content: "*" !important;
+}
+
+// InputTags
+.tag,
+.app_input_tags {
+  margin-block: 5px;
+
+  font-size: 12px !important;
+  margin-right: 10px;
+}
+
+.app_tag_wrapper,
+.app_input_tags,
+.app_new_tag_wrapper {
+  $tag-height: 30px;
+  height: $tag-height !important;
+  line-height: $tag-height !important;
+
+  &:active,
+  &:focus,
+  &:focus-within {
+    height: $tag-height !important;
+    line-height: $tag-height !important;
+  }
+}
+
+.tag-remove,
+.tags-reset {
+  padding: 1px;
+  font-size: 12px;
+  background: white;
+  box-shadow: 0.5px 0.5px 3px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 50%;
+  top: 0%;
+  right: 0%;
+  height: 14px;
+  width: 14px;
+  transform: translate(25%, 0px);
+}
+
+.tags-reset {
+  height: 16px;
+  width: 16px;
+  font-size: 14px;
+  box-shadow: 0.5px 0.5px 3px rgba(0, 0, 0, 0.65) !important;
+  transform: translate(6px, -6px);
+}
+
+.app_input_tags_wrapper {
+  box-shadow: 0.5px 0.5px 3px rgba(0, 0, 0, 0.25) !important;
+  padding: 5px 10px;
+  border-radius: 16px;
+}
+
+.app_input_tags {
+  text-transform: uppercase;
+  border-radius: 100px !important;
+  box-shadow: 0.5px 0.5px 2px rgba(0, 0, 0, 0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 12px !important;
+  text-align: center !important;
+  justify-content: center !important;
+
+  padding: 0px !important;
+  margin: 2px !important;
+  margin: 0 !important;
+  outline: none !important;
+  border-color: lightgray !important;
+  background: white !important;
+
+  &:active,
+  &:focus,
+  &:focus-within {
+    padding: 0px !important;
+    margin: 2px !important;
+    margin: 0 !important;
+    outline: none !important;
+    border-color: lightgray !important;
+    background: white !important;
+  }
+}
+
+.test {
+  background-color: #804a28; // nutella
+  background-color: #fd3e04; // kinder
+  background-color: #ff660f; // reese-s
+
+  background-color: #e6b725; // prince-polo-classic
+  background-color: #007d51; // prince-polo-nutty
+  background-color: #13ad71; // after-eight
+
+  background-color: #7d69b0; // milka
+  background-color: #125cff; // prince-polo-milky
+  background-color: #050697; // wedel
+}

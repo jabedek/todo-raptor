@@ -6,7 +6,10 @@ type Props = {
 };
 
 const RenderObject: React.FC<Props> = ({ data, nested }) => {
-  const renderObject = useCallback((obj: Record<string, any>) => JSON.stringify(obj, null, nested === false ? 0 : 2), []);
+  const renderObject = useCallback(
+    (obj: Record<string, any> | Array<any>) => JSON.stringify(obj, null, nested === false ? 0 : 2),
+    []
+  );
   return <div className="render-object">{renderObject(data)}</div>;
 };
 

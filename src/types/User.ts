@@ -1,8 +1,14 @@
-import { User as FirebaseUser } from "firebase/auth";
-
 export type User = {
-  uid: string | null | undefined;
+  id: string | null | undefined;
   displayName: string | null | undefined;
   email: string | null | undefined;
-  firebaseData: FirebaseUser | undefined;
+  userData: { projectsIds: string[]; tasksIds: string[]; joinedAt: string } | undefined;
+  verification:
+    | {
+        verifEmailsAmount: number;
+        lastVerifEmailAt: string | undefined;
+      }
+    | undefined;
 };
+
+export type AuthUser = Omit<User, "projectsIds" | "tasksIds" | "joinedAt">;

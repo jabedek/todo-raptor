@@ -3,9 +3,8 @@ import Logo from "./Logo";
 import { AuthContext } from "@@context/AuthContext";
 import { useContext } from "react";
 import { CallbackFn } from "frotsi";
-
-import { User as FirebaseUser, signOut } from "firebase/auth";
-import { firebaseAuth, firebaseDB } from "@@services/firebase/firebase-config";
+import { signOut } from "firebase/auth";
+import { firebaseAuth } from "@@services/firebase/firebase-config";
 
 const HeaderNavLink: React.FC<{ path: string; name: string; action?: CallbackFn }> = ({ path, name, action }) => {
   if (action) {
@@ -26,6 +25,7 @@ const HeaderNavLink: React.FC<{ path: string; name: string; action?: CallbackFn 
     );
   }
 };
+
 const Header = () => {
   const { user, clearAuth } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -44,11 +44,12 @@ const Header = () => {
   };
 
   return (
-    <header className="z-40 fixed app_header_height app_layout_padding flex content-center items-center justify-between w-full bg-white text-sm font-semibold font-app_primary px-8 py-2">
+    <header className="z-40 fixed app_header_height app_layout_padding flex content-center items-center justify-between w-full bg-white text-sm font-semibold font-app_primary px-8 py-2 shadow-md">
       <div className="app_flex_center">
         <Logo />
-        <span className="px-3 text-[17px]">Task-o-saurus</span>
+        <span className="px-3 text-[16px]">Task-o-saurus</span>
       </div>
+      <span className="text-[13px]">{`${user ? "Hi, " + user.email + "!" : ""}`}</span>
       <nav className="w-auto app_flex_center">
         <HeaderNavLink
           path="/home"
@@ -56,32 +57,34 @@ const Header = () => {
         />
 
         {!user && (
-          <HeaderNavLink
-            path="/login"
-            name="Login"
-          />
-        )}
-
-        {!user && (
-          <HeaderNavLink
-            path="/register"
-            name="Register"
-          />
-        )}
-
-        {user && (
-          <HeaderNavLink
-            path="/account"
-            name="Account"
-          />
+          <>
+            <HeaderNavLink
+              path="/login"
+              name="Login"
+            />
+            <HeaderNavLink
+              path="/register"
+              name="Register"
+            />
+          </>
         )}
 
         {user && (
-          <HeaderNavLink
-            path=""
-            name="Logout"
-            action={() => logout()}
-          />
+          <>
+            <HeaderNavLink
+              path="/dashboard"
+              name="Dashboard"
+            />
+            <HeaderNavLink
+              path="/account"
+              name="Account"
+            />
+            <HeaderNavLink
+              path=""
+              name="Logout"
+              action={() => logout()}
+            />
+          </>
         )}
       </nav>
     </header>

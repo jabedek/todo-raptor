@@ -1,7 +1,15 @@
-import React from "react";
+import NewTaskForm from "@@components/Projects/NewTaskForm";
+import { useLoaderData } from "react-router-dom";
 
 const DashboardPage: React.FC = () => {
-  return <div>DashboardPage</div>;
+  const item = useLoaderData();
+  console.log(item);
+  return (
+    <div>
+      DashboardPage
+      <NewTaskForm />
+    </div>
+  );
 };
 
 export default DashboardPage;

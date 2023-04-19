@@ -1,8 +1,10 @@
 import { User } from "@@types/User";
-import { createContext, useState } from "react";
-import { useEffect } from "react";
-import { StorageItem } from "@@types/common";
-import { useLocalStorage } from "src/hooks/useLocalStorage";
+import { createContext, useCallback, useState } from "react";
+import { useEffect, useContext } from "react";
+import { User as FirebaseAuthUser } from "firebase/auth";
+import { getUserDetailsById } from "@@services/firebase/api/usersAPI";
+import { useNavigate } from "react-router-dom";
+import { listenToFirebaseAuthState, sendVerificationEmail } from "@@services/firebase/api/authAPI";
 
 type AuthContext = {
   user: User | undefined;
@@ -10,28 +12,43 @@ type AuthContext = {
   clearAuth: () => void;
 };
 
-export const AuthContext = createContext<AuthContext>({ user: undefined, putAuth: (user: User) => {}, clearAuth: () => {} });
+const AuthContext = createContext<AuthContext>({
+  user: undefined,
+  putAuth: (user: User) => {},
+  clearAuth: () => {},
+});
 
-export const AuthProvider = ({ children }: any) => {
+const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | undefined>(undefined);
-  const { getItem, setItem } = useLocalStorage();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const user = getItem(StorageItem.USER);
-    if (user) {
-      putAuth(JSON.parse(user));
-    }
+    listenToFirebaseAuthState(async (auth: FirebaseAuthUser | null) => {
+      if (auth) {
+        const user: User = {
+          id: auth?.uid,
+          email: auth?.email,
+          displayName: auth?.displayName,
+          userData: undefined,
+          verification: undefined,
+        };
+        const userDetails = await getUserDetailsById(auth?.uid);
+        if (userDetails) {
+          user.userData = userDetails.userData;
+          user.verification = userDetails.verification;
+        }
+
+        setTimeout(() => navigate("/account", { relative: "route" }), 500);
+
+        putAuth(user);
+      } else {
+        clearAuth();
+      }
+    });
   }, []);
 
-  const putAuth = (user: User) => {
-    setUser(user);
-    setItem(StorageItem.USER, JSON.stringify(user));
-  };
-
-  const clearAuth = () => {
-    setUser(undefined);
-    setItem(StorageItem.USER, "");
-  };
+  const putAuth = (user: User) => setUser(user);
+  const clearAuth = () => setUser(undefined);
 
   return (
     <>
@@ -39,3 +56,9 @@ export const AuthProvider = ({ children }: any) => {
     </>
   );
 };
+
+function useAuthValue() {
+  return useContext(AuthContext);
+}
+
+export { AuthContext, AuthProvider, useAuthValue };

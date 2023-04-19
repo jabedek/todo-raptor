@@ -1,7 +1,7 @@
 html {
   --scrollbarBG: rgb(0, 0, 0, 0.3);
-  --thumbBG: rgb(255, 255, 255, 0.5);
-  --trackBG: rgb(0, 0, 0, 0.3);
+  --thumbBG: rgb(255, 255, 255, 0.3);
+  --trackBG: rgb(50, 50, 50, 0.15);
 }
 
 *::-webkit-scrollbar {
@@ -26,6 +26,6 @@ html {
 
 *::-webkit-scrollbar-thumb {
   background-color: var(--thumbBG);
-  border-radius: 3px;
-  border: 2px solid var(--scrollbarBG);
+  border-radius: 2.6px;
+  border: 1px solid var(--scrollbarBG);
 }

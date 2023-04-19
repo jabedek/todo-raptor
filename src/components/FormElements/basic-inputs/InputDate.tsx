@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { InputDateProps } from "./types";
+import React, { useState, useMemo, useRef } from "react";
+import { InputDateProps } from "../types";
 import { createInputId } from "frotsi";
 
 const InputDate: React.FC<InputDateProps> = (props) => {
   const [focus, setfocus] = useState(false);
-  const inputId = createInputId(props.name, props.type || "date");
+  const inputId = useRef(createInputId(props.name, props.type || "date")).current;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value; // YYYY-MM-DD
@@ -14,7 +14,7 @@ const InputDate: React.FC<InputDateProps> = (props) => {
 
   return (
     <div
-      className={`${inputId} sticky mt-4 my-1 w-full ${props.label.length > 0 && "app_input_top"}`}
+      className={`${inputId} sticky mt-4 my-1 w-full ${props.label && props.label.length > 0 && "app_input_top"}`}
       onFocus={() => setfocus(true)}
       onBlur={() => setfocus(false)}>
       <input
@@ -33,7 +33,7 @@ const InputDate: React.FC<InputDateProps> = (props) => {
         required={props.required}
         disabled={props.disabled}
       />
-      {props.label.length > 0 && (
+      {props.label && props.label.length > 0 && (
         <label
           htmlFor={inputId}
           className={`${inputId} app_input_label ${props.required ? "after:pl-1" : ""}`}>

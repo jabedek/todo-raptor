@@ -2,12 +2,13 @@ import { CallbackFn } from "frotsi";
 import { useEffect, useState } from "react";
 
 type FormButtonProps = {
-  label: string;
   style: "primary" | "secondary";
+  label?: string;
   action?: CallbackFn<void>;
   href?: string;
   disabled?: boolean;
   children?: React.ReactNode;
+  tailwindStyles?: string;
 };
 
 const primaryStyle = "bg-app_primary text-white border-app_primary ";
@@ -43,7 +44,7 @@ const FormButton: React.FC<FormButtonProps> = (props) => {
       tabIndex={props.disabled ? -1 : 0}
       disabled={props.disabled}
       onClick={handleClick}
-      className={`app_form_button active:shadow-app_form_button_active focus:shadow-app_form_button_focus text-[14px] ${style} `}>
+      className={`my-2  app_form_button active:shadow-app_form_button_active focus:shadow-app_form_button_focus text-[14px] ${style}  ${props.tailwindStyles}`}>
       <span className={`app_flex_center`}>{props.children ? props.children : props.label}</span>
     </button>
   );

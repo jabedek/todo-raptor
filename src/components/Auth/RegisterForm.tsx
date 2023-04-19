@@ -1,20 +1,20 @@
-import { useState, useContext } from "react";
-import { User as FirebaseUser, signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "@@context/AuthContext";
-import { firebaseAuth, firebaseDB } from "@@services/firebase/firebase-config";
+import React, { useState } from "react";
+
+import { UserCredential } from "firebase/auth";
+
 import { ResultDisplay } from "@@types/common";
 import { FormWrapper, InputWritten, FormButton, Validator } from "@@components/FormElements";
-import { User } from "@@types/User";
+import { saveNewUserInDB } from "@@services/firebase/api/usersAPI";
+import { registerAuthUserInFirebase } from "@@services/firebase/api/authAPI";
+import ResultDisplayer from "@@components/FormElements/ResultDisplayer";
 
-const Login: React.FC = () => {
+const RegisterForm: React.FC = () => {
   const [password, setpassword] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("");
   const [email, setemail] = useState("");
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
-  const { putAuth } = useContext(AuthContext);
-  const navigate = useNavigate();
 
-  const validateForm = (email: string, password: string) => {
+  const validateForm = (email: string, password: string, confirmPassword: string) => {
     let isValid = true;
     let message = "";
     const { validity: emailPatternValid, partialResults: emailResults } = Validator.email(email);
@@ -31,9 +31,13 @@ const Login: React.FC = () => {
       message += "Wrong email pattern. ";
     }
 
-    if (!password) {
+    if (!(password && confirmPassword)) {
       isValid = false;
       message += "Password not provided. ";
+      return { isValid, message };
+    } else if (password !== confirmPassword) {
+      isValid = false;
+      message += "Passwords does not match. ";
       return { isValid, message };
     }
 
@@ -45,67 +49,64 @@ const Login: React.FC = () => {
     return { isValid, message: isValid ? "Credentials are error-free. Sending..." : message };
   };
 
-  const loginUser = async () => {
-    const { isValid, message } = validateForm(email, password);
+  const register = async () => {
+    const { isValid, message } = validateForm(email, password, confirmPassword);
 
     setmessage({ text: message, isError: !isValid });
     if (!!isValid) {
-      signInWithEmailAndPassword(firebaseAuth, email, password).then(
-        (result) => {
-          console.log(result);
-
-          const appUser: User = {
-            uid: result.user?.uid,
-            email: result.user?.email,
-            displayName: result.user?.displayName,
-            firebaseData: result.user,
-          };
-
-          putAuth(appUser);
-          navigate("/account", { relative: "route" });
-        },
-        (error: Error) => {
-          setmessage({ text: `Something went wrong while authenticating user: ${error.message}`, isError: true });
-          console.error(error);
+      registerAuthUserInFirebase(email, password, (result: UserCredential | Error) => {
+        if (!(result instanceof Error)) {
+          saveNewUserInDB(result.user);
+        } else {
+          setmessage({ text: `Something went wrong while creating user: ${result.message}`, isError: true });
         }
-      );
+      });
     }
   };
 
   const reset = () => {
     setemail("");
     setpassword("");
+    setconfirmPassword("");
     setmessage(undefined);
   };
 
   return (
     <>
-      <FormWrapper title="Login">
+      <FormWrapper
+        title="Register"
+        styles="w-[650px]">
         <InputWritten
+          required
           type="email"
           name="email"
-          onChange={(e) => setemail(e.target.value)}
+          onChange={(val) => setemail(val)}
           label="Email"
           value={email}
         />
         <InputWritten
+          required
           type="password"
           name="password"
-          onChange={(e) => setpassword(e.target.value)}
+          onChange={(val) => setpassword(val)}
           label="Password"
+          hint={Validator.passwordHint()}
           value={password}
         />
+        <InputWritten
+          required
+          type="password"
+          name="confirmPassword"
+          onChange={(val) => setconfirmPassword(val)}
+          label="Confirm Password"
+          value={confirmPassword}
+        />
 
-        <p
-          className={`h-[45px] transition-all duration-200 italic py-3 text-sm overflow-x-auto ${
-            message && message?.isError ? "text-red-500" : "text-green-500"
-          }`}>
-          {message?.text}
-        </p>
+        <ResultDisplayer message={message} />
 
         <div className="w-full flex justify-evenly ">
           <FormButton
-            action={loginUser}
+            action={register}
             style="primary"
             label="Submit"
           />
@@ -120,4 +121,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default RegisterForm;
