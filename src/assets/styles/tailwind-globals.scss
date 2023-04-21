@@ -32,7 +32,7 @@
 
   .app_input_label {
     // '-top-5' has to match 'app_input_top' above.
-    @apply transition-all duration-200 font-app_primary absolute left-0 -top-4 text-gray-600 peer-placeholder-shown:text-base text-[12px]  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-4
+    @apply transition-all duration-200 font-app_primary absolute left-0 cursor-pointer -top-4 text-gray-600 peer-placeholder-shown:text-base text-[12px]  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-4
     peer-focus:text-gray-600 peer-focus:text-[12px] select-none peer-required:after:content-['*'];
   }
 

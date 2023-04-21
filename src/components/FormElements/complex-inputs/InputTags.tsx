@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useHandleClickOutside } from "@@hooks/useHandleClickOutside";
 import { MdClear } from "react-icons/md";
 import RenderObject from "@@components/common/RenderObject";
+import FormClearX from "../form-buttons/FormClearX";
 
 function getWidth(length = 0) {
   return 36 + length * 7.8;
@@ -32,10 +33,12 @@ const Tag: React.FC<TagProps> = ({ onDelete, item }) => {
         className={`transition-all duration-200 absolute app_input_tags font-app_mono`}
         onBlur={() => {}}>
         <span className="">{item.value}</span>
-        <div className="tag-remove absolute ">
-          <MdClear
-            className="rounded-full text-red-700 transition-all duration-200 hover:rotate-180 cursor-pointer hover:text-red-500"
-            onClick={() => onDelete(item.id)}
+
+        <div className="tag-remove  ">
+          <FormClearX
+            clickAction={onDelete}
+            relatedItemId={item.id}
+            sizeVariant="I"
           />
         </div>
       </div>
@@ -117,11 +120,11 @@ const InputTags: React.FC<InputTagsProps> = (props) => {
     }
   };
 
-  const onDelete = (index: string) => {
+  const onDelete = (e: React.MouseEvent, index: string) => {
     setvalues([...values].filter((v) => v.id !== index));
   };
 
-  const reset = () => {
+  const reset = (e: React.MouseEvent) => {
     setnewTag(undefined);
     setvalues([]);
   };
@@ -172,15 +175,16 @@ const InputTags: React.FC<InputTagsProps> = (props) => {
       {props.label && props.label.length > 0 && (
         <label
           htmlFor={inputId}
+          onClick={handleClick}
           className={`${inputId} app_input_label top-[-30px] whitespace-nowrap ${props.required ? "after:pl-1" : ""}`}>
           {props.label}
         </label>
       )}
 
-      <div className="tags-reset absolute ">
-        <MdClear
-          className="rounded-full text-red-800 transition-all duration-200 hover:rotate-180 cursor-pointer hover:text-red-600"
-          onClick={reset}
+      <div className="tags-reset  ">
+        <FormClearX
+          clickAction={reset}
+          sizeVariant="II"
         />
       </div>
     </div>

@@ -1,19 +1,14 @@
-import { useState, useContext } from "react";
-import { UserCredential, signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "@@context/AuthContext";
-import { firebaseAuth } from "@@services/firebase/firebase-config";
+import { useState } from "react";
+import { UserCredential } from "firebase/auth";
 import { ResultDisplay } from "@@types/common";
 import { FormWrapper, InputWritten, FormButton, Validator } from "@@components/FormElements";
-import { authenticateInFirebase } from "@@services/firebase/api/authAPI";
+import { AuthAPI } from "@@services/api/authAPI";
 import ResultDisplayer from "@@components/FormElements/ResultDisplayer";
 
 const LoginForm: React.FC = () => {
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
-  const { putAuth } = useContext(AuthContext);
-  const navigate = useNavigate();
 
   const validateForm = (email: string, password: string) => {
     let isValid = true;
@@ -51,7 +46,7 @@ const LoginForm: React.FC = () => {
 
     setmessage({ text: message, isError: !isValid });
     if (!!isValid) {
-      authenticateInFirebase(email, password, (result: UserCredential | Error) => {
+      AuthAPI.authenticateInFirebase(email, password, (result: UserCredential | Error) => {
         if (!(result instanceof Error)) {
           /* Further behavior (setting in context, routing to '/account', etc. ) is in AuthContext.tsx */
         } else {
@@ -68,45 +63,43 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <>
-      <FormWrapper
-        title="Login"
-        styles="w-[650px]">
-        <InputWritten
-          required
-          type="email"
-          name="email"
-          onChange={(val) => setemail(val)}
-          label="Email"
-          value={email}
-          autoComplete="on"
-        />
-        <InputWritten
-          required
-          type="password"
-          name="password"
-          onChange={(val) => setpassword(val)}
-          label="Password"
-          value={password}
-          autoComplete="on"
-        />
+    <FormWrapper
+      title="Login"
+      tailwindStyles="w-[500px]">
+      <InputWritten
+        required
+        type="email"
+        name="email"
+        onChange={(val) => setemail(val)}
+        label="Email"
+        value={email}
+        autoComplete="on"
+      />
+      <InputWritten
+        required
+        type="password"
+        name="password"
+        onChange={(val) => setpassword(val)}
+        label="Password"
+        value={password}
+        autoComplete="on"
+      />
 
-        <ResultDisplayer message={message} />
+      <ResultDisplayer message={message} />
 
-        <div className="w-full flex justify-evenly ">
-          <FormButton
-            action={loginUser}
-            style="primary"
-            label="Submit"
-          />
-          <FormButton
-            action={reset}
-            style="secondary"
-            label="Reset"
-          />
-        </div>
-      </FormWrapper>
-    </>
+      <div className="w-full flex justify-evenly ">
+        <FormButton
+          action={loginUser}
+          style="primary"
+          label="Submit"
+        />
+        <FormButton
+          action={reset}
+          style="secondary"
+          label="Reset"
+        />
+      </div>
+    </FormWrapper>
   );
 };
 

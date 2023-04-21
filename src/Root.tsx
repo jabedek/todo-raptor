@@ -1,17 +1,18 @@
 import Layout from "@@components/Layout/Layout";
 import { AuthProvider } from "./context/AuthContext";
 import { Outlet } from "react-router-dom";
-import { RoutingStateProvider } from "@@context/RoutingStateContext";
+import Popup from "@@components/Layout/Popup/Popup";
+import { PopupProvider } from "@@components/Layout/Popup/Popup";
 
 function Root() {
   return (
     <>
       <AuthProvider>
-        <RoutingStateProvider>
+        <PopupProvider>
           <Layout>
             <Outlet />
           </Layout>
-        </RoutingStateProvider>
+        </PopupProvider>
       </AuthProvider>
     </>
   );

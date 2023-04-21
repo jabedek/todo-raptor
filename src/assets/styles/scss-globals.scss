@@ -7,7 +7,12 @@
   word-spacing: 2px;
   font-size: 12px;
   font-family: "Roboto Mono";
-  text-shadow: 0.1px 0.3px 2px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 16px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px) brightness(1.1);
 }
 
 // Header
@@ -73,28 +78,22 @@ $header_height: 56px;
 
 .tag-remove,
 .tags-reset {
-  padding: 1px;
-  font-size: 12px;
-  background: white;
-  box-shadow: 0.5px 0.5px 3px rgba(0, 0, 0, 0.5) !important;
   border-radius: 50%;
+  position: absolute;
   top: 0%;
   right: 0%;
-  height: 14px;
-  width: 14px;
+}
+
+.tag-remove {
   transform: translate(25%, 0px);
 }
 
 .tags-reset {
-  height: 16px;
-  width: 16px;
-  font-size: 14px;
-  box-shadow: 0.5px 0.5px 3px rgba(0, 0, 0, 0.65) !important;
   transform: translate(6px, -6px);
 }
 
 .app_input_tags_wrapper {
-  box-shadow: 0.5px 0.5px 3px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0.25px 0.25px 1.5px rgba(0, 0, 0, 0.35) !important;
   padding: 5px 10px;
   border-radius: 16px;
 }

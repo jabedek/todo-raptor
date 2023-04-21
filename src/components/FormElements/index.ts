@@ -1,4 +1,4 @@
-import FormButton from "./FormButton";
+import FormButton from "./form-buttons/FormButton";
 import FormWrapper from "./FormWrapper";
 import InputDate from "./basic-inputs/InputDate";
 import InputRadios from "./basic-inputs/InputRadios";

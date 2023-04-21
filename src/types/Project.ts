@@ -1,11 +1,12 @@
 import { User } from "./User";
 
-export type ProjectUser = Omit<User, "projects" | "joinedAt">;
+export type ProjectUser = Pick<User, "id" | "email" | "displayName">;
 
 export type Project = {
   id: string;
   name: string;
   manager: ProjectUser;
-  assignees: ProjectUser[];
+  originalCreatorId: string;
+  assigneesIds: ProjectUser[];
   tasksIds: string[];
 };

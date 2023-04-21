@@ -4,8 +4,8 @@ import { UserCredential } from "firebase/auth";
 
 import { ResultDisplay } from "@@types/common";
 import { FormWrapper, InputWritten, FormButton, Validator } from "@@components/FormElements";
-import { saveNewUserInDB } from "@@services/firebase/api/usersAPI";
-import { registerAuthUserInFirebase } from "@@services/firebase/api/authAPI";
+import { UsersAPI } from "@@services/api/usersAPI";
+import { AuthAPI } from "@@services/api/authAPI";
 import ResultDisplayer from "@@components/FormElements/ResultDisplayer";
 
 const RegisterForm: React.FC = () => {
@@ -54,9 +54,14 @@ const RegisterForm: React.FC = () => {
 
     setmessage({ text: message, isError: !isValid });
     if (!!isValid) {
-      registerAuthUserInFirebase(email, password, (result: UserCredential | Error) => {
+      AuthAPI.registerAuthUserInFirebase(email, password, (result: UserCredential | Error) => {
         if (!(result instanceof Error)) {
-          saveNewUserInDB(result.user);
+          UsersAPI.saveNewUserInDB(result.user).then(
+            () => {
+              AuthAPI.sendVerificationEmail(AuthAPI.getCurrentFirebaseAuthUser(), (res: Error | void) => {}, 0);
+            },
+            () => {}
+          );
         } else {
           setmessage({ text: `Something went wrong while creating user: ${result.message}`, isError: true });
         }
@@ -75,7 +80,7 @@ const RegisterForm: React.FC = () => {
     <>
       <FormWrapper
         title="Register"
-        styles="w-[650px]">
+        tailwindStyles="w-[500px]">
         <InputWritten
           required
           type="email"

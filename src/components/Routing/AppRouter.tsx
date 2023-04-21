@@ -1,53 +1,80 @@
-import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouteObject } from "react-router-dom";
 import Root from "src/Root";
 import Home from "src/pages/home-page";
 import RegisterPage from "src/pages/auth/register-page";
 import Dashboard from "src/pages/dashboard/dashboard-page";
+import DashboardAnalyticsPage from "src/pages/dashboard/analytics-page";
 import Landing from "src/pages/landing-page";
 import LoginPage from "src/pages/auth/login-page";
 import AccountPage from "src/pages/account/account-page";
 import WrongRoutePage from "src/pages/[wrong-route-page]";
 import ProtectedRoute from "@@components/Routing/ProtectedRoute";
 import ProjectPanel from "@@components/Projects/ProjectPanel";
+import DashboardProject from "src/pages/dashboard/$projectId";
+import ProjectView from "@@components/Projects/ProjectView";
+import { ProjectsAPI } from "@@services/api/projectsAPI";
+
+export type AppRouteParams = {
+  paramId: string | number;
+  data?: any;
+};
 
 const routes: RouteObject[] = [
   {
     path: "/",
     element: <Root />,
-    // loader: rootLoader,
+
     children: [
       { path: "", element: <Landing /> },
       {
         path: "home",
         element: <Home />,
-        // loader: teamLoader,
       },
       {
-        path: "dashboard/:projectId",
-        loader: async ({ params }) => {
-          console.log(params.projectId);
+        path: "project/:paramId",
+        loader: async ({ params }): Promise<AppRouteParams> => {
+          console.log("3", params.paramId);
 
-          return { a: 123 }; // fetch(`/api/teams/${params.projectId}.json`);
+          const id = `${params.paramId}`;
+          const data = await ProjectsAPI.getProjectById(id);
+
+          return { paramId: id, data }; // fetch(`/api/teams/${params.projectId}.json`);
         },
+
+        element: (
+          <ProtectedRoute>
+            <ProjectView />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "dashboard",
         element: (
           <ProtectedRoute>
             <Dashboard />
+            <Outlet />
           </ProtectedRoute>
         ),
-        // children: [
-        //   {
-        //     // element: (
-        //     //   <ProtectedRoute>
-        //     //     <ProjectPanel />
-        //     //   </ProtectedRoute>
-        //     // ),
-        //     path: ":projectId",
-        //     loader: async ({ params }) => {
-        //       return params.projectId; // fetch(`/api/teams/${params.projectId}.json`);
-        //     },
-        //   },
-        // ],
-        // loader: teamLoader,
+        children: [
+          {
+            path: "analytics",
+            element: <DashboardAnalyticsPage />,
+          },
+          {
+            path: ":projectId",
+            loader: async ({ params }): Promise<AppRouteParams> => {
+              console.log(params.paramId);
+
+              return { paramId: 123 }; // fetch(`/api/teams/${params.projectId}.json`);
+            },
+
+            element: (
+              <DashboardProject />
+              // <ProtectedRoute>
+              // </ProtectedRoute>
+            ),
+          },
+        ],
       },
       {
         path: "account",

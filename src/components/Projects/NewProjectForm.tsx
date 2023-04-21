@@ -1,60 +1,71 @@
-// import { useState, useContext } from "react";
-// import { useAuth } from "@@hooks/useAuth";
-// import { firestore } from "@@firebase";
-// import { Project, User } from "@@types";
-// import { generateDocumentId } from "frotsi";
-// import { AuthContext, useAuthValue } from "@@context/AuthContext";
+import { useState, useContext } from "react";
 
-// const NewProjectForm = () => {
-//   const { user, putAuth } = useContext(AuthContext);
-//   const [projectName, setProjectName] = useState("");
+import { generateDocumentId } from "frotsi";
+import { AuthContext, useAuthValue } from "@@context/AuthContext";
+import { Project } from "@@types/Project";
+import { ProjectsAPI } from "@@services/api/projectsAPI";
+import { FormButton, FormWrapper, InputWritten } from "@@components/FormElements";
+import { UsersAPI } from "@@services/api/usersAPI";
+import { User, UserData, UserFieldUpdate } from "@@types/User";
 
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
+const NewProjectForm = () => {
+  const { user } = useContext(AuthContext);
+  const [projectName, setProjectName] = useState("");
 
-//     if (!user) {
-//       return;
-//     }
+  const handleSubmit = async (e: React.FormEvent) => {
+    if (!user || !user.id) {
+      return;
+    }
 
-//     const projectId = generateDocumentId();
+    const newProject: Project = {
+      id: `proj_${generateDocumentId()}`,
+      name: projectName,
+      manager: { id: user.id, displayName: user.displayName, email: user.email },
+      originalCreatorId: user.id,
+      assigneesIds: [],
+      tasksIds: [],
+    };
 
-//     const newProject: Project = {
-//       id: projectId,
-//       name: projectName,
-//       manager: { id: user.id, displayName: user.displayName },
-//       assignees: [],
-//       tasksIds: [],
-//     };
+    const newProjectsIdsManaged: string[] = [...user.userData.projects.projectsIdsManaged, newProject.id];
+    const newProjectsIdsWorking: string[] = [...user.userData.projects.projectsIdsWorking, newProject.id];
+    const newProjectsIdsCreated: string[] = [...user.userData.projects.projectsIdsCreated, newProject.id];
 
-//     try {
-//       // Add the new project to the "projects" collection in Cloud Firestore
-//       await firestore.collection("projects").doc(projectId).set(newProject);
+    const fieldsToUpdate: UserFieldUpdate[] = [
+      { fieldPath: "userData.projects.projectsIdsManaged", value: newProjectsIdsManaged },
+      { fieldPath: "userData.projects.projectsIdsWorking", value: newProjectsIdsWorking },
+      { fieldPath: "userData.projects.projectsIdsCreated", value: newProjectsIdsCreated },
+    ];
 
-//       // Add the new project ID to the user's "projectsIds" field
-//       const updatedUser: User = { ...user, projectsIds: [...user.projectsIds, projectId] };
-//       await firestore.collection("users").doc(user.id).update(updatedUser);
+    ProjectsAPI.saveNewProject(newProject).then(() => {
+      UsersAPI.updateUserFieldsById(user.id, fieldsToUpdate).then(
+        () => {
+          // putAuth()
+        },
+        () => {}
+      );
+    });
+  };
 
-//       // Update the local user object
-//       putAuth(updatedUser);
+  return (
+    <FormWrapper
+      title="New Project"
+      tailwindStyles="w-[500px] min-h-[250px]">
+      <InputWritten
+        required
+        type="text"
+        name="project-name"
+        onChange={(val) => setProjectName(val)}
+        label="Project Name"
+        value={projectName}
+        autoComplete="on"
+      />
+      <FormButton
+        action={handleSubmit}
+        style="primary"
+        label="Submit"
+      />
+    </FormWrapper>
+  );
+};
 
-//       // Clear the form
-//       setProjectName("");
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <label htmlFor="projectName">Project Name:</label>
-//       <input
-//         type="text"
-//         id="projectName"
-//         value={projectName}
-//         onChange={(e) => setProjectName(e.target.value)}
-//         required
-//       />
-//       <button type="submit">Create Project</button>
-//     </form>
-//   );
-// };
+export default NewProjectForm;
