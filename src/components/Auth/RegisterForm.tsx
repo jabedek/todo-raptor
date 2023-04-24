@@ -85,24 +85,26 @@ const RegisterForm: React.FC = () => {
           required
           type="email"
           name="email"
-          onChange={(val) => setemail(val)}
+          changeFn={(val) => setemail(val)}
           label="Email"
           value={email}
         />
+
         <InputWritten
           required
           type="password"
           name="password"
-          onChange={(val) => setpassword(val)}
+          changeFn={(val) => setpassword(val)}
           label="Password"
           hint={Validator.passwordHint()}
           value={password}
         />
+
         <InputWritten
           required
           type="password"
           name="confirmPassword"
-          onChange={(val) => setconfirmPassword(val)}
+          changeFn={(val) => setconfirmPassword(val)}
           label="Confirm Password"
           value={confirmPassword}
         />
@@ -111,12 +113,13 @@ const RegisterForm: React.FC = () => {
 
         <div className="w-full flex justify-evenly ">
           <FormButton
-            action={register}
+            clickFn={register}
             style="primary"
             label="Submit"
           />
+
           <FormButton
-            action={reset}
+            clickFn={reset}
             style="secondary"
             label="Reset"
           />

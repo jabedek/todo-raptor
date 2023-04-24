@@ -1,7 +1,5 @@
-import { User as FirebaseAuthUser } from "firebase/auth";
 import { setDoc, doc, addDoc } from "firebase/firestore";
 import { firebaseDB } from "@@services/firebase/firebase-config";
-import { User } from "@@types/User";
 import { Task } from "@@types/Task";
 
 const saveNewTaskInDB = async (task: Task) => {

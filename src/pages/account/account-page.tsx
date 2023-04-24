@@ -10,13 +10,13 @@ const AccountPage: React.FC = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      const auth = AuthAPI.getCurrentFirebaseAuthUser();
-      setfirebaseAuthUser(auth);
+      const firebaseAuth = AuthAPI.getCurrentFirebaseAuthUser();
+      setfirebaseAuthUser(firebaseAuth);
     }, 500);
   }, []);
 
   const test = () => {
-    navigate("/dashboard/123", { relative: "route" });
+    navigate("/projects-dashboard/123", { relative: "route" });
   };
 
   return (

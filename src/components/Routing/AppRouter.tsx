@@ -2,15 +2,14 @@ import { createBrowserRouter, Outlet, RouteObject } from "react-router-dom";
 import Root from "src/Root";
 import Home from "src/pages/home-page";
 import RegisterPage from "src/pages/auth/register-page";
-import Dashboard from "src/pages/dashboard/dashboard-page";
-import DashboardAnalyticsPage from "src/pages/dashboard/analytics-page";
+import Dashboard from "src/pages/projects-dashboard/projects-dashboard-page";
+import DashboardAnalyticsPage from "src/pages/projects-dashboard/analytics-page";
 import Landing from "src/pages/landing-page";
 import LoginPage from "src/pages/auth/login-page";
 import AccountPage from "src/pages/account/account-page";
 import WrongRoutePage from "src/pages/[wrong-route-page]";
 import ProtectedRoute from "@@components/Routing/ProtectedRoute";
-import ProjectPanel from "@@components/Projects/ProjectPanel";
-import DashboardProject from "src/pages/dashboard/$projectId";
+import DashboardProject from "src/pages/projects-dashboard/$projectId";
 import ProjectView from "@@components/Projects/ProjectView";
 import { ProjectsAPI } from "@@services/api/projectsAPI";
 
@@ -48,7 +47,7 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: "dashboard",
+        path: "projects-dashboard",
         element: (
           <ProtectedRoute>
             <Dashboard />

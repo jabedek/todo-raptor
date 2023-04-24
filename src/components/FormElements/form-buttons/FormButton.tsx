@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 type FormButtonProps = {
   style: "primary" | "secondary";
   label?: string;
-  action?: CallbackFn<void>;
+  clickFn?: CallbackFn<void>;
   href?: string;
   disabled?: boolean;
   children?: React.ReactNode;
@@ -22,8 +22,8 @@ const FormButton: React.FC<FormButtonProps> = (props) => {
   const handleClick = (e?: React.FormEvent<HTMLButtonElement>) => {
     e?.preventDefault();
 
-    if (props?.action) {
-      props.action();
+    if (props?.clickFn) {
+      props.clickFn();
     } else if (props?.href) {
       window.location.href = props.href;
     }
@@ -44,7 +44,7 @@ const FormButton: React.FC<FormButtonProps> = (props) => {
       tabIndex={props.disabled ? -1 : 0}
       disabled={props.disabled}
       onClick={handleClick}
-      className={`my-2  app_form_button active:shadow-app_form_button_active focus:shadow-app_form_button_focus text-[14px] ${style}  ${props.tailwindStyles}`}>
+      className={`my-2 relative app_form_button active:shadow-app_form_button_active focus:shadow-app_form_button_focus text-[14px] ${style}  ${props.tailwindStyles}`}>
       <span className={`app_flex_center`}>{props.children ? props.children : props.label}</span>
     </button>
   );

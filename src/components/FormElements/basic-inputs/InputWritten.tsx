@@ -12,16 +12,18 @@ const InputWritten: React.FC<InputWrittenProps> = (props, ref) => {
 
     const newValue = e.target.value;
     setvalue(newValue);
-    props.onChange(newValue);
+    props.changeFn(newValue);
 
-    if (props.onChangeSideEffect) {
-      props.onChangeSideEffect(inputId, e);
+    if (props.changeSideEffectFn) {
+      props.changeSideEffectFn(inputId, e);
     }
   };
 
   return (
     <div
-      className={`${inputId} relative mt-4 my-1 min-h-[40px] w-full ${props.label && props.label.length > 0 && "app_input_top"}`}
+      className={`${inputId} relative mt-4 my-1 min-h-[40px] h-[40px] w-full ${
+        props.label && props.label.length > 0 && "app_input_top"
+      }`}
       onFocus={() => setfocus(true)}
       onBlur={() => setfocus(false)}>
       {props.type !== "textarea" && (

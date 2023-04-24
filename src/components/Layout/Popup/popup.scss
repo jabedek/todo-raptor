@@ -6,7 +6,7 @@
 
   &.in-transition {
     transition: all 200ms ease-in-out;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.2);
     z-index: 1000;
   }
 
@@ -34,11 +34,11 @@ $paddings: 5px;
   align-content: center;
   align-items: center;
 
-  &__dialog {
+  &__content {
     position: relative;
     z-index: 1200;
     overflow: hidden;
-    padding: $paddings;
+    padding: inherit;
 
     display: flex;
     justify-content: center;

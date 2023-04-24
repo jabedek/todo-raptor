@@ -1,30 +1,39 @@
 import { User as FirebaseAuthUser } from "firebase/auth";
 import { setDoc, doc, getDoc, updateDoc, arrayUnion, collection } from "firebase/firestore";
 import { firebaseDB } from "@@services/firebase/firebase-config";
-import { User, UserData, UserFieldUpdate } from "@@types/User";
+import { User, UserFieldUpdate } from "@@types/User";
 
 const usersRef = collection(firebaseDB, "users");
 
 const saveNewUserInDB = async (user: FirebaseAuthUser) => {
   const appUser: User = {
-    id: user.uid,
-    displayName: user.email?.split("@")[0],
-    email: user.email,
-    userData: {
-      projects: {
-        projectsIdsCreated: [],
-        projectsIdsManaged: [],
-        projectsIdsWorking: [],
-      },
-      tasks: {
-        tasksIdsWorking: [],
-        tasksIdsCreated: [],
-      },
+    authData: {
+      id: user.uid,
+      displayName: user.email?.split("@")[0],
+      email: user.email,
     },
-    verificationInfo: {
-      joinedAt: new Date().toISOString(),
-      verifEmailsAmount: 0,
-      lastVerifEmailAt: "",
+    userData: {
+      workDetails: {
+        projects: {
+          projectsIdsCreated: [],
+          projectsIdsManaged: [],
+          projectsIdsWorking: [],
+        },
+        tasks: {
+          tasksIdsWorking: [],
+          tasksIdsCreated: [],
+        },
+      },
+      verificationDetails: {
+        joinedAt: new Date().toISOString(),
+        verifEmailsAmount: 0,
+        lastVerifEmailAt: "",
+      },
+      visuals: {
+        colorPrimary: "",
+        colorSecondary: "",
+        colorTertiary: "",
+      },
     },
   };
 
@@ -46,11 +55,11 @@ const getUserDetailsById = async (id: string | null | undefined) => {
 };
 
 const updateUserFull = async (user: User) => {
-  if (!user || !user.id) {
+  if (!user || !user.authData.id) {
     return undefined;
   }
 
-  updateDoc(doc(firebaseDB, "users", user.id), user);
+  updateDoc(doc(firebaseDB, "users", user.authData.id), user);
 };
 
 const updateUserFieldsById = async (id: string | null | undefined, fields: UserFieldUpdate[]) => {

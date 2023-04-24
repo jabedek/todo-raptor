@@ -1,10 +1,10 @@
-import { useAuthValue } from "@@context/AuthContext";
+import { useAuthValue } from "@@context/AuthDataContext";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuthValue();
+  const { auth } = useAuthValue();
 
-  if (!user) {
+  if (!auth) {
     return (
       <Navigate
         to="/"

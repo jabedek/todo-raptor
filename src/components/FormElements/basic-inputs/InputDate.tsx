@@ -9,7 +9,7 @@ const InputDate: React.FC<InputDateProps> = (props) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value; // YYYY-MM-DD
 
-    props.onChange(value);
+    props.changeFn(value);
   };
 
   return (

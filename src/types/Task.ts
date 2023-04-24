@@ -1,5 +1,5 @@
-import { TaskProgressStatus } from "@@components/TaskStatus/task-statuses";
-import { ProjectUser } from "./Project";
+import { TaskProgressStatus } from "@@components/Tasks/TaskStatus/task-statuses";
+import { VisualElements } from "./common";
 
 export type Task = {
   id: string;
@@ -11,4 +11,5 @@ export type Task = {
   projectId: string;
   createdAt: string;
   closedAt: string | undefined;
+  visuals: VisualElements;
 };

@@ -1,5 +1,6 @@
 @import "./assets/styles/scss-globals.scss";
-@import "./components/TaskStatus/task-statuses.scss";
+@import "./assets/styles/project-colors.scss";
+@import "./components/Tasks/TaskStatus/task-statuses.scss";
 @import "./assets/styles/tailwind-globals.scss";
 @import "./assets/styles/scrollbar.scss";
 @import-normalize;
@@ -36,6 +37,7 @@ body {
 
 img {
   height: unset;
+  image-rendering: auto !important;
 }
 
 input[type="time"]::-webkit-calendar-picker-indicator,

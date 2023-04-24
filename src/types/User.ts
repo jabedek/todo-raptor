@@ -1,4 +1,17 @@
+import { VisualElements } from "./common";
+
+export type User = {
+  authData: AuthData;
+  userData: UserData;
+};
+
 export type UserData = {
+  workDetails: WorkDetails;
+  verificationDetails: VerificationDetails;
+  visuals: VisualElements;
+};
+
+export type WorkDetails = {
   projects: {
     projectsIdsCreated: string[];
     projectsIdsManaged: string[];
@@ -9,20 +22,16 @@ export type UserData = {
     tasksIdsCreated: string[];
   };
 };
-export type UserVerification = {
+export type VerificationDetails = {
   joinedAt: string;
   verifEmailsAmount: number;
   lastVerifEmailAt: string | undefined;
 };
 
-export type User = {
+export type AuthData = {
   id: string | null | undefined;
   displayName: string | null | undefined;
   email: string | null | undefined;
-  userData: UserData;
-  verificationInfo: UserVerification;
 };
-
-export type AuthUser = Omit<User, "projectsIds" | "tasksIds" | "joinedAt">;
 
 export type UserFieldUpdate = { fieldPath: string; value: any };

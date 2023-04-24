@@ -40,7 +40,7 @@ const InputSelect: React.FC<InputSelectProps> = (props) => {
 
   const handleSelect = (option: Option) => {
     setcurrentOption(option);
-    props.onChange(option.value);
+    props.changeFn(option.value);
     setisOpened(false);
   };
 

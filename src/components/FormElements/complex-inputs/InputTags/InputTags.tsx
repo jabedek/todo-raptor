@@ -1,69 +1,26 @@
-import { CallbackFn, createInputId } from "frotsi";
-import { InputTagsProps, TagItem } from "../types";
-import { useEffect, useRef, useState, useMemo } from "react";
-import { useHandleClickOutside } from "@@hooks/useHandleClickOutside";
-import { MdClear } from "react-icons/md";
-import RenderObject from "@@components/common/RenderObject";
-import FormClearX from "../form-buttons/FormClearX";
-
-function getWidth(length = 0) {
-  return 36 + length * 7.8;
-}
-
-type TagProps = {
-  onDelete: CallbackFn;
-  item: TagItem;
-};
-
-const Tag: React.FC<TagProps> = ({ onDelete, item }) => {
-  const [width, setwidth] = useState(`0px`);
-
-  useEffect(() => {
-    const lettersWidth = getWidth(item.value?.length);
-    setwidth(`${lettersWidth}px`);
-  }, [item.value]);
-
-  return (
-    <div
-      id={"tag#" + item.id}
-      className="app_tag_wrapper transition-all duration-200 tag flex relative"
-      style={{ width: width }}>
-      <div
-        style={{ width: width }}
-        className={`transition-all duration-200 absolute app_input_tags font-app_mono`}
-        onBlur={() => {}}>
-        <span className="">{item.value}</span>
-
-        <div className="tag-remove  ">
-          <FormClearX
-            clickAction={onDelete}
-            relatedItemId={item.id}
-            sizeVariant="I"
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+import { createInputId } from "frotsi";
+import { InputTagsProps, TagItem } from "./InputTags.types";
+import { useEffect, useRef, useState } from "react";
+import { getTagWidth } from "./utils";
+import FormClearX from "@@components/FormElements/form-buttons/FormClearX";
+import Tag from "./Tag";
 
 const InputTags: React.FC<InputTagsProps> = (props) => {
   const inputId = useRef(createInputId(props.name, "tags")).current;
   const ref = useRef<HTMLInputElement>(null);
 
-  const [focus, setfocus] = useState(false);
   const [width, setwidth] = useState(`0px`);
 
   const [values, setvalues] = useState<TagItem[]>(props.values);
   const [newTag, setnewTag] = useState<TagItem>();
 
   useEffect(() => {
-    const lettersWidth = getWidth(newTag?.value.length);
+    const lettersWidth = getTagWidth(newTag?.value.length);
     setwidth(`${lettersWidth}px`);
   }, [newTag?.value]);
 
   useEffect(() => {
     const handleEvent = (e: MouseEvent) => {
-      const localElement = (e.target as HTMLElement).classList.contains(inputId);
       const thisElement = (e.target as HTMLElement).id === inputId;
       if (thisElement) {
         if (!newTag?.id) {
@@ -79,7 +36,6 @@ const InputTags: React.FC<InputTagsProps> = (props) => {
   const handleClick = () => {
     const tagId = createInputId(props.name, "tag");
     setnewTag({ id: tagId, value: "" });
-    console.log(newTag);
   };
 
   const handleChange = (val: string) => {
@@ -96,35 +52,36 @@ const InputTags: React.FC<InputTagsProps> = (props) => {
 
     setnewTag(undefined);
 
-    // this timeout prevents from awkward tags flicerking on re-render
+    // this timeout prevents from awkward tags flickering on re-render
     setTimeout(() => {
       setvalues([...newValues]);
     }, 50);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log(e.key);
+
     switch (e.key) {
-      case "Enter": {
+      case ",":
+      case "Enter":
         handleBlur();
 
         // this timeout prevents from awkward tags flicerking on re-render
         setTimeout(() => {
           handleClick();
-        }, 100);
+        }, 200);
         break;
-      }
-      case "Escape": {
+      case "Escape":
         setnewTag(undefined);
         break;
-      }
     }
   };
 
-  const onDelete = (e: React.MouseEvent, index: string) => {
+  const onDelete = (_: React.MouseEvent, index: string) => {
     setvalues([...values].filter((v) => v.id !== index));
   };
 
-  const reset = (e: React.MouseEvent) => {
+  const reset = (_: React.MouseEvent) => {
     setnewTag(undefined);
     setvalues([]);
   };
@@ -133,16 +90,14 @@ const InputTags: React.FC<InputTagsProps> = (props) => {
     <div
       id={inputId}
       ref={ref}
-      className={`${inputId} app_input_tags_wrapper   relative flex flex-wrap items-center content-start  justify-start mt-6 my-1 min-h-[130px] min-w-[300px]  w-full border-[1px] border-solid border-gray-300
-      ${props.label && props.label.length > 0 && "app_input_top"}`}
-      onFocus={() => setfocus(true)}
-      onBlur={() => setfocus(false)}>
+      className={`${inputId} app_input_tags_wrapper   relative flex flex-wrap items-center content-start  justify-start mt-8 mb-6  min-h-[130px] min-w-[300px]  w-full border-[1px] border-solid border-gray-300
+      ${props.label && props.label.length > 0 && "app_input_top"}`}>
       {values.length > 0 &&
         values.map((val, i) => {
           return (
             <Tag
               key={i}
-              onDelete={onDelete}
+              deleteFn={onDelete}
               item={val}
             />
           );
@@ -181,12 +136,14 @@ const InputTags: React.FC<InputTagsProps> = (props) => {
         </label>
       )}
 
-      <div className="tags-reset  ">
-        <FormClearX
-          clickAction={reset}
-          sizeVariant="II"
-        />
-      </div>
+      {!!values.length && (
+        <div className="tags-reset  ">
+          <FormClearX
+            clickFn={reset}
+            sizeVariant="II"
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -26,12 +26,12 @@
   }
 
   .app_input {
-    @apply transition-app_input_border duration-200 font-app_primary shadow-none cursor-pointer  rounded-none h-10 w-full  focus:ring-0 px-0   font-normal focus:border-b-app_tertiary focus:ring-app_tertiary text-gray-900 focus:outline-none placeholder-transparent 
+    @apply transition-app_input_border duration-200 font-app_primary shadow-none cursor-pointer  rounded-none min-h-[40px] h-[40px] w-full  focus:ring-0 px-0   font-normal focus:border-b-app_tertiary focus:ring-app_tertiary text-gray-900 focus:outline-none placeholder-transparent 
     disabled:bg-gray-100 disabled:border-b-gray-100 disabled:text-gray-400  border-0  border-b-2 border-b-gray-300  invalid:text-red-700 focus:invalid:border-b-red-500;
   }
 
   .app_input_label {
-    // '-top-5' has to match 'app_input_top' above.
+    // '-top-4' has to match 'app_input_top' above.
     @apply transition-all duration-200 font-app_primary absolute left-0 cursor-pointer -top-4 text-gray-600 peer-placeholder-shown:text-base text-[12px]  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-4
     peer-focus:text-gray-600 peer-focus:text-[12px] select-none peer-required:after:content-['*'];
   }
@@ -58,7 +58,7 @@
 
   // ## Radio input ##
   .app_radios_title {
-    @apply transition-all whitespace-pre  duration-200 font-app_primary text-gray-600 peer-placeholder-shown:text-base text-sm  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-5
+    @apply transition-all whitespace-pre  duration-200 font-app_primary text-gray-600 peer-placeholder-shown:text-base text-sm  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-4
     peer-focus:text-gray-600 peer-focus:text-sm select-none;
   }
 

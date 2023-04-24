@@ -2,7 +2,7 @@ import { Project } from "@@types/Project";
 import { firebaseDB } from "../firebase/firebase-config";
 import { setDoc, doc, where, collection, query, getDocs, getDoc } from "firebase/firestore";
 
-const projectsRef = collection(firebaseDB, "projects");
+export const ProjectsRef = collection(firebaseDB, "projects");
 
 const saveNewProject = async (project: Project) => {
   setDoc(doc(firebaseDB, "projects", project.id), project).then(
@@ -16,7 +16,7 @@ const getUserProjectsManaged = async (id: string | null | undefined) => {
     return undefined;
   }
 
-  const queryRef = query(projectsRef, where("manager.id", "==", id));
+  const queryRef = query(ProjectsRef, where("manager.id", "==", id));
 
   const querySnapshot = await getDocs(queryRef);
   const docs: Project[] = [];
@@ -32,7 +32,7 @@ const getUserProjectsWorking = async (id: string | null | undefined) => {
     return undefined;
   }
 
-  const queryRef = query(projectsRef, where("assigneesIds", "array-contains", id));
+  const queryRef = query(ProjectsRef, where("assigneesIds", "array-contains", id));
 
   const querySnapshot = await getDocs(queryRef);
   const docs: Project[] = [];
@@ -48,7 +48,7 @@ const getUserProjectsCreated = async (id: string | null | undefined) => {
     return undefined;
   }
 
-  const queryRef = query(projectsRef, where("originalCreatorId", "==", id));
+  const queryRef = query(ProjectsRef, where("originalCreatorId", "==", id));
 
   const querySnapshot = await getDocs(queryRef);
   const docs: Project[] = [];
@@ -80,7 +80,7 @@ const getUserProjectsAllCombined = async (id: string | null | undefined, project
 
   console.log("0", projectsIds);
 
-  const queryRef = query(projectsRef, where("id", "in", [...projectsIds]));
+  const queryRef = query(ProjectsRef, where("id", "in", [...projectsIds]));
 
   const querySnapshot = await getDocs(queryRef);
   const docs: Project[] = [];
@@ -106,6 +106,7 @@ const getProjectById = async (projectId: string) => {
 };
 
 const ProjectsAPI = {
+  ProjectsRef,
   saveNewProject,
   getUserProjectsManaged,
   getUserProjectsWorking,

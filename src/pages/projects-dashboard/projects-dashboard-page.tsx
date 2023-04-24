@@ -1,15 +1,18 @@
 import NewProjectForm from "@@components/Projects/NewProjectForm";
-import NewTaskForm from "@@components/Projects/NewTaskForm";
-import ProjectList from "@@components/Projects/ProjectList";
-import { useAuthValue } from "@@context/AuthContext";
+import NewTaskForm from "@@components/Tasks/NewTaskForm";
+import ProjectList from "@@components/Projects/ProjectsList";
+import { useAuthValue } from "@@context/AuthDataContext";
 import { usePopupContext } from "@@components/Layout/Popup/Popup";
 import { ProjectsAPI } from "@@services/api/projectsAPI";
 import { Project } from "@@types/Project";
 import { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
+import { useUserDataValue } from "@@context/UserDataContext";
+import ProjectsTable from "@@components/Projects/ProjectsTable/ProjectsTable";
 
-const DashboardPage: React.FC = () => {
-  const { user } = useAuthValue();
+const ProjectsDashboardPage: React.FC = () => {
+  const { auth } = useAuthValue();
+  const { userData } = useUserDataValue();
   const [projects, setprojects] = useState<Project[]>([]);
 
   const { showPopup } = usePopupContext();
@@ -18,13 +21,13 @@ const DashboardPage: React.FC = () => {
   const popupProject = () => showPopup(<NewProjectForm />);
 
   useEffect(() => {
-    if (user) {
-      const { projectsIdsCreated, projectsIdsManaged, projectsIdsWorking } = user.userData.projects;
+    if (auth && userData) {
+      const { projectsIdsCreated, projectsIdsManaged, projectsIdsWorking } = userData.workDetails.projects;
 
       const projectsIdsCombined = new Set([...projectsIdsCreated, ...projectsIdsManaged, ...projectsIdsWorking]);
-      console.log(user, [...projectsIdsCombined]);
+      console.log(auth, [...projectsIdsCombined]);
 
-      ProjectsAPI.getUserProjectsAllCombined(user.id, [...projectsIdsCombined]).then((projects) => {
+      ProjectsAPI.getUserProjectsAllCombined(auth.id, [...projectsIdsCombined]).then((projects) => {
         console.log("1", projects);
 
         if (projects) {
@@ -32,12 +35,12 @@ const DashboardPage: React.FC = () => {
         }
       });
     }
-  }, []);
+  }, [userData?.workDetails.projects]);
 
   return (
     <div>
-      <ProjectList projects={projects} />
-      <div>DashboardPage</div>
+      <ProjectsTable projects={projects} />
+      <div>ProjectsDashboardPage</div>
       <button onClick={popupProject}>Add project</button>
       <button onClick={popupTask}>Add task</button>
       {/* <Link
@@ -47,12 +50,12 @@ const DashboardPage: React.FC = () => {
       </Link> */}
       <Link
         className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
-        to={"/dashboard/123"}>
+        to={"/projects-dashboard/123"}>
         project
       </Link>
       <Link
         className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
-        to={"/dashboard/analytics"}>
+        to={"/projects-dashboard/analytics"}>
         DashboardAnalyticsPage
       </Link>
       <NewProjectForm />
@@ -61,4 +64,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage;
+export default ProjectsDashboardPage;

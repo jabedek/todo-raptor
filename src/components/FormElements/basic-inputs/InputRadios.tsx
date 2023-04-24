@@ -14,7 +14,7 @@ const InputRadios: React.FC<InputRadiosProps> = (props) => {
     const checkedValueIndex = props.radioOptions.findIndex((v, i) => v.default === true);
     if (checkedValueIndex > -1) {
       const checkedOption = props.radioOptions[checkedValueIndex];
-      props.onChange(checkedOption?.value);
+      props.changeFn(checkedOption?.value);
       const id = `${checkedValueIndex}-${checkedOption?.value}`;
       setCheckedID(id);
       if (checkedOption.customWrite) {
@@ -31,18 +31,18 @@ const InputRadios: React.FC<InputRadiosProps> = (props) => {
     if (option.customWrite === true) {
       setSelectedWrite(true);
       if (valueWritten.length > 0) {
-        props.onChange(valueWritten);
+        props.changeFn(valueWritten);
       }
     } else {
       setSelectedWrite(false);
-      props.onChange(val);
+      props.changeFn(val);
     }
   };
 
   const updateValueWritten = (e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
     setValueWritten(value);
-    props.onChange(value);
+    props.changeFn(value);
   };
 
   return (
@@ -94,7 +94,7 @@ const InputRadios: React.FC<InputRadiosProps> = (props) => {
                     name={props.name}
                     value={valueWritten}
                     label=""
-                    onChange={updateValueWritten}
+                    changeFn={updateValueWritten}
                   />
                 </div>
               )}

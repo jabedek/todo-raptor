@@ -1,8 +1,5 @@
-import { FormButton, FormWrapper, InputSelect, InputWritten } from "@@components/FormElements";
-import InputTags from "@@components/FormElements/complex-inputs/InputTags";
-import { TagItem } from "@@components/FormElements/types";
-import { STATUSES, STATUSES_OPTIONS, TaskProgressStatus } from "@@components/TaskStatus/task-statuses";
-import RenderObject from "@@components/common/RenderObject";
+import { FormButton, FormWrapper, InputSelect, InputWritten, TagItem, InputTags } from "@@components/FormElements";
+import { STATUSES_OPTIONS, TaskProgressStatus } from "@@components/Tasks/TaskStatus/task-statuses";
 import { Task } from "@@types/Task";
 import { generateDocumentId } from "frotsi";
 import React, { useState } from "react";
@@ -29,6 +26,11 @@ const NewTaskForm: React.FC = () => {
       projectId: "test",
       createdAt: new Date().toISOString(),
       closedAt: undefined,
+      visuals: {
+        colorPrimary: "",
+        colorSecondary: "",
+        colorTertiary: "",
+      },
     };
   };
 
@@ -40,7 +42,7 @@ const NewTaskForm: React.FC = () => {
         required
         type="text"
         name="task-title"
-        onChange={(val) => settitle(val)}
+        changeFn={(val) => settitle(val)}
         label="Title"
         value={title}
       />
@@ -49,7 +51,7 @@ const NewTaskForm: React.FC = () => {
         required
         type="text"
         name="task-assignee"
-        onChange={(val) => lookupAssigneeId(val)}
+        changeFn={(val) => lookupAssigneeId(val)}
         label="Assignee"
         value={assigneeId}
       />
@@ -58,7 +60,7 @@ const NewTaskForm: React.FC = () => {
         required
         type="textarea"
         name="task-description"
-        onChange={(val) => setdescription(val)}
+        changeFn={(val) => setdescription(val)}
         label="Description"
         value={description}
       />
@@ -66,7 +68,7 @@ const NewTaskForm: React.FC = () => {
       <InputSelect
         required
         name="task-status"
-        onChange={(value) => setstatus(value)}
+        changeFn={(value) => setstatus(value)}
         label="Status"
         value={status}
         selectOptions={STATUSES_OPTIONS}
@@ -75,7 +77,7 @@ const NewTaskForm: React.FC = () => {
       <InputTags
         required
         name="task-tags"
-        onChange={(val) => settags(val)}
+        changeFn={(val) => settags(val)}
         label="Tags"
         values={tags}
       />
@@ -83,7 +85,7 @@ const NewTaskForm: React.FC = () => {
       <FormButton
         style="primary"
         tailwindStyles="mt-8"
-        action={submit}>
+        clickFn={submit}>
         Submit
       </FormButton>
     </FormWrapper>

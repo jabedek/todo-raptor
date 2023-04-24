@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { MdClear } from "react-icons/md";
 
 type Props = {
-  clickAction: CallbackFn;
+  clickFn: CallbackFn;
   sizeVariant: "I" | "II" | "III";
   relatedItemId?: string | number;
 };
@@ -13,9 +13,9 @@ type Props = {
 // filter: drop-shadow(0.35px 0.35px 2px rgba(0, 0, 0, 0.35));
 //         box-shadow: 0.5px  0.5px  3px rgba(0, 0, 0, 0.5) !important;
 
-const FormClearX: React.FC<Props> = ({ clickAction, relatedItemId, sizeVariant }) => {
+const FormClearX: React.FC<Props> = ({ clickFn, relatedItemId, sizeVariant }) => {
   const [styles, setstyles] = useState<CSSProperties>();
-  const handleClick = (e: React.MouseEvent) => (relatedItemId ? clickAction(e, relatedItemId) : clickAction(e));
+  const handleClick = (e: React.MouseEvent) => (relatedItemId ? clickFn(e, relatedItemId) : clickFn(e));
 
   useEffect(() => {
     let height = "";
@@ -59,10 +59,10 @@ const FormClearX: React.FC<Props> = ({ clickAction, relatedItemId, sizeVariant }
   return (
     <>
       <div
-        className="transition-all duration-200 hover:rotate-180 relative bg-white rounded-full app_flex_center text-center"
+        className="transition-all duration-200 hover:rotate-180 cursor-pointer relative bg-white rounded-full app_flex_center text-center"
         style={styles}
         onClick={handleClick}>
-        <MdClear className="absolute rounded-full text-red-700 cursor-pointer hover:text-red-500" />
+        <MdClear className="absolute rounded-full text-red-700  hover:text-red-500" />
       </div>
     </>
   );

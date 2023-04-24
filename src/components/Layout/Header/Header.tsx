@@ -1,24 +1,23 @@
-import { Link, useNavigate } from "react-router-dom";
-import Logo from "./Logo";
-import { AuthContext } from "@@context/AuthContext";
+import { Link } from "react-router-dom";
+import "./Header.scss";
+import Logo from "../Logo";
+import { AuthContext } from "@@context/AuthDataContext";
 import { useContext } from "react";
 import { CallbackFn } from "frotsi";
-import { signOut } from "firebase/auth";
-import { firebaseAuth } from "@@services/firebase/firebase-config";
 
-const HeaderNavLink: React.FC<{ path: string; name: string; action?: CallbackFn }> = ({ path, name, action }) => {
-  if (action) {
+const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn }> = ({ path, name, clickFn }) => {
+  if (clickFn) {
     return (
       <div
-        className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
-        onClick={() => action()}>
+        className="header-nav-link cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
+        onClick={() => clickFn()}>
         {name}
       </div>
     );
   } else {
     return (
       <Link
-        className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
+        className="header-nav-link cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
         to={path}>
         {name}
       </Link>
@@ -27,21 +26,7 @@ const HeaderNavLink: React.FC<{ path: string; name: string; action?: CallbackFn 
 };
 
 const Header = () => {
-  const { user, clearAuth } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  const logout = () => {
-    signOut(firebaseAuth).then(
-      () => {
-        clearAuth();
-        navigate("/");
-      },
-      (error: Error) => {
-        console.error("Something went wrong while signing out:");
-        console.error(error);
-      }
-    );
-  };
+  const { auth, logout } = useContext(AuthContext);
 
   return (
     <header className="z-40 fixed app_header_height app_layout_padding flex content-center items-center justify-between w-full bg-white text-sm font-semibold font-app_primary px-8 py-2 shadow-md">
@@ -49,14 +34,14 @@ const Header = () => {
         <Logo />
         <span className="px-3 text-[16px]">Task-o-saurus</span>
       </div>
-      <span className="text-[13px]">{`${user ? "Hi, " + user.email + "!" : ""}`}</span>
+      <span className="text-[13px]">{`${auth ? "Hi, " + auth.email + "!" : ""}`}</span>
       <nav className="w-auto app_flex_center">
         <HeaderNavLink
           path="/home"
           name="Home"
         />
 
-        {!user && (
+        {!auth && (
           <>
             <HeaderNavLink
               path="/login"
@@ -69,11 +54,11 @@ const Header = () => {
           </>
         )}
 
-        {user && (
+        {auth && (
           <>
             <HeaderNavLink
-              path="/dashboard"
-              name="Dashboard"
+              path="/projects-dashboard"
+              name="Projects Dashboard"
             />
             <HeaderNavLink
               path="/account"
@@ -82,7 +67,7 @@ const Header = () => {
             <HeaderNavLink
               path=""
               name="Logout"
-              action={() => logout()}
+              clickFn={() => logout()}
             />
           </>
         )}

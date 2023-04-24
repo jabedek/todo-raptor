@@ -4,19 +4,21 @@ import ResultDisplayer from "@@components/FormElements/ResultDisplayer";
 import { User } from "@@types/User";
 import { ResultDisplay } from "@@types/common";
 import { useState, useRef, MutableRefObject, useEffect, useContext } from "react";
-import { useAuthValue } from "@@context/AuthContext";
+import { useAuthValue } from "@@context/AuthDataContext";
 import { AuthAPI } from "@@services/api/authAPI";
 import { UsersAPI } from "@@services/api/usersAPI";
 import { roundPreciseFn } from "frotsi/dist/utils/utils.index";
+import { useUserDataValue } from "@@context/UserDataContext";
 
 const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null }> = ({ firebaseUser }) => {
-  const { user } = useAuthValue();
+  const { auth } = useAuthValue();
+  const { userData } = useUserDataValue();
   const [canResend, setcanResend] = useState(true);
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
   const [wait, setwait] = useState(0);
 
-  const lastVerifEmailAt = useRef(user?.verificationInfo?.lastVerifEmailAt);
-  const verifEmailsAmount = useRef(user?.verificationInfo?.verifEmailsAmount);
+  const lastVerifEmailAt = useRef(userData?.verificationDetails?.lastVerifEmailAt);
+  const verifEmailsAmount = useRef(userData?.verificationDetails?.verifEmailsAmount);
 
   useEffect(() => {
     setTimeout(() => {
@@ -85,12 +87,12 @@ const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null }> = ({
 
   const sendEmailEffect = (result: Error | void, successMessage: ResultDisplay) => {
     if (!(result instanceof Error)) {
-      if (user && user.verificationInfo && verifEmailsAmount.current !== undefined) {
+      if (userData && userData.verificationDetails && verifEmailsAmount.current !== undefined) {
         setmessage(successMessage);
       }
     } else {
       setmessage({
-        text: `Something went wrong while sending verificationInfo email: ${result.message}`,
+        text: `Something went wrong while sending verificationDetails email: ${result.message}`,
         isError: true,
       });
     }
@@ -135,7 +137,7 @@ const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null }> = ({
           {!canResend && wait > 0 && " seconds."}
         </div>
         <FormButton
-          action={() => resend()}
+          clickFn={() => resend()}
           style="primary"
           label="Resend email"
           disabled={!canResend}

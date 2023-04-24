@@ -70,7 +70,7 @@ const LoginForm: React.FC = () => {
         required
         type="email"
         name="email"
-        onChange={(val) => setemail(val)}
+        changeFn={(val) => setemail(val)}
         label="Email"
         value={email}
         autoComplete="on"
@@ -79,7 +79,7 @@ const LoginForm: React.FC = () => {
         required
         type="password"
         name="password"
-        onChange={(val) => setpassword(val)}
+        changeFn={(val) => setpassword(val)}
         label="Password"
         value={password}
         autoComplete="on"
@@ -89,12 +89,12 @@ const LoginForm: React.FC = () => {
 
       <div className="w-full flex justify-evenly ">
         <FormButton
-          action={loginUser}
+          clickFn={loginUser}
           style="primary"
           label="Submit"
         />
         <FormButton
-          action={reset}
+          clickFn={reset}
           style="secondary"
           label="Reset"
         />

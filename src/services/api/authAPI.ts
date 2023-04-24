@@ -14,21 +14,6 @@ import { onSnapshot, doc } from "firebase/firestore";
 
 const getCurrentFirebaseAuthUser = () => getAuth(firebaseApp).currentUser;
 
-const listenToFirebaseAuthState = (cb: CallbackFn) => {
-  const unsub: Unsubscribe = getAuth(firebaseApp).onAuthStateChanged(async (auth: FirebaseAuthUser | null) => cb(auth, unsub));
-};
-
-const listenToAuthUserChanges = (id: string | undefined | null, cb: CallbackFn) => {
-  if (id) {
-    const unsub: Unsubscribe = onSnapshot(doc(firebaseDB, "users", id), (doc) => {
-      const data = doc.data();
-      console.log("Current data: ", data);
-
-      cb(data, unsub);
-    });
-  }
-};
-
 const registerAuthUserInFirebase = (email: string, password: string, cb: CallbackFn) => {
   createUserWithEmailAndPassword(firebaseAuth, email, password).then(
     (auth: UserCredential) => {
@@ -60,8 +45,8 @@ const sendVerificationEmail = (firebaseUser: FirebaseAuthUser | null, cb: Callba
     sendEmailVerification(firebaseUser).then(
       () => {
         UsersAPI.updateUserFieldsById(firebaseUser.uid, [
-          { fieldPath: "verificationInfo.verifEmailsAmount", value: verifEmailsAmount + 1 },
-          { fieldPath: "verificationInfo.lastVerifEmailAt", value: new Date().toISOString() },
+          { fieldPath: "userData.verificationDetails.verifEmailsAmount", value: verifEmailsAmount + 1 },
+          { fieldPath: "userData.verificationDetails.lastVerifEmailAt", value: new Date().toISOString() },
         ]).then(
           () => cb(),
           (err) => {
@@ -79,8 +64,7 @@ const sendVerificationEmail = (firebaseUser: FirebaseAuthUser | null, cb: Callba
 
 const AuthAPI = {
   getCurrentFirebaseAuthUser,
-  listenToFirebaseAuthState,
-  listenToAuthUserChanges,
+
   registerAuthUserInFirebase,
   authenticateInFirebase,
   sendVerificationEmail,

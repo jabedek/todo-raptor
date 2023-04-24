@@ -42,7 +42,7 @@ const Popup: React.FC = () => {
         className={`app_popup   text-sm font-semibold font-app_primary 
           ${element && !hiding ? " pop-anim" : ""} 
           ${element && hiding ? " pop-anim-rev" : ""} `}>
-        <div className={`app_popup__dialog`}> {element}</div>
+        <div className={`app_popup__content ${element && "Xp-[5px]"}`}> {element}</div>
         <div
           className={`app_popup__close 
             ${element ? "" : "hidden"} 

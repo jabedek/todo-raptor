@@ -3,10 +3,10 @@ import { MdArrowForward } from "react-icons/md";
 
 type Props = {
   isVisible: boolean;
-  setState: CallbackFn;
+  clickFn: CallbackFn;
 };
 
-const Sidebar: React.FC<Props> = ({ isVisible, setState }) => (
+const Sidebar: React.FC<Props> = ({ isVisible, clickFn }) => (
   <>
     <div
       className={`${isVisible ? "left-0" : "-left-[220px]"} delay-200 transition-all duration-200
@@ -14,7 +14,7 @@ const Sidebar: React.FC<Props> = ({ isVisible, setState }) => (
       <div
         className={` left-[220px]  top-0
       z-[49] fixed sidebar-overlay app_flex_center  w-[60px] h-[50px] transition-all duration-200  hover:bg-gray-300  bg-gray-400 text-sm font-semibold font-app_primary rounded-r-full cursor-pointer`}
-        onClick={() => setState(!isVisible)}>
+        onClick={() => clickFn(!isVisible)}>
         <div className={`transition-all duration-400 ${isVisible ? "rotate-180" : "rotate-0"} app_flex_center w-[30px] h-[30px]`}>
           <MdArrowForward className="text-[1.25em] text-gray-700" />
         </div>
@@ -26,7 +26,7 @@ const Sidebar: React.FC<Props> = ({ isVisible, setState }) => (
     <div
       className={`fixed z-30 app_header_top  h-full 
       ${isVisible ? "sidebar-in-transition" : "sidebar-out-transition"} `}
-      onClick={() => setState(false)}></div>
+      onClick={() => clickFn(false)}></div>
   </>
 );
 

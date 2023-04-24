@@ -26,19 +26,19 @@ export type SelectOption<T> = {
 export type RadioOption<T> = SelectOption<T> & { customWrite?: boolean; default?: boolean };
 
 // BASIC
-type Input = {
+export type InputProps = {
   value: any;
   name: string;
-  onChange: CallbackFn<any>;
+  changeFn: CallbackFn<any>;
   /** Could return errors or smth. */
-  onChangeSideEffect?: SideEffectCallback;
+  changeSideEffectFn?: SideEffectCallback;
   required?: boolean;
   disabled?: boolean;
   label?: string;
   tailwindStyles?: string;
 };
 
-export type InputWrittenProps = Input & {
+export type InputWrittenProps = InputProps & {
   type: InputWritten;
   inputTypeSpecs?: InputSpecifics;
   pattern?: string;
@@ -46,32 +46,21 @@ export type InputWrittenProps = Input & {
   hint?: string;
   autoComplete?: string;
 };
-export type InputDateProps = Input & {
+export type InputDateProps = InputProps & {
   type: InputDateTime;
   inputTypeSpecs?: InputSpecifics;
   focus?: boolean;
 };
 
-export type InputSelectProps = Input & {
+export type InputSelectProps = InputProps & {
   inputTypeSpecs?: InputSpecifics;
   selectOptions: SelectOption<any>[];
   focus?: boolean;
 };
 
-export type InputRadiosProps = Omit<Input, "value"> & {
+export type InputRadiosProps = Omit<InputProps, "value"> & {
   radioOptions: RadioOption<any>[];
   orientation?: "horizontal" | "vertical";
-};
-
-export type TagItem = {
-  value: string;
-  id: string;
-};
-
-// COMPLEX
-export type InputTagsProps = Omit<Input, "value"> & {
-  values: TagItem[];
-  hint?: string;
 };
 
 ///////////

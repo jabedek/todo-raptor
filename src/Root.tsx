@@ -1,18 +1,20 @@
 import Layout from "@@components/Layout/Layout";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthDataContext";
 import { Outlet } from "react-router-dom";
-import Popup from "@@components/Layout/Popup/Popup";
 import { PopupProvider } from "@@components/Layout/Popup/Popup";
+import { UserDetailsProvider } from "@@context/UserDataContext";
 
 function Root() {
   return (
     <>
       <AuthProvider>
-        <PopupProvider>
-          <Layout>
-            <Outlet />
-          </Layout>
-        </PopupProvider>
+        <UserDetailsProvider>
+          <PopupProvider>
+            <Layout>
+              <Outlet />
+            </Layout>
+          </PopupProvider>
+        </UserDetailsProvider>
       </AuthProvider>
     </>
   );

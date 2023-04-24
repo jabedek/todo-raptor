@@ -1,0 +1,101 @@
+$primary-colors: (#804a28, #fd3e04, #ff660f, #e6b725, #007d51, #13ad71, #7d69b0, #125cff, #050697);
+
+@each $color in $primary-colors {
+  $i: index($primary-colors, $color);
+  .primary-color-#{$i} {
+    background-color: $color;
+  }
+}
+
+// $primary-color-0: #804a28; // nutella
+// $primary-color-1: #fd3e04; // kinder
+// $primary-color-2: #ff660f; // reese-s
+// $primary-color-3: #e6b725; // prince-polo-classic
+// $primary-color-4: #007d51; // prince-polo-nutty
+// $primary-color-5: #13ad71; // after-eight
+// $primary-color-6: #7d69b0; // milka
+// $primary-color-7: #125cff; // prince-polo-milky
+// $primary-color-8: #050697; // wedel
+
+// .primary-color-0 {
+//   &.bg {
+//     background-color: $primary-color-0;
+//   }
+
+//   &.text {
+//     color: $primary-color-0;
+//   }
+// }
+
+// .primary-color-1 {
+//   &.bg {
+//     background-color: $primary-color-1;
+//   }
+
+//   &.text {
+//     color: $primary-color-1;
+//   }
+// }
+// .primary-color-2 {
+//   &.bg {
+//     background-color: $primary-color-2;
+//   }
+
+//   &.text {
+//     color: $primary-color-2;
+//   }
+// }
+// .primary-color-3 {
+//   &.bg {
+//     background-color: $primary-color-3;
+//   }
+
+//   &.text {
+//     color: $primary-color-3;
+//   }
+// }
+// .primary-color-4 {
+//   &.bg {
+//     background-color: $primary-color-4;
+//   }
+
+//   &.text {
+//     color: $primary-color-4;
+//   }
+// }
+// .primary-color-5 {
+//   &.bg {
+//     background-color: $primary-color-5;
+//   }
+
+//   &.text {
+//     color: $primary-color-5;
+//   }
+// }
+// .primary-color-6 {
+//   &.bg {
+//     background-color: $primary-color-6;
+//   }
+
+//   &.text {
+//     color: $primary-color-6;
+//   }
+// }
+// .primary-color-7 {
+//   &.bg {
+//     background-color: $primary-color-7;
+//   }
+
+//   &.text {
+//     color: $primary-color-7;
+//   }
+// }
+// .primary-color-8 {
+//   &.bg {
+//     background-color: $primary-color-8;
+//   }
+
+//   &.text {
+//     color: $primary-color-8;
+//   }
+// }
