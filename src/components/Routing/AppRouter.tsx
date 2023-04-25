@@ -1,17 +1,9 @@
 import { createBrowserRouter, Outlet, RouteObject } from "react-router-dom";
-import Root from "src/Root";
-import Home from "src/pages/home-page";
-import RegisterPage from "src/pages/auth/register-page";
-import Dashboard from "src/pages/projects-dashboard/projects-dashboard-page";
-import DashboardAnalyticsPage from "src/pages/projects-dashboard/analytics-page";
-import Landing from "src/pages/landing-page";
-import LoginPage from "src/pages/auth/login-page";
-import AccountPage from "src/pages/account/account-page";
-import WrongRoutePage from "src/pages/[wrong-route-page]";
+
 import ProtectedRoute from "@@components/Routing/ProtectedRoute";
-import DashboardProject from "src/pages/projects-dashboard/$projectId";
-import ProjectView from "@@components/Projects/ProjectView";
-import { ProjectsAPI } from "@@services/api/projectsAPI";
+import { ProjectsAPI } from "@@api";
+import Root from "src/Root";
+import { PAGES } from "src/pages";
 
 export type AppRouteParams = {
   paramId: string | number;
@@ -24,10 +16,10 @@ const routes: RouteObject[] = [
     element: <Root />,
 
     children: [
-      { path: "", element: <Landing /> },
+      { path: "", element: <PAGES.Landing /> },
       {
         path: "home",
-        element: <Home />,
+        element: <PAGES.Home />,
       },
       {
         path: "project/:paramId",
@@ -42,7 +34,7 @@ const routes: RouteObject[] = [
 
         element: (
           <ProtectedRoute>
-            <ProjectView />
+            <PAGES.ProjectViewPage />
           </ProtectedRoute>
         ),
       },
@@ -50,14 +42,14 @@ const routes: RouteObject[] = [
         path: "projects-dashboard",
         element: (
           <ProtectedRoute>
-            <Dashboard />
+            <PAGES.Dashboard />
             <Outlet />
           </ProtectedRoute>
         ),
         children: [
           {
             path: "analytics",
-            element: <DashboardAnalyticsPage />,
+            element: <PAGES.DashboardAnalyticsPage />,
           },
           {
             path: ":projectId",
@@ -68,7 +60,7 @@ const routes: RouteObject[] = [
             },
 
             element: (
-              <DashboardProject />
+              <PAGES.DashboardProject />
               // <ProtectedRoute>
               // </ProtectedRoute>
             ),
@@ -79,22 +71,22 @@ const routes: RouteObject[] = [
         path: "account",
         element: (
           <ProtectedRoute>
-            <AccountPage />
+            <PAGES.AccountPage />
           </ProtectedRoute>
         ),
         // loader: teamLoader,
       },
       {
         path: "login",
-        element: <LoginPage />,
+        element: <PAGES.LoginPage />,
         // loader: teamLoader,
       },
       {
         path: "register",
-        element: <RegisterPage />,
+        element: <PAGES.RegisterPage />,
         // loader: teamLoader,
       },
-      { path: "*", element: <WrongRoutePage /> },
+      { path: "*", element: <PAGES.WrongRoutePage /> },
     ],
   },
 ];

@@ -1,19 +1,18 @@
-import NewProjectForm from "@@components/Projects/NewProjectForm";
-import NewTaskForm from "@@components/Tasks/NewTaskForm";
-import ProjectList from "@@components/Projects/ProjectsList";
-import { useAuthValue } from "@@context/AuthDataContext";
-import { usePopupContext } from "@@components/Layout/Popup/Popup";
-import { ProjectsAPI } from "@@services/api/projectsAPI";
-import { Project } from "@@types/Project";
-import { useEffect, useState } from "react";
-import { Link, useLoaderData } from "react-router-dom";
-import { useUserDataValue } from "@@context/UserDataContext";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
+import { usePopupContext } from "@@components/Layout";
+import NewProjectForm from "@@components/Projects/NewProjectForm/NewProjectForm";
 import ProjectsTable from "@@components/Projects/ProjectsTable/ProjectsTable";
+import NewTaskForm from "@@components/Tasks/NewTaskForm/NewTaskForm";
+import { useAuthDataValue, useUserDataValue } from "@@context";
+import { ProjectsAPI } from "@@api";
+import { ProjectTypes } from "@@types";
 
 const ProjectsDashboardPage: React.FC = () => {
-  const { auth } = useAuthValue();
+  const { auth } = useAuthDataValue();
   const { userData } = useUserDataValue();
-  const [projects, setprojects] = useState<Project[]>([]);
+  const [projects, setprojects] = useState<ProjectTypes.Project[]>([]);
 
   const { showPopup } = usePopupContext();
 
@@ -40,26 +39,29 @@ const ProjectsDashboardPage: React.FC = () => {
   return (
     <div>
       <ProjectsTable projects={projects} />
-      <div>ProjectsDashboardPage</div>
-      <button onClick={popupProject}>Add project</button>
-      <button onClick={popupTask}>Add task</button>
-      {/* <Link
+
+      <div>
+        <div>ProjectsDashboardPage</div>
+        <button onClick={popupProject}>Add project</button>
+        <button onClick={popupTask}>Add task</button>
+        {/* <Link
         className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
         to={"/project/123"}>
         project
       </Link> */}
-      <Link
-        className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
-        to={"/projects-dashboard/123"}>
-        project
-      </Link>
-      <Link
-        className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
-        to={"/projects-dashboard/analytics"}>
-        DashboardAnalyticsPage
-      </Link>
-      <NewProjectForm />
-      <NewTaskForm />
+        <Link
+          className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
+          to={"/projects-dashboard/123"}>
+          project
+        </Link>
+        <Link
+          className="cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
+          to={"/projects-dashboard/analytics"}>
+          DashboardAnalyticsPage
+        </Link>
+        <NewProjectForm />
+        <NewTaskForm />
+      </div>
     </div>
   );
 };

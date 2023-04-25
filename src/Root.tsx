@@ -1,13 +1,11 @@
-import Layout from "@@components/Layout/Layout";
-import { AuthProvider } from "./context/AuthDataContext";
 import { Outlet } from "react-router-dom";
-import { PopupProvider } from "@@components/Layout/Popup/Popup";
-import { UserDetailsProvider } from "@@context/UserDataContext";
+import { Layout, PopupProvider } from "@@components/Layout";
+import { UserDetailsProvider, AuthDataProvider } from "@@context";
 
 function Root() {
   return (
     <>
-      <AuthProvider>
+      <AuthDataProvider>
         <UserDetailsProvider>
           <PopupProvider>
             <Layout>
@@ -15,7 +13,7 @@ function Root() {
             </Layout>
           </PopupProvider>
         </UserDetailsProvider>
-      </AuthProvider>
+      </AuthDataProvider>
     </>
   );
 }

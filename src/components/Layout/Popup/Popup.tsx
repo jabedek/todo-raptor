@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
-import "./popup.scss";
-import { MdClear } from "react-icons/md";
-import FormClearX from "@@components/FormElements/form-buttons/FormClearX";
+import "./Popup.scss";
+
+import { FormClearX } from "@@components/FormElements";
 
 type PopupContext = {
   element: JSX.Element | undefined;
@@ -49,7 +49,7 @@ const Popup: React.FC = () => {
             transition-all duration-200 
             rounded-full `}>
           <FormClearX
-            clickAction={(e) => hide(e, true)}
+            clickFn={(e) => hide(e, true)}
             sizeVariant="III"
           />
         </div>

@@ -1,0 +1,35 @@
+// Header
+$header_height: 56px;
+
+.app_header_height {
+  height: $header_height !important;
+}
+
+.app_header_top {
+  top: $header_height !important;
+}
+
+.header-nav-link {
+  word-spacing: 4px;
+}
+
+// Sidebar
+.sidebar-overlay {
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-blur {
+  backdrop-filter: blur(16px);
+}
+
+.sidebar-in-transition {
+  transition: background-color 0.3s ease-out;
+  background-color: rgba(0, 0, 0, 0.15);
+  width: 100%;
+}
+.sidebar-out-transition {
+  transition: background-color 0.3s ease-out, width 0.1s 0.35s;
+  background-color: rgba(0, 0, 0, 0);
+  width: 0;
+}

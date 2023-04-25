@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { UserCredential } from "firebase/auth";
-import { ResultDisplay } from "@@types/common";
-import { FormWrapper, InputWritten, FormButton, Validator } from "@@components/FormElements";
-import { AuthAPI } from "@@services/api/authAPI";
-import ResultDisplayer from "@@components/FormElements/ResultDisplayer";
+
+import { CommonTypes } from "@@types";
+import { AuthAPI } from "@@api";
+import { FormWrapper, InputWritten, FormButton, Validator, ResultDisplayer } from "@@components/FormElements";
 
 const LoginForm: React.FC = () => {
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
-  const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
+  const [message, setmessage] = useState<CommonTypes.ResultDisplay | undefined>(undefined);
 
   const validateForm = (email: string, password: string) => {
     let isValid = true;
@@ -41,7 +41,7 @@ const LoginForm: React.FC = () => {
     return { isValid, message: isValid ? "Credentials are error-free. Sending..." : message };
   };
 
-  const loginUser = async () => {
+  const handleSubmit = async () => {
     const { isValid, message } = validateForm(email, password);
 
     setmessage({ text: message, isError: !isValid });
@@ -65,6 +65,7 @@ const LoginForm: React.FC = () => {
   return (
     <FormWrapper
       title="Login"
+      submitFn={handleSubmit}
       tailwindStyles="w-[500px]">
       <InputWritten
         required
@@ -89,7 +90,7 @@ const LoginForm: React.FC = () => {
 
       <div className="w-full flex justify-evenly ">
         <FormButton
-          clickFn={loginUser}
+          clickFn={handleSubmit}
           style="primary"
           label="Submit"
         />

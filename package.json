@@ -1,6 +1,6 @@
 {
   "name": "todo-raptor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "module",
   "repository": {
     "url": "https://github.com/jabedek/todo-raptor"
@@ -20,7 +20,7 @@
     "@tailwindcss/typography": "^0.5.9",
     "@types/firebase": "^3.2.1",
     "firebase": "^9.19.1",
-    "frotsi": "^1.3.79",
+    "frotsi": "^1.3.96",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",
@@ -28,6 +28,7 @@
     "vite-require": "^0.2.3"
   },
   "devDependencies": {
+    "@total-typescript/ts-reset": "^0.4.2",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.57.1",

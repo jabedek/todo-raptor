@@ -1,5 +1,6 @@
-import { StorageItem } from "@@types/common";
 import { useState } from "react";
+
+import { Enums } from "@@types";
 
 /**
  * This hook allows to easily store and retrieve data from localStorage.
@@ -8,18 +9,18 @@ import { useState } from "react";
 export const useLocalStorage = () => {
   const [value, setValue] = useState<string | undefined>(undefined);
 
-  const setItem = (key: StorageItem, value: string) => {
+  const setItem = (key: Enums.StorageItem, value: string) => {
     localStorage.setItem(key, value);
     setValue(value);
   };
 
-  const getItem = (key: StorageItem) => {
+  const getItem = (key: Enums.StorageItem) => {
     const value = localStorage.getItem(key);
     setValue(value ?? undefined);
     return value;
   };
 
-  const removeItem = (key: StorageItem) => {
+  const removeItem = (key: Enums.StorageItem) => {
     localStorage.removeItem(key);
     setValue(undefined);
   };

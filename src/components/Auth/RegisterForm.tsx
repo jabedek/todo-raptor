@@ -1,18 +1,15 @@
 import React, { useState } from "react";
-
 import { UserCredential } from "firebase/auth";
 
-import { ResultDisplay } from "@@types/common";
-import { FormWrapper, InputWritten, FormButton, Validator } from "@@components/FormElements";
-import { UsersAPI } from "@@services/api/usersAPI";
-import { AuthAPI } from "@@services/api/authAPI";
-import ResultDisplayer from "@@components/FormElements/ResultDisplayer";
+import { CommonTypes } from "@@types";
+import { FormWrapper, InputWritten, FormButton, Validator, ResultDisplayer } from "@@components/FormElements";
+import { UsersAPI, AuthAPI } from "@@api";
 
 const RegisterForm: React.FC = () => {
   const [password, setpassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
   const [email, setemail] = useState("");
-  const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
+  const [message, setmessage] = useState<CommonTypes.ResultDisplay | undefined>(undefined);
 
   const validateForm = (email: string, password: string, confirmPassword: string) => {
     let isValid = true;
@@ -49,7 +46,7 @@ const RegisterForm: React.FC = () => {
     return { isValid, message: isValid ? "Credentials are error-free. Sending..." : message };
   };
 
-  const register = async () => {
+  const handleSubmit = async () => {
     const { isValid, message } = validateForm(email, password, confirmPassword);
 
     setmessage({ text: message, isError: !isValid });
@@ -80,6 +77,7 @@ const RegisterForm: React.FC = () => {
     <>
       <FormWrapper
         title="Register"
+        submitFn={handleSubmit}
         tailwindStyles="w-[500px]">
         <InputWritten
           required
@@ -113,7 +111,7 @@ const RegisterForm: React.FC = () => {
 
         <div className="w-full flex justify-evenly ">
           <FormButton
-            clickFn={register}
+            clickFn={handleSubmit}
             style="primary"
             label="Submit"
           />

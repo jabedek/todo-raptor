@@ -19,12 +19,26 @@
     "types": ["vite/client"],
     "baseUrl": "./",
     "paths": {
-      "@@utils/*": ["src/utils/*"],
-      "@@components/*": ["src/components/*"],
-      "@@services/*": ["src/services/*"],
+      "@@api/*": ["src/api/*"],
+      "@@api": ["src/api/index"],
+
       "@@context/*": ["src/context/*"],
+      "@@context": ["src/context/index"],
+
+      "@@utils/*": ["src/utils/*"],
+      "@@utils": ["src/utils/index"],
+
+      "@@components/*": ["src/components/*"],
+      "@@components": ["src/components/index"],
+
+      "@@services/*": ["src/services/*"],
+      "@@services": ["src/services/index"],
+
       "@@hooks/*": ["src/hooks/*"],
-      "@@types/*": ["src/types/*"]
+      "@@hooks": ["src/hooks/index"],
+
+      "@@types/*": ["src/types/*"],
+      "@@types": ["src/types/index"]
     }
   },
   "include": ["src", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],

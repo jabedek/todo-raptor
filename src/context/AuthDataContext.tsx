@@ -1,38 +1,38 @@
-import { AuthData } from "@@types/User";
-import { createContext, useState } from "react";
-import { useEffect, useContext } from "react";
-import { User as FirebaseAuthUser, Unsubscribe, signOut } from "firebase/auth";
-import { FirebaseUserStateChange, ListenersAPI } from "@@services/api/listenersAPI";
-import { firebaseAuth } from "@@services/firebase/firebase-config";
+import { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { Unsubscribe, signOut } from "firebase/auth";
+import { firebaseAuth } from "@@services/firebase/firebase-config";
+
+import { APITypes, ListenersAPI } from "@@api";
+import { UserTypes } from "@@types";
 import { useUserDataValue } from "./UserDataContext";
 
-type AuthContext = {
-  auth: AuthData | undefined;
-  putAuth: (auth: AuthData) => void;
+type AuthDataContext = {
+  auth: UserTypes.AuthData | undefined;
+  putAuth: (auth: UserTypes.AuthData) => void;
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContext>({
+const AuthDataContext = createContext<AuthDataContext>({
   auth: undefined,
-  putAuth: (auth: AuthData) => {},
+  putAuth: (auth: UserTypes.AuthData) => {},
   logout: () => {},
 });
 
 const Unsubscribes = new Map<string, Unsubscribe>();
 
-const AuthProvider = ({ children }: any) => {
-  const [auth, setauth] = useState<AuthData | undefined>(undefined);
+const AuthDataProvider = ({ children }: any) => {
+  const [auth, setauth] = useState<UserTypes.AuthData | undefined>(undefined);
   const navigate = useNavigate();
   const { clearUserAndProjectsData } = useUserDataValue();
 
   useEffect(() => {
-    ListenersAPI.listenToFirebaseUserState(async (change: FirebaseUserStateChange, unsub0) => {
+    ListenersAPI.listenToFirebaseUserState(async (change: APITypes.FirebaseUserStateChange, unsub0) => {
       console.log(change);
 
       Unsubscribes.set("listenToFirebaseUserState", unsub0);
       if (change.auth) {
-        const authData: AuthData = {
+        const authData: UserTypes.AuthData = {
           id: change.auth?.uid,
           email: change.auth?.email,
           displayName: change.auth?.displayName,
@@ -51,7 +51,7 @@ const AuthProvider = ({ children }: any) => {
     };
   }, []);
 
-  const putAuth = (auth: AuthData) => setauth(auth);
+  const putAuth = (auth: UserTypes.AuthData) => setauth(auth);
   const clearAuth = () => setauth(undefined);
   const logout = () => {
     signOut(firebaseAuth).then(
@@ -68,13 +68,13 @@ const AuthProvider = ({ children }: any) => {
   };
   return (
     <>
-      <AuthContext.Provider value={{ auth, logout, putAuth }}>{children}</AuthContext.Provider>
+      <AuthDataContext.Provider value={{ auth, logout, putAuth }}>{children}</AuthDataContext.Provider>
     </>
   );
 };
 
-function useAuthValue() {
-  return useContext(AuthContext);
+function useAuthDataValue() {
+  return useContext(AuthDataContext);
 }
 
-export { AuthContext, AuthProvider, useAuthValue };
+export { AuthDataProvider, useAuthDataValue };

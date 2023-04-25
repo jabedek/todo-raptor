@@ -1,8 +1,8 @@
-import { useAuthValue } from "@@context/AuthDataContext";
+import { useAuthDataValue } from "@@context/AuthDataContext";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const { auth } = useAuthValue();
+  const { auth } = useAuthDataValue();
 
   if (!auth) {
     return (

@@ -1,15 +1,14 @@
-import { Link } from "react-router-dom";
-import "./Header.scss";
-import Logo from "../Logo";
-import { AuthContext } from "@@context/AuthDataContext";
-import { useContext } from "react";
 import { CallbackFn } from "frotsi";
+import { Link } from "react-router-dom";
+
+import { Logo } from "@@components/Layout";
+import { useAuthDataValue } from "@@context/AuthDataContext";
 
 const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn }> = ({ path, name, clickFn }) => {
   if (clickFn) {
     return (
       <div
-        className="header-nav-link cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
+        className="header-nav-link cursor-pointer text-black transition-all  hover:text-app_primary duration-200"
         onClick={() => clickFn()}>
         {name}
       </div>
@@ -17,7 +16,7 @@ const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn
   } else {
     return (
       <Link
-        className="header-nav-link cursor-pointer px-4 text-black transition-all  hover:text-app_primary duration-200"
+        className="header-nav-link cursor-pointer text-black transition-all  hover:text-app_primary duration-200"
         to={path}>
         {name}
       </Link>
@@ -25,8 +24,8 @@ const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn
   }
 };
 
-const Header = () => {
-  const { auth, logout } = useContext(AuthContext);
+const Header: React.FC = () => {
+  const { auth, logout } = useAuthDataValue();
 
   return (
     <header className="z-40 fixed app_header_height app_layout_padding flex content-center items-center justify-between w-full bg-white text-sm font-semibold font-app_primary px-8 py-2 shadow-md">
@@ -35,7 +34,7 @@ const Header = () => {
         <span className="px-3 text-[16px]">Task-o-saurus</span>
       </div>
       <span className="text-[13px]">{`${auth ? "Hi, " + auth.email + "!" : ""}`}</span>
-      <nav className="w-auto app_flex_center">
+      <nav className="w-[420px] flex justify-between">
         <HeaderNavLink
           path="/home"
           name="Home"

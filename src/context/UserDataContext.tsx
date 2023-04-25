@@ -1,16 +1,14 @@
-import { User, UserData } from "@@types/User";
-import { createContext, useState } from "react";
-import { useEffect, useContext } from "react";
-import { Unsubscribe } from "firebase/auth";
-import { UsersAPI } from "@@services/api/usersAPI";
+import { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { ListenersAPI } from "@@services/api/listenersAPI";
-import { useAuthValue } from "./AuthDataContext";
-import { Project } from "@@types/Project";
+import { Unsubscribe } from "firebase/auth";
+
+import { UserTypes, ProjectTypes } from "@@types";
+import { ListenersAPI, UsersAPI } from "@@api";
+import { useAuthDataValue } from "./AuthDataContext";
 
 type UserDataContext = {
-  userData: UserData | undefined;
-  projectsData: Project[];
+  userData: UserTypes.UserData | undefined;
+  projectsData: ProjectTypes.Project[];
   clearUserAndProjectsData: () => void;
 };
 
@@ -23,17 +21,17 @@ const UserDataContext = createContext<UserDataContext>({
 const Unsubscribes = new Map<string, Unsubscribe>();
 
 const UserDetailsProvider = ({ children }: any) => {
-  const [userData, setuserDetails] = useState<UserData | undefined>(undefined);
-  const [projectsData, setprojectsData] = useState<Project[]>([]);
-  const { auth } = useAuthValue();
+  const [userData, setuserDetails] = useState<UserTypes.UserData | undefined>(undefined);
+  const [projectsData, setprojectsData] = useState<ProjectTypes.Project[]>([]);
+  const { auth } = useAuthDataValue();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (auth) {
-      UsersAPI.getUserDetailsById(auth.id).then((user: User | undefined) => {
+      UsersAPI.getUserDetailsById(auth.id).then((user: UserTypes.User | undefined) => {
         if (user) {
-          const details: UserData = {
+          const details: UserTypes.UserData = {
             workDetails: user.userData.workDetails,
             verificationDetails: user.userData.verificationDetails,
             visuals: user.userData?.visuals || { colorPrimary: "", colorSecondary: "", colorTertiary: "" },
@@ -42,14 +40,14 @@ const UserDetailsProvider = ({ children }: any) => {
           setTimeout(() => navigate("/account", { relative: "route" }), 500);
           putUserDetails(details);
 
-          ListenersAPI.listenToAuthUserData(auth.id, (data: User, unsub1) => {
+          ListenersAPI.listenToAuthUserData(auth.id, (data: UserTypes.User, unsub1) => {
             Unsubscribes.set("listenToAuthUserData", unsub1);
             if (data) {
               putUserDetails(data.userData);
             }
           });
 
-          ListenersAPI.listenToAuthProjectsData(auth.id, [], (data: Project[], unsub1) => {
+          ListenersAPI.listenToAuthProjectsData(auth.id, [], (data: ProjectTypes.Project[], unsub1) => {
             Unsubscribes.set("listenToAuthProjectsData", unsub1);
             if (data) {
               setprojectsData(data);
@@ -69,7 +67,7 @@ const UserDetailsProvider = ({ children }: any) => {
     };
   }, [auth]);
 
-  const putUserDetails = (userData: UserData) => setuserDetails(userData);
+  const putUserDetails = (userData: UserTypes.UserData) => setuserDetails(userData);
   const clearUserAndProjectsData = () => {
     setuserDetails(undefined);
     setprojectsData([]);
@@ -86,4 +84,4 @@ function useUserDataValue() {
   return useContext(UserDataContext);
 }
 
-export { UserDataContext, UserDetailsProvider, useUserDataValue };
+export { UserDetailsProvider, useUserDataValue };

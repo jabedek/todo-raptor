@@ -1,8 +1,9 @@
-import UserVerification from "@@components/Auth/UserVerification";
-import { User as FirebaseAuthUser } from "firebase/auth";
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
-import { AuthAPI } from "@@services/api/authAPI";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { User as FirebaseAuthUser } from "firebase/auth";
+
+import { AuthAPI } from "@@api";
+import UserVerification from "@@components/Auth/UserVerification";
 
 const AccountPage: React.FC = () => {
   const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser | null>();

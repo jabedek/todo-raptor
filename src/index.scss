@@ -1,8 +1,8 @@
 @import "./assets/styles/scss-globals.scss";
 @import "./assets/styles/project-colors.scss";
-@import "./components/Tasks/TaskStatus/task-statuses.scss";
 @import "./assets/styles/tailwind-globals.scss";
 @import "./assets/styles/scrollbar.scss";
+@import "./components/Tasks/TaskStatus/utils/task-statuses.scss";
 @import-normalize;
 
 * {
