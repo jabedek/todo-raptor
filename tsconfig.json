@@ -4,6 +4,7 @@
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
+    "checkJs": true,
     "skipLibCheck": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
@@ -19,26 +20,13 @@
     "types": ["vite/client"],
     "baseUrl": "./",
     "paths": {
-      "@@api/*": ["src/api/*"],
-      "@@api": ["src/api/index"],
+      "@@api/*": ["src/app/api/*"],
+      "@@components/*": ["src/app/components/*"],
+      "@@utils/*": ["src/app/utils/*"],
 
-      "@@context/*": ["src/context/*"],
-      "@@context": ["src/context/index"],
-
-      "@@utils/*": ["src/utils/*"],
-      "@@utils": ["src/utils/index"],
-
-      "@@components/*": ["src/components/*"],
-      "@@components": ["src/components/index"],
-
-      "@@services/*": ["src/services/*"],
-      "@@services": ["src/services/index"],
-
-      "@@hooks/*": ["src/hooks/*"],
-      "@@hooks": ["src/hooks/index"],
-
-      "@@types/*": ["src/types/*"],
-      "@@types": ["src/types/index"]
+      "@@contexts": ["src/app/contexts/index"],
+      "@@hooks": ["src/app/hooks/index"],
+      "@@types": ["src/app/types/index"]
     }
   },
   "include": ["src", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],

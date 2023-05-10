@@ -1,0 +1,100 @@
+// Popup
+.app_popup__overlay {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+
+  &.in-transition {
+    transition: all 200ms ease-in-out;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+
+  &.out-transition {
+    transition: all 200ms ease-in-out 400ms;
+    background-color: rgba(0, 0, 0, 0);
+    z-index: -1000;
+  }
+}
+
+$paddings: 5px;
+
+.app_popup {
+  position: absolute;
+  z-index: 1100;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 4px;
+  backdrop-filter: blur(16px);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+
+  &__content {
+    position: relative;
+    z-index: 1200;
+    overflow: hidden;
+    padding: inherit;
+
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+
+  &__close {
+    position: absolute;
+    z-index: 1400;
+    top: -8px;
+    right: -8px;
+  }
+}
+
+.pop-anim {
+  animation: pop-anim 400ms forwards ease-in-out;
+}
+
+.pop-anim-rev {
+  animation: pop-anim-rev 400ms forwards ease-in-out;
+}
+
+@keyframes pop-anim {
+  from {
+    max-width: 0px;
+    padding: $paddings;
+    overflow: hidden;
+  }
+
+  to {
+    max-width: 1000px;
+    padding: $paddings;
+    overflow: visible;
+  }
+}
+
+@keyframes pop-anim-rev {
+  0% {
+    max-width: 1000px;
+    padding: $paddings;
+    overflow: visible;
+  }
+
+  95% {
+    max-width: 0px;
+    padding: $paddings;
+    overflow: hidden;
+  }
+
+  100% {
+    max-width: 0px;
+    padding: 0px;
+    overflow: hidden;
+  }
+}

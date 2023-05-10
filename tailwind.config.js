@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -32,6 +33,7 @@ export default {
       mdx: "834px", // custom
       lg: "1024px",
       xl: "1280px",
+      "xl-m": "1366px",
       "2xl": "1536px",
     },
   },

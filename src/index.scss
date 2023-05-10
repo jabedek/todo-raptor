@@ -1,12 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@100;200;300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&display=swap");
 @import "./assets/styles/scss-globals.scss";
 @import "./assets/styles/project-colors.scss";
 @import "./assets/styles/tailwind-globals.scss";
 @import "./assets/styles/scrollbar.scss";
-@import "./components/Tasks/TaskStatus/utils/task-statuses.scss";
+@import "./app/components/Tasks/TaskStatus/utils/task-statuses.scss";
 @import-normalize;
 
 * {
-  box-sizing: border-box;
+  box-sizing: border-box !important;
 }
 
 :root {
@@ -36,6 +37,7 @@ body {
 }
 
 img {
+  max-width: unset;
   height: unset;
   image-rendering: auto !important;
 }
@@ -52,4 +54,10 @@ a {
 
 li {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  padding: 0;
+  margin: 0;
+  position: relative;
 }

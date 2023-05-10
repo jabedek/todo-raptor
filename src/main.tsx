@@ -1,9 +1,10 @@
 import "frotsi";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.scss";
 import { RouterProvider } from "react-router-dom";
-import { AppRouter } from "@@components/Routing/AppRouter";
+
+import "./index.scss";
+import { AppRouter } from "src/app/router/AppRouter";
 
 const prodDev = true;
 if (!prodDev) {

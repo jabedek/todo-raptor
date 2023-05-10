@@ -1,0 +1,427 @@
+$header-height: 60px;
+$side-width: 220px;
+$body-width: 692px;
+
+.project-border {
+  border-color: rgb(220, 220, 220);
+  border-style: solid;
+  border-collapse: collapse;
+}
+
+// .projects-table div {
+//   border: 0.4px solid rgba(100, 0, 0, 0.2);
+//   background: rgba(100, 100, 200, 0.2);
+// }
+
+.projects-table {
+  border-radius: 3px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+
+  &__main {
+    position: relative;
+    width: calc(100% - $side-width);
+    height: auto;
+
+    .table-header {
+      z-index: 1;
+      width: calc(100% - $side-width);
+      position: absolute;
+      height: $header-height;
+
+      width: 100%;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-around;
+      align-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+
+      .header-tab-wrapper {
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+
+        div {
+          height: 100%;
+        }
+
+        &.selected p {
+          text-decoration: 2px underline black;
+        }
+
+        &:not(.selected) div {
+          z-index: 2;
+          height: 60px !important;
+          transition: all 200ms;
+
+          &:hover p {
+            text-decoration: 2px underline lightgray;
+          }
+        }
+      }
+    }
+
+    .table-body {
+      top: $header-height;
+      background: rgba(255, 255, 255, 0.75);
+      position: absolute;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, $side-width);
+      grid-template-rows: repeat(auto-fill, $side-width);
+      align-content: flex-start;
+      gap: 0px;
+      padding: 6px;
+      height: calc(100% - 60px);
+      width: 100%;
+      overflow-y: scroll;
+
+      .project-table-item {
+        position: relative;
+        height: $side-width;
+        width: $side-width;
+        padding: 6px;
+      }
+    }
+  }
+
+  &__side {
+    width: $side-width;
+
+    height: 100%;
+
+    .table-filter-top {
+      width: 100%;
+      height: $header-height;
+    }
+
+    .table-filter-bottom {
+      width: 100%;
+      height: calc(600px - $header-height);
+    }
+  }
+}
+
+.team-member {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.project-tag {
+  // box-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.25);
+
+  &__label {
+    // text-shadow: 1px 1px 1.6px rgba(0, 0, 0, 0.4);
+    font-weight: 500;
+  }
+}
+
+.action-wrapper {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 9000px) {
+  $side-width: 250px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 25px;
+        gap: 25px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1900px) {
+  $side-width: 262px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 25px;
+        gap: 25px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1680px) {
+  $side-width: 230px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 25px;
+        gap: 25px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1536px) {
+  $side-width: 228px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 20px;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1440px) {
+  $side-width: 222px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 18px;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1366px) {
+  $side-width: 213px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 12px;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1280px) {
+  $side-width: 213px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 16px;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1150px) {
+  $side-width: 204px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 3px;
+        gap: 3px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  $side-width: 198px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 6px;
+        gap: 1vw;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+    .header-tab-wrapper {
+      font-size: 13px;
+      div svg {
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+      }
+    }
+  }
+}
+
+@media (max-width: 980px) {
+  $side-width: 218px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 20px;
+        gap: 1.5vw;
+
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+
+    .header-tab-wrapper {
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 834px) {
+  $side-width: 208px;
+  .projects-table {
+    &__main {
+      width: calc(100% - $side-width);
+      .table-body {
+        padding: 1px;
+        gap: 1vw;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+    .header-tab-wrapper {
+      font-size: 11px;
+    }
+  }
+}
