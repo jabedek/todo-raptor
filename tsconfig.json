@@ -23,7 +23,6 @@
       "@@api/*": ["src/app/api/*"],
       "@@components/*": ["src/app/components/*"],
       "@@utils/*": ["src/app/utils/*"],
-
       "@@contexts": ["src/app/contexts/index"],
       "@@hooks": ["src/app/hooks/index"],
       "@@types": ["src/app/types/index"]

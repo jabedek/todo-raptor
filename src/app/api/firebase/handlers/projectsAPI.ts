@@ -61,7 +61,7 @@ const getProjectById = async (projectId: string) => {
 
 /** Delete project in `projects` collection & in related users' `projectsIds` arrays. */
 const deleteProjectById = async (projectId: string) => {
-  return UsersAPI.getUsersDocumentsFromProject(projectId)
+  return UsersAPI.getTeamMembersDataByProjectId(projectId)
     .then(async (res) => {
       deleteDoc(doc(FirebaseDB, "projects", projectId)).then(async () => {
         if (res) {
@@ -100,12 +100,53 @@ const changeProjectStatusById = async (userId: string, projectId: string, status
   });
 };
 
+const getAvailableContactsForMembership = (user: UserTypes.User, project: ProjectTypes.Project) => {
+  const userContacts: string[] = user.contacts.contactsIds;
+  const projectMembers: string[] = project.teamMembers
+    .filter((m) => m.id !== user.authentication.id)
+    .map(({ id }) => id) as string[];
+  const contactsNotMembersIds: Set<string> = new Set([...userContacts, ...projectMembers]);
+
+  return UsersAPI.getUsersById([...contactsNotMembersIds.values()]).then(
+    (users) => {
+      console.log(user);
+
+      const members: { id: string; email: string }[] = (users || []).map((user) => ({
+        id: `${user.authentication.id}`,
+        email: `${user.authentication.email}`,
+      }));
+
+      return members;
+    },
+    (err) => console.error(err)
+  );
+};
+
+const updateProject = async (project: ProjectTypes.Project) => {
+  updateDoc(doc(FirebaseDB, "projects", project.id), project);
+};
+
+const userAsTeamMember = async (
+  member: ProjectTypes.ProjectTeamMember,
+  project: ProjectTypes.Project,
+  variant: "make" | "break"
+) => {
+  if (variant === "make") {
+    project.teamMembers.push(member);
+  } else {
+    project.teamMembers = project.teamMembers.filter((teamMember) => teamMember.id !== member.id);
+  }
+  updateProject(project);
+};
+
 const ProjectsAPI = {
-  ProjectsRef,
   saveNewProject,
   getProjectById,
   listenToUserProjectsData,
   deleteProjectById,
+  getAvailableContactsForMembership,
+  updateProject,
+  userAsTeamMember,
 };
 
 export { ProjectsAPI };

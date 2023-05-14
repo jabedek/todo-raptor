@@ -1,11 +1,11 @@
 $task-statuses: (
-  "new": "6e92cf",
-  "progress": "0060ff",
-  "review": "00c9c2",
-  "tests": "d3a900",
-  "done": "049900",
-  "blocked": "ff0000",
-  "cancelled": "8d8b8b",
+  "new": "#6e92cf",
+  "progress": "#0060ff",
+  "review": "#00c9c2",
+  "tests": "#d3a900",
+  "done": "#049900",
+  "blocked": "#ff0000",
+  "cancelled": "#8d8b8b",
 );
 
 @mixin task-status($color) {
@@ -22,7 +22,7 @@ $task-statuses: (
     left: -6px;
     top: 5px;
     border-radius: 100%;
-    background-color: #{"#" + $color};
+    background-color: #{$color};
     box-shadow: 0.8px 0.8px 3px black;
   }
 }

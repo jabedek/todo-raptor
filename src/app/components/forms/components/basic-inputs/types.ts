@@ -21,9 +21,14 @@ export type SelectOption<T> = {
   label: string;
   value: T;
   iconClass?: string;
+  prefix?: string;
+  customWrite?: boolean;
 };
 
-export type RadioOption<T> = SelectOption<T> & { customWrite?: boolean; default?: boolean };
+export type RadioOption<T> = SelectOption<T> & {
+  default?: boolean;
+  notselectable?: boolean;
+};
 
 // BASIC
 export type InputProps = {
@@ -54,11 +59,12 @@ export type InputDateProps = InputProps & {
 
 export type InputSelectProps = InputProps & {
   inputTypeSpecs?: InputSpecifics;
-  selectOptions: SelectOption<any>[];
+  options: SelectOption<any>[];
   focus?: boolean;
+  selectWidth?: string;
 };
 
 export type InputRadiosProps = Omit<InputProps, "value"> & {
-  radioOptions: RadioOption<any>[];
+  options: RadioOption<any>[];
   orientation?: "horizontal" | "vertical";
 };

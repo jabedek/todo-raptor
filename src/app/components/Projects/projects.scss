@@ -1,0 +1,29 @@
+.project-icon {
+  height: 18px !important;
+  width: 18px !important;
+  margin-right: 10px !important;
+}
+
+.header-tab-wrapper {
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+
+  div {
+    height: 100%;
+  }
+
+  &.selected p {
+    text-decoration: 2px underline black;
+  }
+
+  &:not(.selected) div {
+    z-index: 2;
+    max-height: 60px !important;
+    transition: all 200ms;
+
+    &:hover p {
+      text-decoration: 2px underline lightgray;
+    }
+  }
+}

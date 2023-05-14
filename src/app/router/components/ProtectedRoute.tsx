@@ -23,20 +23,19 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; logPath?: string }> 
     }
   }, [logPath]);
 
-  if (canRoute === false) {
-    return (
-      <Navigate
-        to="/"
-        replace
-      />
-    );
-  }
+  return (
+    <>
+      {(canRoute || user) && <>{children}</>}
+      {canRoute === false && (
+        <Navigate
+          to="/"
+          replace
+        />
+      )}
 
-  if (canRoute || user) {
-    return <>{children}</>;
-  }
-
-  return <>Loading</>;
+      {canRoute === "checking" && <p>{"Loading"}</p>}
+    </>
+  );
 };
 
 export default ProtectedRoute;

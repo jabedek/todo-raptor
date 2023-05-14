@@ -20,14 +20,26 @@
   }
 
   .app_input {
-    @apply transition-app_input_border duration-200 font-app_primary shadow-none cursor-pointer  rounded-none min-h-[40px] h-[40px] w-full  focus:ring-0 px-0   font-normal focus:border-b-app_tertiary focus:ring-app_tertiary text-gray-900 focus:outline-none placeholder-transparent 
-    disabled:bg-gray-100 disabled:border-b-gray-100 disabled:text-gray-400  border-0  border-b-2 border-b-gray-300  invalid:text-red-700 focus:invalid:border-b-red-500;
+    @apply transition-app_input_border duration-200 
+    font-app_primary font-normal text-gray-900 text-[16px]
+    placeholder-transparent 
+    cursor-pointer shadow-none rounded-none 
+    min-h-[40px] h-[40px] w-auto px-0  
+    border-0 border-b-2 border-b-gray-300 
+    disabled:bg-gray-100 disabled:border-b-gray-100 disabled:text-gray-400   
+    focus:ring-0 focus:border-b-app_tertiary focus:ring-app_tertiary focus:outline-none 
+    invalid:text-red-700 focus:invalid:border-b-red-500;
   }
 
   .app_input_label {
     // '-top-4' has to match 'app_input_top' above.
-    @apply transition-all duration-200 font-app_primary absolute left-0 cursor-pointer -top-4 text-gray-600 peer-placeholder-shown:text-base text-[12px]  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-4
-    peer-focus:text-gray-600 peer-focus:text-[12px] select-none peer-required:after:content-['*'];
+    @apply transition-all duration-200 
+    absolute left-0 -top-4 
+    cursor-pointer select-none  
+    text-[12px] text-gray-600  font-normal font-app_primary 
+    peer-placeholder-shown:text-[12px]  peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 
+    peer-focus:-top-4 peer-focus:text-gray-600 peer-focus:text-[12px] 
+    peer-required:after:content-['*'];
   }
 
   .app_input_info {

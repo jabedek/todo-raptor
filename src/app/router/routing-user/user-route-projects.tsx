@@ -1,4 +1,5 @@
 import { ProjectsProvider } from "@@contexts";
+import { ProjectTypes } from "@@types";
 import { Suspense, lazy } from "react";
 import { Outlet, RouteObject } from "react-router-dom";
 import { ProjectsAPI } from "src/app/api/firebase";
@@ -33,10 +34,8 @@ export const USER_ROUTE_PROJECTS: RouteObject = {
           <ProjectViewPage />
         </Suspense>
       ),
-      loader: async ({ params }) => {
-        const id = `${params.projectId}`;
-        return { projectId: id, data: await ProjectsAPI.getProjectById(id) };
-      },
+      loader: async ({ params }): Promise<ProjectTypes.Project | undefined> =>
+        await ProjectsAPI.getProjectById(`${params.projectId}`),
     },
   ],
 };

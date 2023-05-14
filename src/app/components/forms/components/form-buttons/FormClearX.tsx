@@ -1,6 +1,6 @@
+import { ReactIcons } from "@@components/Layout/preloaded-icons";
 import { CallbackFn } from "frotsi";
 import { useEffect, useState, CSSProperties } from "react";
-import { MdClear } from "react-icons/md";
 
 type Props = {
   clickFn: CallbackFn;
@@ -60,7 +60,7 @@ const FormClearX: React.FC<Props> = ({ clickFn, relatedItemId, sizeVariant }) =>
         className="transition-all duration-200 hover:rotate-180 cursor-pointer relative bg-white rounded-full app_flex_center text-center"
         style={styles}
         onClick={handleClick}>
-        <MdClear className="absolute rounded-full text-red-700  hover:text-red-500" />
+        <ReactIcons.MdClear className="absolute rounded-full text-red-700  hover:text-red-500" />
       </div>
     </>
   );

@@ -1,12 +1,17 @@
 import React from "react";
-import { useLoaderData, useParams } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
+
+import { ProjectView } from "@@components/Projects";
+import { ProjectTypes } from "@@types";
 
 const ProjectViewPage: React.FC = () => {
-  const { projectId } = useParams();
-  const item = useLoaderData();
-  console.log(projectId, item);
+  const projectData = useLoaderData() as ProjectTypes.Project | undefined;
 
-  return <div>Dynamic Dashboard Page, Param</div>;
+  return (
+    <>
+      <ProjectView projectData={projectData} />
+    </>
+  );
 };
 
 export default ProjectViewPage;

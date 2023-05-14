@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { usePopupContext } from "../Popup/Popup";
+import { usePopupContext } from "@@components/Layout";
 
 type Props = {
   children: React.ReactNode;

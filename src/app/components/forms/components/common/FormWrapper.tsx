@@ -1,4 +1,5 @@
 import { CallbackFn } from "frotsi";
+import { Children } from "react";
 
 const FormWrapper: React.FC<{
   title: string;
@@ -11,7 +12,7 @@ const FormWrapper: React.FC<{
       onSubmit={submitFn}
       autoComplete="new-password"
       className={`transition-all duration-200   bg-white  p-5 flex flex-shrink-0 flex-col h-auto  items-center justify-between  rounded-[4px] shadow-lg ${tailwindStyles}`}>
-      <h2 className="uppercase text-center font-bold text-md mt-1 text-black">{title}</h2>
+      <h2 className="uppercase text-center font-bold text-[13px] mt-1 text-black">{title}</h2>
       {children}
     </form>
   );

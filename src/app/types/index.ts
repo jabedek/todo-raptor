@@ -1,8 +1,8 @@
-import * as TaskTypes from "./Task";
-import * as ProjectTypes from "./Project";
-import * as InvitationTypes from "./Invitation";
-import * as UserTypes from "./User";
+import * as TaskTypes from "./Tasks";
+import * as ProjectTypes from "./Projects";
+import * as ContactsTypes from "./Contacts";
+import * as UserTypes from "./Users";
 import * as CommonTypes from "./common";
 import * as Enums from "./enums";
 
-export { TaskTypes, ProjectTypes, UserTypes, InvitationTypes, CommonTypes, Enums };
+export { TaskTypes, ProjectTypes, UserTypes, ContactsTypes, CommonTypes, Enums };

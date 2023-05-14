@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 
 import "./ProjectsTable.scss";
-import { FormButton } from "@@components/forms";
+import { Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
+import { NewProjectForm, ProjectsTableBody, ProjectsTableHeader } from "@@components/Projects";
 import { ProjectTypes, UserTypes } from "@@types";
-import ProjectTableItem from "./ProjectTableItem/ProjectTableItem";
-import ProjectBadge from "./ProjectBadge/ProjectBadge";
-import NewProjectForm from "../NewProjectForm/NewProjectForm";
 import { ProjectsAPI } from "@@api/firebase";
+import SidePanel from "@@components/common/SidePanel";
 
 interface ProjectTableProps {
   projectsData: ProjectTypes.ProjectsTableData | undefined;
@@ -17,7 +16,7 @@ interface ProjectTableProps {
 const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
   const [tab, settab] = useState<"manage" | "work" | "archived">("manage");
   const [activeCollection, setactiveCollection] = useState<ProjectTypes.Project[]>(projectsData?.activeManaged || []);
-  const { showPopup, hidePopup } = usePopupContext();
+  const { showPopup, hidePopup, popupElement } = usePopupContext();
 
   useEffect(() => {
     if (projectsData) {
@@ -35,7 +34,15 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
     }
   }, [projectsData, tab]);
 
-  const popupProject = () => showPopup(<NewProjectForm />);
+  const popupProject = () => {
+    console.log("popupProject");
+    console.log(showPopup);
+    console.log(popupElement);
+
+    console.log(NewProjectForm);
+
+    showPopup(<NewProjectForm />);
+  };
   // const tags = [...new Set(projects.flatMap((project) => project.tags))];
   // const statuses = [...new Set(projects.map((project) => project.status))];
 
@@ -59,61 +66,37 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
 
   return (
     <>
-      <div className="projects-table font-app_primary bg-[rgba(241,241,241,1)] flex   ">
+      <div className="projects-table font-app_primary bg-[rgba(241,241,241,1)] flex ">
+        {/* Main */}
         <div className="projects-table__main flex flex-col justify-between">
-          <div className="table-header bg-white text-[14px] project-border border border-r-0">
-            <div
-              className={`header-tab-wrapper ${tab === "manage" && "selected"}`}
-              onClick={() => settab("manage")}>
-              <ProjectBadge
-                variant="manage"
-                label="Projects you manage"
-              />
-            </div>
+          <ProjectsTableHeader
+            setTabFn={(tab) => settab(tab)}
+            tab={tab}
+          />
 
-            <div
-              className={`header-tab-wrapper ${tab === "work" && "selected"}`}
-              onClick={() => settab("work")}>
-              <ProjectBadge
-                variant="work"
-                label="Projects you are managed in"
-              />
-            </div>
-
-            <div
-              className={`header-tab-wrapper ${tab === "archived" && "selected"}`}
-              onClick={() => settab("archived")}>
-              <ProjectBadge
-                variant="archived"
-                label="Archived Projects"
-              />
-            </div>
-          </div>
-
-          <div className="table-body  ">
-            {activeCollection.map((project, i) => (
-              <ProjectTableItem
-                project={project}
-                user={user}
-                deleteFn={() => deleteProject(project.id)}
-                key={i}
-              />
-            ))}
-          </div>
+          <ProjectsTableBody
+            projects={activeCollection}
+            user={user}
+            deleteProjectFn={deleteProject}
+          />
         </div>
 
-        <div className="projects-table__side flex flex-col bg-white  justify-between">
-          <div className="table-filter-top project-border border-l-[1px]  project-border border app_flex_center">
-            <FormButton
+        {/* Side */}
+        <SidePanel
+          widthPx="220"
+          heightPxHeader="60"
+          heightPxBody="540">
+          <div className="h-full  border-l-[1px]  project-border border app_flex_center">
+            <Button
               label="New Project"
               clickFn={popupProject}
-              style="primary"
+              formStyle="primary"
             />
           </div>
-          <div className="table-filter-bottom bg-white project-border border border-t-0  ">
+          <div className="h-full bg-white project-border border border-t-0  ">
             <div className="w-full h-full "></div>
           </div>
-        </div>
+        </SidePanel>
       </div>
     </>
   );

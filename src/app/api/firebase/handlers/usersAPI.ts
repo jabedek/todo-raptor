@@ -59,7 +59,7 @@ const getUserDetailsById = async (id: string | null | undefined) => {
   return docSnap.exists() ? (docSnap.data() as UserTypes.User) : undefined;
 };
 
-const getUsersDocumentsFromProject = async (projectId: string | null | undefined) => {
+const getTeamMembersDataByProjectId = async (projectId: string | null | undefined) => {
   if (!projectId) {
     return undefined;
   }
@@ -119,8 +119,8 @@ const updateUserFieldsById = async (id: string | null | undefined, fields: UserT
   updateDoc(doc(FirebaseDB, "users", id), updateFields);
 };
 
-const getUsersById = async (id: string | null | undefined, usersIds: string[]) => {
-  if (!(id && usersIds.length)) {
+const getUsersById = async (usersIds: string[]) => {
+  if (!usersIds.length) {
     return undefined;
   }
 
@@ -149,7 +149,7 @@ const UsersAPI = {
   saveNewUserInDB,
   getUserDetailsById,
   getUserDetailsByEmail,
-  getUsersDocumentsFromProject,
+  getTeamMembersDataByProjectId,
 
   updateUserFull,
   updateUserFieldsById,

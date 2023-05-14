@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import "./Layout.scss";
 import { useProjectsValue, useUserValue } from "@@contexts";
-import RenderObject from "@@components/common/RenderObject/RenderObject";
 import { Header, Page, Sidebar, usePopupContext } from "@@components/Layout";
 
 type Props = {
@@ -48,6 +47,10 @@ const Layout: React.FC<Props> = (props) => {
         />
         <Page>{props.children}</Page>
       </main>
+
+      <footer className="fixed bottom-1 right-3 rounded-md bg-gray-200 opacity-40 px-2 font-app_mono text-sm">
+        {APP_VERSION}
+      </footer>
     </div>
   );
 };

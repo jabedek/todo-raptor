@@ -4,8 +4,9 @@ import { generateDocumentId } from "frotsi";
 import { ProjectTypes, UserTypes } from "@@types";
 import { ProjectsAPI, UsersAPI } from "@@api/firebase";
 import { useUserValue } from "@@contexts";
-import { FormWrapper, InputWritten, InputTags, FormButton, InputTagsTypes } from "@@components/forms";
+import { FormWrapper, InputWritten, InputTags, InputTagsTypes } from "@@components/forms";
 import { usePopupContext } from "@@components/Layout";
+import { Button } from "@@components/common";
 
 const NewProjectForm: React.FC = () => {
   const { user } = useUserValue();
@@ -21,7 +22,7 @@ const NewProjectForm: React.FC = () => {
       const manager: ProjectTypes.ProjectTeamMember = {
         id: userId,
         email: userEmail,
-        nickname: user.personal.names.nickname,
+        displayName: user.personal.names.nickname,
         role: "manager",
       };
       const newProject: ProjectTypes.Project = {
@@ -82,6 +83,7 @@ const NewProjectForm: React.FC = () => {
         label="Project Title"
         value={projectTitle}
         autoComplete="on"
+        tailwindStyles="min-w-[250px] w-full"
       />
 
       <InputWritten
@@ -92,6 +94,7 @@ const NewProjectForm: React.FC = () => {
         label="Project Description"
         value={projectDescription}
         autoComplete="on"
+        tailwindStyles="min-w-[250px] w-full"
       />
 
       <InputTags
@@ -104,9 +107,9 @@ const NewProjectForm: React.FC = () => {
         disabled={projectTags.length === 5}
       />
 
-      <FormButton
+      <Button
         clickFn={handleSubmit}
-        style="primary"
+        formStyle="primary"
         label="Submit"
       />
     </FormWrapper>

@@ -1,8 +1,8 @@
-import FormButton from "./components/form-buttons/FormButton";
 import FormClearX from "./components/form-buttons/FormClearX";
 
 import FormWrapper from "./components/common/FormWrapper";
 import ResultDisplayer from "./components/common/ResultDisplayer";
+import AreYouSureDialog from "./components/common/AreYouSureDialog";
 
 import InputDate from "./components/basic-inputs/InputDate";
 import InputRadios from "./components/basic-inputs/InputRadios";
@@ -18,16 +18,17 @@ import { EMAIL_LENGTH, PASSWORD_LENGTH, PASSWORD_COMPONENTS, Validator } from ".
 
 export {
   //
-  FormButton,
   FormClearX,
-  FormWrapper,
   InputDate,
   InputRadios,
   InputSelect,
   InputWritten,
   InputTag,
   InputTags,
+  //
+  FormWrapper,
   ResultDisplayer,
+  AreYouSureDialog,
   //
   Validator,
   EMAIL_LENGTH,

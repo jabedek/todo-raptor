@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { BasicInputsTypes } from "@@components/forms";
 
 const InputWritten: React.FC<BasicInputsTypes.InputWrittenProps> = (props) => {
-  const [value, setvalue] = useState(props.value || "");
   const [focus, setfocus] = useState(false);
   const inputId = useRef(generateInputId(props.name, props.type)).current;
 
@@ -12,7 +11,6 @@ const InputWritten: React.FC<BasicInputsTypes.InputWrittenProps> = (props) => {
     e.preventDefault();
 
     const newValue = e.target.value;
-    setvalue(newValue);
     props.changeFn(newValue);
 
     if (props.changeSideEffectFn) {
@@ -22,9 +20,7 @@ const InputWritten: React.FC<BasicInputsTypes.InputWrittenProps> = (props) => {
 
   return (
     <div
-      className={`${inputId} relative mb-10  min-h-[40px] h-[fit-content] w-full ${
-        props.label && props.label.length > 0 && "app_input_top"
-      }`}
+      className={`app_flex_center  relative mb-8 app_input_top h-[40px] min-w-[150px] w-[fit-content] ${props.tailwindStyles}`}
       onFocus={() => setfocus(true)}
       onBlur={() => setfocus(false)}>
       {props.type !== "textarea" && (
@@ -35,11 +31,11 @@ const InputWritten: React.FC<BasicInputsTypes.InputWrittenProps> = (props) => {
           id={inputId}
           type={props.type}
           name={props.name}
-          value={value}
+          value={"" || props.value}
           onChange={(e) => handleChange(e)}
           minLength={props.inputTypeSpecs?.minLength}
           maxLength={props.inputTypeSpecs?.maxLength}
-          className={`${inputId} app_input peer bg-transparent`}
+          className={`app_input peer bg-transparent w-full`}
           placeholder=" "
           required={props.required}
           pattern={props.pattern}
@@ -57,29 +53,27 @@ const InputWritten: React.FC<BasicInputsTypes.InputWrittenProps> = (props) => {
           onChange={(e) => handleChange(e)}
           minLength={props.inputTypeSpecs?.minLength}
           maxLength={props.inputTypeSpecs?.maxLength}
-          className={`${inputId} app_input peer bg-transparent min-h-[70px] h-[70px] text-[14px] `}
+          className={`app_input peer bg-transparent min-h-[35px] h-[35px] text-[14px] w-full `}
           placeholder=" "
           required={props.required}
           disabled={props.disabled}
         />
       )}
-      {props.label && props.label.length > 0 && (
-        <label
-          htmlFor={inputId}
-          className={`${inputId} app_input_label  whitespace-nowrap ${props.required ? "after:pl-1" : ""}`}>
-          {props.label}
-        </label>
-      )}
+      <label
+        htmlFor={inputId}
+        className={`app_input_label  whitespace-nowrap ${props.required ? "after:pl-1" : ""}`}>
+        {props.label || ""}
+      </label>
 
       {props.inputTypeSpecs && (
-        <div className={`${inputId} app_input_info`}>
+        <div className={`app_input_info`}>
           <span>{length}</span>
         </div>
       )}
 
       {props.hint && focus && (
         <p
-          className={`${inputId} absolute top-[105%] hidden text-[11px] text-gray-900 bg-gray-200 shadow-lg py-1 px-3 rounded-sm h-[40px] min-w-[200px] leading-[14px] peer-hover:flex peer-hover:z-20`}>
+          className={`absolute top-[105%] hidden text-[11px] text-gray-900 bg-gray-200 shadow-lg py-1 px-3 rounded-sm h-[40px] min-w-[200px] leading-[14px] peer-hover:flex peer-hover:z-20`}>
           {props.hint}
         </p>
       )}

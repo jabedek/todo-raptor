@@ -1,0 +1,384 @@
+$header-height: 60px;
+$side-width: 220px;
+$body-width: 692px;
+
+.project-border {
+  border-color: rgb(220, 220, 220);
+  border-style: solid;
+  border-collapse: collapse;
+}
+
+.project-view {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+
+  &__main {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+
+    .project-view-header {
+      z-index: 1;
+      position: absolute;
+      height: $header-height;
+
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+
+      width: 100%;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-around;
+      align-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .table-body {
+      top: $header-height;
+      background: rgba(255, 255, 255, 0.75);
+      position: absolute;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, $side-width);
+      grid-template-rows: repeat(auto-fill, $side-width);
+      align-content: flex-start;
+      gap: 0px;
+      padding: 6px;
+      height: calc(100% - 60px);
+      width: 100%;
+      overflow-y: scroll;
+    }
+  }
+
+  &__side {
+    width: $side-width;
+
+    height: 100%;
+
+    .table-filter-top {
+      width: 100%;
+      height: $header-height;
+    }
+
+    .table-filter-bottom {
+      width: 100%;
+      height: calc(600px - $header-height);
+    }
+  }
+}
+
+.team-member {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.action-wrapper {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 9000px) {
+  $side-width: 250px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 25px;
+        gap: 25px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1900px) {
+  $side-width: 262px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 25px;
+        gap: 25px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1680px) {
+  $side-width: 230px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 25px;
+        gap: 25px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1536px) {
+  $side-width: 228px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 20px;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1440px) {
+  $side-width: 222px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 18px;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1366px) {
+  $side-width: 213px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 12px;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1280px) {
+  $side-width: 213px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 16px;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 5px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1150px) {
+  $side-width: 204px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 3px;
+        gap: 3px;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  $side-width: 198px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 6px;
+        gap: 1vw;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+    .header-tab-wrapper {
+      font-size: 13px;
+      div svg {
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+      }
+    }
+  }
+}
+
+@media (max-width: 980px) {
+  $side-width: 218px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 20px;
+        gap: 1.5vw;
+
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+
+    .header-tab-wrapper {
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 834px) {
+  $side-width: 208px;
+  .project-view {
+    &__main {
+      width: calc(100% - ($side-width * 1));
+      .table-body {
+        padding: 1px;
+        gap: 1vw;
+        grid-template-columns: repeat(auto-fill, $side-width);
+        grid-template-rows: repeat(auto-fill, $side-width);
+
+        .project-table-item {
+          position: relative;
+          height: $side-width;
+          width: $side-width;
+
+          padding: 6px;
+        }
+      }
+    }
+    &__side {
+      width: calc($side-width);
+    }
+    .header-tab-wrapper {
+      font-size: 11px;
+    }
+  }
+}

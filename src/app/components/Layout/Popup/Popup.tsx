@@ -57,7 +57,11 @@ const Popup: React.FC = () => {
 const PopupProvider = ({ children }: any) => {
   const [popupElement, setelement] = useState<JSX.Element>();
 
-  const showPopup = (popupElement: JSX.Element) => setelement(popupElement);
+  const showPopup = (popupElement: JSX.Element) => {
+    console.log(popupElement);
+
+    setelement(popupElement);
+  };
   const hidePopup = () => setelement(undefined);
 
   return (

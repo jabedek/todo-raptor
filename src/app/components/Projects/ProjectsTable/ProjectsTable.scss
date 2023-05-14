@@ -8,11 +8,6 @@ $body-width: 692px;
   border-collapse: collapse;
 }
 
-// .projects-table div {
-//   border: 0.4px solid rgba(100, 0, 0, 0.2);
-//   background: rgba(100, 100, 200, 0.2);
-// }
-
 .projects-table {
   border-radius: 3px;
   position: relative;
@@ -25,12 +20,16 @@ $body-width: 692px;
     position: relative;
     width: calc(100% - $side-width);
     height: auto;
+    overflow: hidden;
 
     .table-header {
       z-index: 1;
       width: calc(100% - $side-width);
       position: absolute;
       height: $header-height;
+
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
 
       width: 100%;
       font-weight: 600;
@@ -41,30 +40,6 @@ $body-width: 692px;
       align-items: center;
       position: relative;
       overflow: hidden;
-
-      .header-tab-wrapper {
-        position: relative;
-        z-index: 1;
-        cursor: pointer;
-
-        div {
-          height: 100%;
-        }
-
-        &.selected p {
-          text-decoration: 2px underline black;
-        }
-
-        &:not(.selected) div {
-          z-index: 2;
-          height: 60px !important;
-          transition: all 200ms;
-
-          &:hover p {
-            text-decoration: 2px underline lightgray;
-          }
-        }
-      }
     }
 
     .table-body {
@@ -95,12 +70,12 @@ $body-width: 692px;
 
     height: 100%;
 
-    .table-filter-top {
+    .side-top {
       width: 100%;
       height: $header-height;
     }
 
-    .table-filter-bottom {
+    .side-bottom {
       width: 100%;
       height: calc(600px - $header-height);
     }

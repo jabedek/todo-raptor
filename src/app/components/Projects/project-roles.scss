@@ -1,0 +1,79 @@
+/* # Visual Elements Colors */
+
+$visuals: (
+  rgba(21, 175, 115, 1) /* after-eight @manager, @vice-manager */,
+  rgba(0, 124, 80, 1) /* prince-polo-nutty @team-leader */,
+  rgba(230, 183, 37, 1) /* prince-polo-classic @analyst, @designer */,
+  rgba(5, 6, 151, 1) /* wedel @intern, @coworker */,
+  rgba(254, 98, 9, 1) /* reese-s, @tester  */,
+  rgba(125, 105, 176, 1) /* milka, @ui-designer  */,
+  rgba(18, 92, 255, 1) /* prince-polo-milky @developer */,
+  rgba(128, 74, 40, 1) /* nutella @spectator */,
+  rgba(236, 51, 0, 1) /* kinder @project#-*/
+);
+
+@mixin role($color) {
+  padding-left: 18px;
+  position: relative;
+  // text-shadow: 0.1px 0.1px 1px rgba(0, 0, 0, 0.25);
+  &::before {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+    margin-left: 2px;
+    left: -6px;
+    top: 5px;
+    border-radius: 100%;
+    background-color: #{$color};
+    box-shadow: 0.8px 0.8px 3px black;
+  }
+}
+
+@each $color in $visuals {
+  $i: index($visuals, $color);
+  .project-role-color-#{$i} {
+    // background-color: $color !important;
+    @include role($color);
+  }
+}
+
+.project-role-bgcolor-1 {
+  background-color: rgba(21, 175, 115, 1);
+}
+
+.project-role-bgcolor-2 {
+  background-color: rgba(0, 124, 80, 1);
+  color: white !important;
+}
+
+.project-role-bgcolor-3 {
+  background-color: rgba(230, 183, 37, 1);
+}
+
+.project-role-bgcolor-4 {
+  background-color: rgba(5, 6, 151, 1);
+  color: white !important;
+}
+
+.project-role-bgcolor-5 {
+  background-color: rgba(254, 98, 9, 1);
+}
+
+.project-role-bgcolor-6 {
+  background-color: rgba(125, 105, 176, 1);
+}
+
+.project-role-bgcolor-7 {
+  background-color: rgba(18, 92, 255, 1);
+}
+
+.project-role-bgcolor-8 {
+  background-color: rgba(128, 74, 40, 1);
+  color: white !important;
+}
+
+.project-role-bgcolor-9 {
+  background-color: rgba(236, 51, 0, 1);
+}
