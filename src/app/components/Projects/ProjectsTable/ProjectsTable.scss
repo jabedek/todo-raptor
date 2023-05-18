@@ -1,4 +1,4 @@
-$header-height: 60px;
+$header-height: 50px;
 $side-width: 220px;
 $body-width: 692px;
 
@@ -9,12 +9,12 @@ $body-width: 692px;
 }
 
 .projects-table {
-  border-radius: 3px;
   position: relative;
   z-index: 1;
   width: 100%;
   height: auto;
   overflow: hidden;
+  border-radius: 14px;
 
   &__main {
     position: relative;
@@ -33,7 +33,7 @@ $body-width: 692px;
 
       width: 100%;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
       display: flex;
       justify-content: space-around;
       align-content: center;
@@ -52,7 +52,7 @@ $body-width: 692px;
       align-content: flex-start;
       gap: 0px;
       padding: 6px;
-      height: calc(100% - 60px);
+      height: calc(100% - $header-height);
       width: 100%;
       overflow-y: scroll;
 
@@ -100,7 +100,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 9000px) {
-  $side-width: 250px;
+  // $side-width: 250px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -126,7 +126,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1900px) {
-  $side-width: 262px;
+  // $side-width: 262px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -152,7 +152,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1680px) {
-  $side-width: 230px;
+  // $side-width: 230px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -178,7 +178,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1536px) {
-  $side-width: 228px;
+  // $side-width: 228px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -204,7 +204,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1440px) {
-  $side-width: 222px;
+  // $side-width: 222px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -230,7 +230,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1366px) {
-  $side-width: 213px;
+  // $side-width: 213px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -256,7 +256,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1280px) {
-  $side-width: 213px;
+  // $side-width: 213px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -282,7 +282,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1150px) {
-  $side-width: 204px;
+  // $side-width: 204px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -308,7 +308,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 1024px) {
-  $side-width: 198px;
+  // $side-width: 198px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -331,7 +331,7 @@ $body-width: 692px;
       width: calc($side-width);
     }
     .header-tab-wrapper {
-      font-size: 13px;
+      font-size: 12px;
       div svg {
         height: 0 !important;
         width: 0 !important;
@@ -342,7 +342,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 980px) {
-  $side-width: 218px;
+  // $side-width: 218px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);
@@ -373,7 +373,7 @@ $body-width: 692px;
 }
 
 @media (max-width: 834px) {
-  $side-width: 208px;
+  // $side-width: 208px;
   .projects-table {
     &__main {
       width: calc(100% - $side-width);

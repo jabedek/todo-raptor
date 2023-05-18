@@ -1,9 +1,9 @@
 import AccountContacts from "./AccountInfo/AccountContacts/AccountContacts";
 import AccountInfo from "./AccountInfo/AccountInfo";
-import InvitationForm from "./AccountInfo/InvitationForm/InvitationForm";
-import InvitationItem from "./AccountInfo/InvitationItem/InvitationItem";
+import ContactForm from "./AccountInfo/ContactForm/ContactForm";
+import ContactItem from "./AccountInfo/ContactItem/ContactItem";
 import LoginForm from "./LoginForm/LoginForm";
 import RegisterForm from "./RegisterForm/RegisterForm";
 import UserVerification from "./UserVerification/UserVerification";
 
-export { AccountContacts, AccountInfo, InvitationForm, InvitationItem, LoginForm, RegisterForm, UserVerification };
+export { AccountContacts, AccountInfo, ContactForm, ContactItem, LoginForm, RegisterForm, UserVerification };

@@ -15,15 +15,15 @@ $task-statuses: (
   &::before {
     content: "";
     position: absolute;
-    width: 12px;
+    width: 5px;
     height: 12px;
     line-height: 12px;
-    margin-left: 2px;
+    margin-left: 4px;
     left: -6px;
-    top: 5px;
-    border-radius: 100%;
+    top: 3px;
+    border-radius: 1px;
     background-color: #{$color};
-    box-shadow: 0.8px 0.8px 3px black;
+    box-shadow: 0.8px 0.8px 3px rgba(0, 0, 0, 0.8);
   }
 }
 

@@ -17,12 +17,13 @@ import { FirebaseDB } from "@@api/firebase/firebase-config";
 import { ProjectTypes, UserTypes } from "@@types";
 import { UsersAPI } from "./usersAPI";
 import { CallbackFn } from "frotsi";
+import { useUserValue } from "@@contexts";
 
 export const ProjectsRef = collection(FirebaseDB, "projects");
 
 const saveNewProject = async (project: ProjectTypes.Project) => {
   setDoc(doc(FirebaseDB, "projects", project.id), project).then(
-    () => console.log("Projects: Success"),
+    () => {},
     (error) => console.log("Projects:", error)
   );
 };
@@ -41,7 +42,6 @@ const listenToUserProjectsData = async (user: UserTypes.User, cb: CallbackFn) =>
       const project = doc.data() as ProjectTypes.Project;
       docs.push(project);
     });
-    // console.log("[PROJECTS DOCS]: ", docs);
 
     cb(docs, unsub);
   });
@@ -109,8 +109,6 @@ const getAvailableContactsForMembership = (user: UserTypes.User, project: Projec
 
   return UsersAPI.getUsersById([...contactsNotMembersIds.values()]).then(
     (users) => {
-      console.log(user);
-
       const members: { id: string; email: string }[] = (users || []).map((user) => ({
         id: `${user.authentication.id}`,
         email: `${user.authentication.email}`,
@@ -126,7 +124,7 @@ const updateProject = async (project: ProjectTypes.Project) => {
   updateDoc(doc(FirebaseDB, "projects", project.id), project);
 };
 
-const userAsTeamMember = async (
+const userAsTeamMemberBond = async (
   member: ProjectTypes.ProjectTeamMember,
   project: ProjectTypes.Project,
   variant: "make" | "break"
@@ -139,14 +137,24 @@ const userAsTeamMember = async (
   updateProject(project);
 };
 
+const listenToProjectData = (projectId: string | undefined | null, cb: CallbackFn) => {
+  if (projectId) {
+    const unsub: Unsubscribe = onSnapshot(doc(FirebaseDB, "projects", projectId), (doc) => {
+      const data = doc.data();
+      cb(data, unsub);
+    });
+  }
+};
+
 const ProjectsAPI = {
   saveNewProject,
   getProjectById,
   listenToUserProjectsData,
+  listenToProjectData,
   deleteProjectById,
   getAvailableContactsForMembership,
   updateProject,
-  userAsTeamMember,
+  userAsTeamMemberBond,
 };
 
 export { ProjectsAPI };

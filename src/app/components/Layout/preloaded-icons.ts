@@ -14,6 +14,7 @@ import {
   MdOutlineLayers,
   MdViewColumn,
   MdShelves,
+  MdAssignmentInd,
 } from "react-icons/md";
 
 export const ReactIcons = {
@@ -32,4 +33,5 @@ export const ReactIcons = {
   MdOutlineLayers,
   MdViewColumn,
   MdShelves,
+  MdAssignmentInd,
 };

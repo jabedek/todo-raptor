@@ -1,3 +1,3 @@
-import NewTaskForm from "./NewTaskForm/NewTaskForm";
+import TaskForm from "./TaskForm/TaskForm";
 
-export { NewTaskForm };
+export { TaskForm };

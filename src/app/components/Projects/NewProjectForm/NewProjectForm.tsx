@@ -7,6 +7,7 @@ import { useUserValue } from "@@contexts";
 import { FormWrapper, InputWritten, InputTags, InputTagsTypes } from "@@components/forms";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
+import { ROLES_COLORS } from "../project-roles";
 
 const NewProjectForm: React.FC = () => {
   const { user } = useUserValue();
@@ -22,7 +23,7 @@ const NewProjectForm: React.FC = () => {
       const manager: ProjectTypes.ProjectTeamMember = {
         id: userId,
         email: userEmail,
-        displayName: user.personal.names.nickname,
+        roleColor: ROLES_COLORS["manager"],
         role: "manager",
       };
       const newProject: ProjectTypes.Project = {
@@ -34,6 +35,7 @@ const NewProjectForm: React.FC = () => {
         managerId: userId,
         teamMembers: [manager],
         tasksIds: [],
+        tasksCounter: 0,
         status: "active",
         archived: false,
         createdAt: new Date().toISOString(),

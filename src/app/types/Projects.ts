@@ -34,6 +34,7 @@ export type ProjectTeamMember = Flatten<
   Pick<AuthenticationDetails, "id" | "email"> & {
     role: ProjectTeamMemberRole;
     roleColor: string;
+    roleColor2?: string;
   }
 >;
 
@@ -46,6 +47,7 @@ export type Project = {
   originalCreatorId: string;
   teamMembers: ProjectTeamMember[];
   tasksIds: string[];
+  tasksCounter: number;
   status: ProjectStatus;
   archived: boolean;
   createdAt: string;

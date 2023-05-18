@@ -2,7 +2,7 @@ import FormClearX from "./components/form-buttons/FormClearX";
 
 import FormWrapper from "./components/common/FormWrapper";
 import ResultDisplayer from "./components/common/ResultDisplayer";
-import AreYouSureDialog from "./components/common/AreYouSureDialog";
+import ConfirmDialog from "./components/common/ConfirmDialog";
 
 import InputDate from "./components/basic-inputs/InputDate";
 import InputRadios from "./components/basic-inputs/InputRadios";
@@ -28,7 +28,7 @@ export {
   //
   FormWrapper,
   ResultDisplayer,
-  AreYouSureDialog,
+  ConfirmDialog,
   //
   Validator,
   EMAIL_LENGTH,

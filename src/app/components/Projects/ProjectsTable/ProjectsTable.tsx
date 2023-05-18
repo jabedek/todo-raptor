@@ -18,6 +18,21 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
   const [activeCollection, setactiveCollection] = useState<ProjectTypes.Project[]>(projectsData?.activeManaged || []);
   const { showPopup, hidePopup, popupElement } = usePopupContext();
 
+  const popupProject = () => {
+    showPopup(<NewProjectForm />);
+  };
+
+  const deleteProject = async (projectId: string) => {
+    ProjectsAPI.deleteProjectById(projectId).then(
+      (r) => {
+        hidePopup();
+      },
+      (err) => console.error(err)
+    );
+  };
+
+  console.log("ProjectsTable", popupProject, NewProjectForm);
+
   useEffect(() => {
     if (projectsData) {
       switch (tab) {
@@ -33,36 +48,6 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
       }
     }
   }, [projectsData, tab]);
-
-  const popupProject = () => {
-    console.log("popupProject");
-    console.log(showPopup);
-    console.log(popupElement);
-
-    console.log(NewProjectForm);
-
-    showPopup(<NewProjectForm />);
-  };
-  // const tags = [...new Set(projects.flatMap((project) => project.tags))];
-  // const statuses = [...new Set(projects.map((project) => project.status))];
-
-  // const handleTagChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedTags(Array.from(event.target.selectedOptions, (option) => option.value));
-  // };
-
-  // const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedStatus(event.target.value);
-  // };
-
-  const deleteProject = async (projectId: string) => {
-    ProjectsAPI.deleteProjectById(projectId).then(
-      (r) => {
-        console.log("git", r);
-        hidePopup();
-      },
-      (err) => console.error(err)
-    );
-  };
 
   return (
     <>
@@ -84,7 +69,7 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
         {/* Side */}
         <SidePanel
           widthPx="220"
-          heightPxHeader="60"
+          heightPxHeader="50"
           heightPxBody="540">
           <div className="h-full  border-l-[1px]  project-border border app_flex_center">
             <Button

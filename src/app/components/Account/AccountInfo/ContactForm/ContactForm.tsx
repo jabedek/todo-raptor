@@ -7,7 +7,7 @@ import { UserTypes, CommonTypes, ContactsTypes } from "@@types";
 import { useUserValue } from "@@contexts";
 import { Button } from "@@components/common";
 
-const InvitationForm: React.FC = () => {
+const ContactForm: React.FC = () => {
   const { user } = useUserValue();
   const [email, setemail] = useState("");
   const [message, setmessage] = useState<CommonTypes.ResultDisplay>();
@@ -119,4 +119,4 @@ const InvitationForm: React.FC = () => {
   );
 };
 
-export default InvitationForm;
+export default ContactForm;

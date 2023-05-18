@@ -1,25 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { InputWritten } from "@@components/forms";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
 import { UserVerification, AccountContacts } from "@@components/Account";
 import { useContactsValue, useUserValue } from "@@contexts";
+import { UserTypes } from "@@types";
+import { UsersAPI } from "@@api/firebase";
 
 const AccountInfo: React.FC = () => {
   const { user, firebaseAuthUser } = useUserValue();
   const { contacts } = useContactsValue();
-
   const { showPopup, popupElement } = usePopupContext();
   const [name, setname] = useState(user?.personal?.names?.name);
   const [lastname, setlastname] = useState(user?.personal?.names?.lastname);
   const [nickname, setnickname] = useState(user?.personal?.names?.nickname);
-
+  const [userChanged, setuserChanged] = useState(false);
   const popupVerification = () => showPopup(<UserVerification firebaseUser={firebaseAuthUser} />);
+
+  console.log("accountinfo", popupVerification, UserVerification);
+
+  useEffect(() => {
+    if (user) {
+      const nameChanged = user.personal.names.name !== name && !!name;
+      const lastnameChanged = user.personal.names.lastname !== lastname && !!lastname;
+      const nicknameChanged = user.personal.names.nickname !== nickname && !!nickname;
+
+      if (nameChanged || lastnameChanged || nicknameChanged) {
+        setuserChanged(true);
+      }
+    }
+  }, [lastname, nickname, name]);
+
+  const update = () => {
+    if (user) {
+      const updatedUser: UserTypes.User = { ...user };
+      if (updatedUser.personal && userChanged) {
+        updatedUser.personal.names.name = name ?? updatedUser.personal.names.name;
+        updatedUser.personal.names.lastname = lastname ?? updatedUser.personal.names.lastname;
+        updatedUser.personal.names.nickname = nickname ?? updatedUser.personal.names.nickname;
+
+        UsersAPI.updateUserFull(updatedUser).then(() => setuserChanged(false));
+      }
+    }
+  };
 
   return (
     <>
-      <div className=" flex flex-col bg-white justify-between w-full min-w-[900px] h-[800px] rounded-[3px] p-[6px] font-app_primary font-semibold">
+      <div className=" flex flex-col bg-white justify-between w-full min-w-[900px] h-[800px] rounded-[14px] p-[6px] font-app_primary font-semibold">
         <div className="flex w-full h-[750px]">
           <div className="relative flex flex-col p-2  min-w-[270px] max-w-[500px] w-full h-full">
             <p className="flex items-center justify-between h-[30px] mb-2">Personal details</p>
@@ -47,6 +75,14 @@ const AccountInfo: React.FC = () => {
               type="text"
               tailwindStyles="min-w-[250px] w-full"
             />
+            <div className="app_flex_center">
+              <Button
+                formStyle="primary"
+                clickFn={update}
+                label="Save"
+                disabled={!userChanged}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col min-w-[310px] max-w-[600px] justify-between w-full h-full p-2 border-l ">

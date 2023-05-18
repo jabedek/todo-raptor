@@ -15,6 +15,7 @@ import {
 import { AuthAPI, FirebaseDB, UsersAPI } from "@@api/firebase";
 import { ContactsTypes, UserTypes } from "@@types";
 import { CallbackFn } from "frotsi";
+import { useUserValue } from "@@contexts";
 
 export const ContactsInvitationsRef = collection(FirebaseDB, "contacts-invitations");
 export const ProjectInvitationsRef = collection(FirebaseDB, "project-invitations");
@@ -163,7 +164,6 @@ const listenToUserContactsData = async (user: UserTypes.User, cb: CallbackFn) =>
       const { authentication } = doc.data() as UserTypes.User;
       docs.push({ id: authentication.id, email: `${authentication.email}` });
     });
-    // console.log("[PROJECTS DOCS]: ", docs);
 
     cb(docs, unsub);
   });

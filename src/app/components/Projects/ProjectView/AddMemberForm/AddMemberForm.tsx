@@ -3,7 +3,7 @@ import { usePopupContext } from "@@components/Layout";
 import { PROJECT_ROLES_OPTIONS, ProjectRoleOption, ROLES_COLORS } from "@@components/Projects/project-roles";
 import { Button } from "@@components/common";
 import {
-  AreYouSureDialog,
+  ConfirmDialog,
   BasicInputsTypes,
   FormWrapper,
   InputRadios,
@@ -28,8 +28,6 @@ const AddMemberForm: React.FC<Props> = ({ user, project }) => {
   useEffect(() => {
     if (user && project) {
       ProjectsAPI.getAvailableContactsForMembership(user, project).then((members) => {
-        console.log(members);
-
         if (members) {
           const options: BasicInputsTypes.SelectOption<CommonTypes.IdEmailPair>[] = members.map((member) => ({
             value: member,
@@ -46,7 +44,7 @@ const AddMemberForm: React.FC<Props> = ({ user, project }) => {
       const roleColor = role.includes("project#") ? ROLES_COLORS["project#"] : ROLES_COLORS[role];
       const fullTeamMember: ProjectTypes.ProjectTeamMember = { ...member, role, roleColor };
 
-      ProjectsAPI.userAsTeamMember(fullTeamMember, project, "make")
+      ProjectsAPI.userAsTeamMemberBond(fullTeamMember, project, "make")
         .then((res) => {
           setmessage({ isError: false, text: "User has been added to project team." });
         })

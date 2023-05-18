@@ -1,18 +1,17 @@
-import { VisualElements } from "./common";
+import { Flatten, VisualElements } from "./common";
 
 export type User = {
-  authentication: AuthenticationDetails;
-  contacts: ContactsDetails;
-  personal: PersonalDetails;
-  work: WorkDetails;
+  authentication: Flatten<AuthenticationDetails>;
+  contacts: Flatten<ContactsDetails>;
+  personal: Flatten<PersonalDetails>;
+  work: Flatten<WorkDetails>;
 };
 
 export type AuthenticationDetails = {
   id: string;
-  email: string | null | undefined;
+  email: string;
   verifEmailsAmount: number;
-  lastVerifEmailAt: string | undefined;
-  token?: string;
+  lastVerifEmailAt: string;
 };
 
 export type ContactsDetails = {
@@ -26,7 +25,6 @@ export type PersonalDetails = {
     lastname: string;
     nickname: string;
   };
-
   visuals: VisualElements;
 };
 

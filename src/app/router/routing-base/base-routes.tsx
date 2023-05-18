@@ -1,8 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
 
-import HomePage from "src/app/pages/base/home/home-page";
-
 const LoginPage = lazy(() => import("src/app/pages/base/auth/login-page"));
 const RegisterPage = lazy(() => import("src/app/pages/base/auth/register-page"));
 const WrongRoutePage = lazy(() => import("src/app/pages/base/wrong-route/wrong-route-page"));
@@ -12,15 +10,10 @@ export const BASE_ROUTES: RouteObject[] = [
     path: "",
     element: (
       <Navigate
-        to="home"
+        to="projects"
         replace
       />
     ),
-  },
-
-  {
-    path: "home",
-    element: <HomePage />,
   },
 
   {

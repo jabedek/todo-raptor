@@ -1,7 +1,7 @@
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 import { setDoc, doc, getDoc, updateDoc, collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
-
 import { FirebaseDB } from "@@api/firebase/firebase-config";
+
 import { UserTypes } from "@@types";
 import { CallbackFn } from "frotsi";
 import { ProjectsAPI } from "./projectsAPI";
@@ -19,7 +19,7 @@ const saveNewUserInDB = async (
   const appUser: UserTypes.User = {
     authentication: {
       id: user.uid,
-      email: user.email,
+      email: user.email || "",
       verifEmailsAmount: 0,
       lastVerifEmailAt: "",
     },
@@ -43,7 +43,7 @@ const saveNewUserInDB = async (
   };
 
   setDoc(doc(FirebaseDB, "users", user.uid), appUser).then(
-    () => console.log(),
+    () => {},
     (error) => console.log(error)
   );
 };

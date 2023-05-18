@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { usePopupContext } from "@@components/Layout";
-import { InvitationItem, InvitationForm } from "@@components/Account";
 import { UserTypes, ContactsTypes } from "@@types";
 import { ContactsAPI, UsersAPI } from "@@api/firebase";
 import { Button } from "@@components/common";
 import { ReactIcons } from "@@components/Layout/preloaded-icons";
+import ContactForm from "../ContactForm/ContactForm";
+import ContactItem from "../ContactItem/ContactItem";
 
 const AccountContacts: React.FC<{ user: UserTypes.User | undefined; contacts: ContactsTypes.Contact[] }> = ({
   user,
@@ -15,7 +16,7 @@ const AccountContacts: React.FC<{ user: UserTypes.User | undefined; contacts: Co
   const [invitesReceived, setinvitesReceived] = useState<ContactsTypes.ContactInvitation[]>([]);
 
   const { showPopup, popupElement } = usePopupContext();
-  const popupInvitation = () => showPopup(<InvitationForm />);
+  const popupInvitation = () => showPopup(<ContactForm />);
   const deleteContact = (contact: ContactsTypes.Contact) => {
     if (contact.id && user?.authentication.id) {
       ContactsAPI.updateContactsBond(contact.id, user?.authentication.id, "break").fireAndForget();
@@ -88,11 +89,11 @@ const AccountContacts: React.FC<{ user: UserTypes.User | undefined; contacts: Co
       </div>
 
       <div className="flex flex-col w-full h-[150px]">
-        <p className="flex items-center justify-between h-[30px] ">Invitations you sent</p>
+        <p className="flex items-center justify-between h-[30px] ">Contact invitations you sent</p>
         <ul className="h-[120px] border rounded-[3px] overflow-y-scroll">
           {invitesSent.map((i, index) => (
             <li key={index}>
-              <InvitationItem
+              <ContactItem
                 invitation={i}
                 perspectiveOf="receiver"
               />
@@ -102,11 +103,11 @@ const AccountContacts: React.FC<{ user: UserTypes.User | undefined; contacts: Co
       </div>
 
       <div className="flex flex-col w-full h-[150px]">
-        <p className="flex items-center justify-between h-[30px] ">Invitations from other users</p>
+        <p className="flex items-center justify-between h-[30px] ">Contact invitations from other users</p>
         <ul className="h-[120px] border rounded-[3px] overflow-y-scroll">
           {invitesReceived.map((i, index) => (
             <li key={index}>
-              <InvitationItem
+              <ContactItem
                 key={index}
                 invitation={i}
                 perspectiveOf="sender"

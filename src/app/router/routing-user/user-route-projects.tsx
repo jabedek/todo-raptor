@@ -10,6 +10,7 @@ const ProjectViewPage = lazy(() => import("src/app/pages/user/projects/project-v
 
 export const USER_ROUTE_PROJECTS: RouteObject = {
   path: "projects",
+
   element: (
     <ProjectsProvider>
       <ProtectedRoute>

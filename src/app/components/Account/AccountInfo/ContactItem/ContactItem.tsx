@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 
-import "./InvitationItem.scss";
-import { InvitationTypes } from "@@types";
+import "./ContactItem.scss";
+import { ContactsTypes } from "@@types";
 import { DateFormatter, DateFormats } from "@@utils/date-formatter";
 import { ContactsAPI } from "@@api/firebase";
 import { ReactIcons } from "@@components/Layout/preloaded-icons";
 
-const InvitationItem: React.FC<{ invitation: InvitationTypes.ContactInvitation; perspectiveOf: "sender" | "receiver" }> = ({
+const ContactItem: React.FC<{ invitation: ContactsTypes.ContactInvitation; perspectiveOf: "sender" | "receiver" }> = ({
   invitation,
   perspectiveOf,
 }) => {
@@ -25,7 +25,7 @@ const InvitationItem: React.FC<{ invitation: InvitationTypes.ContactInvitation; 
   }, [invitation, perspectiveOf]);
 
   const handleSubmit = (variant: "accept" | "reject") => {
-    let updatedInv: InvitationTypes.ContactInvitation = { ...invitation };
+    let updatedInv: ContactsTypes.ContactInvitation = { ...invitation };
 
     switch (variant) {
       case "accept":
@@ -51,7 +51,7 @@ const InvitationItem: React.FC<{ invitation: InvitationTypes.ContactInvitation; 
   };
 
   return (
-    <div className="flex items-center text-sm py-2 h-[64px] px-3 border-b border-gray-100 justify-between">
+    <div className="flex items-center text-sm py-2 h-[64px] px-3 w-full border-b border-gray-100 justify-between">
       <div className="flex flex-col font-[400] text-[11px] whitespace-pre min-w-[80px] ">
         <p className="font-app_mono ">{date}</p>
         <p className={`font-app_primary font-[700] uppercase status-${subject?.status}`}>{subject?.status}</p>
@@ -77,4 +77,4 @@ const InvitationItem: React.FC<{ invitation: InvitationTypes.ContactInvitation; 
   );
 };
 
-export default InvitationItem;
+export default ContactItem;

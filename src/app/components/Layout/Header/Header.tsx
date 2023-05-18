@@ -35,11 +35,6 @@ const Header: React.FC = () => {
       </div>
       <span className="text-[13px]">{`${user ? "Hi, " + user.authentication?.email + "!" : ""}`}</span>
       <nav className="w-[420px] flex justify-end gap-[38px]">
-        <HeaderNavLink
-          path="/home"
-          name="Home"
-        />
-
         {!user && (
           <>
             <HeaderNavLink

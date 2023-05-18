@@ -3,19 +3,21 @@ import { useUserValue } from "src/app/contexts";
 import { useEffect, useState } from "react";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; logPath?: string }> = ({ children, logPath }) => {
-  const { user } = useUserValue();
+  const { user, canUseAPI } = useUserValue();
   const [canRoute, setcanRoute] = useState<"checking" | boolean>("checking");
 
   useEffect(() => {
-    const timer = setTimeout(() => setcanRoute(!!user), 1000 * 10);
+    const isValid = !!user && canUseAPI;
 
-    if (user) {
+    const timer = setTimeout(() => setcanRoute(!!isValid), 1000 * 10);
+
+    if (isValid) {
       setcanRoute(true);
       clearTimeout(timer);
     }
 
     return () => clearTimeout(timer);
-  }, [user]);
+  }, [user, canUseAPI]);
 
   useEffect(() => {
     if (logPath) {
@@ -25,7 +27,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; logPath?: string }> 
 
   return (
     <>
-      {(canRoute || user) && <>{children}</>}
+      {(canRoute === true || (!!user && canUseAPI)) && <>{children}</>}
       {canRoute === false && (
         <Navigate
           to="/"
@@ -33,7 +35,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; logPath?: string }> 
         />
       )}
 
-      {canRoute === "checking" && <p>{"Loading"}</p>}
+      {canRoute === "checking" && <p className="text-red-500">{"Loading"}</p>}
     </>
   );
 };

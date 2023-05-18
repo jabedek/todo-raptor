@@ -37,11 +37,12 @@ const ProjectsProvider = ({ children }: any) => {
     archivedWorking: [],
   });
 
-  const { user } = useUserValue();
+  const { user, canUseAPI } = useUserValue();
 
   useEffect(() => {
     unsubListener();
-    if (user) {
+
+    if (user && canUseAPI) {
       ProjectsAPI.listenToUserProjectsData(user, (data: ProjectTypes.Project[], unsubFn) => {
         UNSUB_PROJECTS = unsubFn;
         sortProjects(user.authentication.id, data);

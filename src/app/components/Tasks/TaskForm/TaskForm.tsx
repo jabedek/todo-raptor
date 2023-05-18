@@ -17,17 +17,19 @@ import { TasksAPI } from "@@api/firebase";
 
 type Props = {
   project: ProjectTypes.Project | undefined;
+  task?: TaskTypes.Task;
 };
 
-const NewTaskForm: React.FC<Props> = ({ project }) => {
+const TaskForm: React.FC<Props> = ({ project, task }) => {
   type Option = BasicInputsTypes.SelectOption<ProjectTypes.ProjectTeamMember>;
   const [title, settitle] = useState("");
   const [description, setdescription] = useState("");
   const [tags, settags] = useState<InputTagsTypes.TagItem[]>([]);
   const [assignee, setassignee] = useState<ProjectTypes.ProjectTeamMember>();
   const [status, setstatus] = useState<TaskProgressStatus>("new");
-  const [membersOptions, setmembersOptions] = useState<Option[]>([]);
+  const [assigneesOptions, setassigneesOptions] = useState<Option[]>([]);
   const [message, setmessage] = useState<CommonTypes.ResultDisplay>();
+  const [formMode, setformMode] = useState<"new" | "edit">("new");
 
   useEffect(() => {
     const options: Option[] = (project?.teamMembers || []).map((member) => {
@@ -35,18 +37,27 @@ const NewTaskForm: React.FC<Props> = ({ project }) => {
       return { label: memberEmail, value: { ...member, email: memberEmail } };
     });
 
-    setmembersOptions(options);
+    setassigneesOptions(options);
   }, [project?.teamMembers]);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    if (task) {
+      setformMode("edit");
+    } else {
+      setformMode("new");
+    }
+  }, [task]);
+
+  const handleSubmitNewTask = () => {
     if (project && assignee) {
       const task: TaskTypes.Task = {
         id: `task_${generateDocumentId()}`,
-        title,
+        title: title.replace(RegExp(/\s{2,}/gm), " ").trim(),
         description,
         tags: tags.map((t) => t.value),
         assigneeId: assignee?.id,
         status,
+        taskNumber: (project?.tasksCounter || 0) + 1,
         projectId: project.id,
         createdAt: new Date().toISOString(),
         closedAt: "",
@@ -58,9 +69,7 @@ const NewTaskForm: React.FC<Props> = ({ project }) => {
         onList: "backlog",
       };
 
-      console.log(task);
-
-      TasksAPI.saveNewTaskInDB(task)
+      TasksAPI.saveNewTaskInDB(task, project)
         .then(() => {
           setmessage({ text: "Task has been added to project.", isError: false });
         })
@@ -69,6 +78,16 @@ const NewTaskForm: React.FC<Props> = ({ project }) => {
 
           setmessage({ isError: true, text: "Error during adding task. See console." });
         });
+    }
+  };
+
+  const handleSubmitEditedTask = () => {};
+
+  const handleSubmit = () => {
+    if (formMode === "new") {
+      handleSubmitNewTask();
+    } else {
+      handleSubmitEditedTask();
     }
   };
 
@@ -102,9 +121,9 @@ const NewTaskForm: React.FC<Props> = ({ project }) => {
         name="assignee"
         selectWidth="w-[460px]"
         changeFn={(val) => setassignee(val)}
-        label="Select member from your contacts"
+        label="Assign member"
         value={assignee}
-        options={membersOptions}
+        options={assigneesOptions}
       />
 
       <InputWritten
@@ -143,11 +162,11 @@ const NewTaskForm: React.FC<Props> = ({ project }) => {
         formStyle="primary"
         tailwindStyles="mt-8"
         disabled={!(status && title && assignee)}
-        clickFn={handleSubmit}>
+        clickFn={handleSubmitNewTask}>
         Submit
       </Button>
     </FormWrapper>
   );
 };
 
-export default NewTaskForm;
+export default TaskForm;

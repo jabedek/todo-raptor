@@ -19,13 +19,12 @@ let UNSUB_CONTACTS: Unsubscribe | undefined = undefined;
 const ContactsProvider = ({ children }: any) => {
   const [contacts, setcontacts] = useState<ContactsTypes.Contact[]>([]);
 
-  const { user } = useUserValue();
+  const { user, canUseAPI } = useUserValue();
 
   useEffect(() => {
     unsubListener();
-    if (user) {
+    if (user && canUseAPI) {
       ContactsAPI.listenToUserContactsData(user, (data: ContactsTypes.Contact[], unsubFn) => {
-        console.log(user.authentication.email, data);
         setcontacts(data);
         UNSUB_CONTACTS = unsubFn;
       });

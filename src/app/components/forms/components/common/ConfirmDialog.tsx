@@ -9,7 +9,7 @@ type Props = {
   closeOnSuccess?: boolean;
 };
 
-const AreYouSureDialog: React.FC<Props> = ({ submitFn, whatAction, closeOnSuccess }) => {
+const ConfirmDialog: React.FC<Props> = ({ submitFn, whatAction, closeOnSuccess }) => {
   const { hidePopup } = usePopupContext();
   const handleSubmit = () => {
     submitFn();
@@ -31,4 +31,4 @@ const AreYouSureDialog: React.FC<Props> = ({ submitFn, whatAction, closeOnSucces
   );
 };
 
-export default AreYouSureDialog;
+export default ConfirmDialog;

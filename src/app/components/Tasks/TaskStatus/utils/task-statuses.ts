@@ -17,3 +17,10 @@ export const STATUSES_OPTIONS: SelectOption<TaskProgressStatus>[] = labels.map((
   iconClass: `status-${names[i]}`,
   value: names[i],
 }));
+
+export const getDetailsByStatus = (status: TaskProgressStatus) => {
+  const { label, iconClass } = STATUSES_OPTIONS[names.findIndex((s) => s === status)];
+  return { label, iconClass, status };
+};
+
+export type TaskStatusDetails = ReturnType<typeof getDetailsByStatus>;
