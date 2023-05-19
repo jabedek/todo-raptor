@@ -24,6 +24,9 @@ export default {
         app_form_button_focus: ".1px 2px 4px rgba(0,0,0,0.5)",
         app_form_button_active: ".1px 2px 4px rgba(0,0,0,0.75)",
       },
+      dropShadow: {
+        app_text_sharp: "1px 1px 3px rgba(0,0,0,1)",
+      },
     },
     screens: {
       xs: "320px", // custom

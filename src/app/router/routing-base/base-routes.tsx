@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@@components/common";
 import { Suspense, lazy } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
 
@@ -19,7 +20,7 @@ export const BASE_ROUTES: RouteObject[] = [
   {
     path: "login",
     element: (
-      <Suspense fallback="Loading LoginPage">
+      <Suspense fallback={<LoadingSpinner size="xl" />}>
         <LoginPage />
       </Suspense>
     ),
@@ -28,7 +29,7 @@ export const BASE_ROUTES: RouteObject[] = [
   {
     path: "register",
     element: (
-      <Suspense fallback="Loading RegisterPage">
+      <Suspense fallback={<LoadingSpinner size="xl" />}>
         <RegisterPage />
       </Suspense>
     ),
@@ -37,7 +38,7 @@ export const BASE_ROUTES: RouteObject[] = [
   {
     path: "*",
     element: (
-      <Suspense fallback="Loading WrongRoutePage">
+      <Suspense fallback={<LoadingSpinner size="xl" />}>
         <WrongRoutePage />
       </Suspense>
     ),

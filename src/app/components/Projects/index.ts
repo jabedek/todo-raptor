@@ -8,7 +8,7 @@ import ProjectStatus from "./ProjectsTable/ProjectsTableItem/ProjectStatus/Proje
 import ProjectsTableBody from "./ProjectsTable/ProjectsTableBody/ProjectsTableBody";
 import ProjectView from "./ProjectView/ProjectView";
 import ProjectViewHeader from "./ProjectView/ProjectViewHeader/ProjectViewHeader";
-import AddMemberForm from "./ProjectView/AddMemberForm/AddMemberForm";
+import AssignToProjectForm from "./ProjectView/AssignToProjectForm/AssignToProjectForm";
 
 export {
   NewProjectForm,
@@ -23,5 +23,5 @@ export {
   //
   ProjectView,
   ProjectViewHeader,
-  AddMemberForm,
+  AssignToProjectForm,
 };

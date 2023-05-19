@@ -1,0 +1,99 @@
+@use "sass:map";
+
+/* # Project Status # */
+
+$project-roles: (
+  "manager": "rgba(21, 175, 115, 1)",
+  "product_owner": "rgba(21, 175, 115, 1)",
+  "vice_manager": "rgba(21, 175, 115, 1)",
+  "team_leader": "rgba(0, 124, 80, 1)",
+  "analyst": "rgba(230, 183, 37, 1)",
+  "designer": "rgba(230, 183, 37, 1)",
+  "intern": "rgba(5, 6, 151, 1)",
+  "coworker": "rgba(5, 6, 151, 1)",
+  "tester": "rgba(254, 98, 9, 1)",
+  "ui_designer": "rgba(125, 105, 176, 1)",
+  "developer": "rgba(18, 92, 255, 1)",
+  "spectator": "rgba(128, 74, 40, 1)",
+  "CUSTOM_ROLE": "rgba(236, 51, 0, 1)",
+);
+
+$project-roles-text: (
+  "manager": black,
+  "product_owner": black,
+  "vice_manager": black,
+  "team_leader": white,
+  "analyst": black,
+  "designer": black,
+  "intern": white,
+  "coworker": white,
+  "tester": black,
+  "ui_designer": black,
+  "developer": black,
+  "spectator": white,
+  "CUSTOM_ROLE": black,
+);
+
+@mixin project-role-icon($color) {
+  padding-left: 16px;
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    line-height: 10px;
+    margin-left: 2px;
+    left: -6px;
+    top: 5px;
+    border-radius: 2px;
+    background-color: #{$color};
+    box-shadow: 0.8px 0.8px 3px rgba(0, 0, 0, 0.8);
+  }
+}
+
+@each $project-role, $role-color in $project-roles {
+  .icon-role-#{$project-role} {
+    @include project-role-icon($role-color);
+  }
+  .profile-role-#{$project-role} {
+    background-color: #{$role-color};
+    color: map.get($project-roles-text, $project-role);
+  }
+}
+
+/* # Task Status # */
+$task-statuses: (
+  "new": "#6e92cf",
+  "progress": "#0060ff",
+  "review": "#00c9c2",
+  "tests": "#d3a900",
+  "done": "#049900",
+  "blocked": "#ff0000",
+  "cancelled": "#8d8b8b",
+);
+
+@mixin task-status($color) {
+  padding-left: 18px;
+  position: relative;
+  text-shadow: 0.1px 0.1px 1px rgba(0, 0, 0, 0.25);
+  &::before {
+    content: "";
+    position: absolute;
+    width: 5px;
+    height: 12px;
+    line-height: 12px;
+    margin-left: 4px;
+    left: -6px;
+    top: 3px;
+    border-radius: 1px;
+    background-color: #{$color};
+    box-shadow: 0.8px 0.8px 3px rgba(0, 0, 0, 0.8);
+  }
+}
+
+@each $status, $color in $task-statuses {
+  .status-#{$status} {
+    @include task-status($color);
+  }
+}

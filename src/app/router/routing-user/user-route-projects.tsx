@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@@components/common";
 import { ProjectsProvider } from "@@contexts";
 import { ProjectTypes } from "@@types";
 import { Suspense, lazy } from "react";
@@ -13,7 +14,7 @@ export const USER_ROUTE_PROJECTS: RouteObject = {
 
   element: (
     <ProjectsProvider>
-      <ProtectedRoute>
+      <ProtectedRoute path="projects">
         <Outlet />
       </ProtectedRoute>
     </ProjectsProvider>
@@ -22,7 +23,7 @@ export const USER_ROUTE_PROJECTS: RouteObject = {
     {
       path: "",
       element: (
-        <Suspense fallback="Loading ProjectsDashboardPage">
+        <Suspense fallback={<LoadingSpinner size="xl" />}>
           <ProjectsDashboardPage />
         </Suspense>
       ),
@@ -31,7 +32,7 @@ export const USER_ROUTE_PROJECTS: RouteObject = {
     {
       path: ":projectId",
       element: (
-        <Suspense fallback="Loading ProjectViewPage">
+        <Suspense fallback={<LoadingSpinner size="xl" />}>
           <ProjectViewPage />
         </Suspense>
       ),

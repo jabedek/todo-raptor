@@ -16,8 +16,13 @@ const PopupContext = createContext<PopupContext>({
   hidePopup: () => {},
 });
 
-const Popup: React.FC<{ refreshOnClose: boolean }> = (props) => {
-  const { popupElement, hidePopup } = usePopupContext();
+type Popup = {
+  refreshOnClose: boolean;
+  popupElement: JSX.Element | undefined;
+  hidePopup: () => void;
+};
+
+const Popup: React.FC<Popup> = ({ refreshOnClose, popupElement, hidePopup }) => {
   const [hiding, sethiding] = useState(false);
   const navigate = useNavigate();
 
@@ -31,7 +36,7 @@ const Popup: React.FC<{ refreshOnClose: boolean }> = (props) => {
       setTimeout(() => {
         sethiding(false);
         hidePopup();
-        if (props.refreshOnClose) {
+        if (refreshOnClose) {
           navigate(0);
         }
       }, 600);
@@ -65,27 +70,25 @@ const Popup: React.FC<{ refreshOnClose: boolean }> = (props) => {
 };
 
 const PopupProvider = ({ children }: any) => {
-  console.log("PopupProvider", children);
-
   const [popupElement, setelement] = useState<JSX.Element>();
   const [refreshOnClose, setrefreshOnClose] = useState(false);
+  console.log("PopupProvider", children);
 
-  const showPopup = useCallback(
-    (popupElement: JSX.Element, refreshOnClose?: boolean) => {
-      console.log("PopupProvider", popupElement);
-
-      setelement(popupElement);
-      setrefreshOnClose(!!refreshOnClose);
-    },
-    [popupElement]
-  );
-  const hidePopup = () => {
-    setelement(undefined);
+  const showPopup = (popupElement: JSX.Element, refreshOnClose?: boolean) => {
+    console.log("PopupProvider", popupElement);
+    setelement(popupElement);
+    setrefreshOnClose(!!refreshOnClose);
   };
 
+  const hidePopup = () => setelement(undefined);
+
   return (
-    <PopupContext.Provider value={{ popupElement, showPopup, hidePopup }}>
-      <Popup refreshOnClose={refreshOnClose} />
+    <PopupContext.Provider value={{ popupElement, hidePopup, showPopup }}>
+      <Popup
+        refreshOnClose={refreshOnClose}
+        popupElement={popupElement}
+        hidePopup={hidePopup}
+      />
       {children}
     </PopupContext.Provider>
   );

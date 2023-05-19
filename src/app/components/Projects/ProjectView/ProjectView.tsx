@@ -6,18 +6,21 @@ import { ProjectTypes, TaskTypes, UserTypes } from "@@types";
 import ProjectViewHeader from "./ProjectViewHeader/ProjectViewHeader";
 import SidePanel from "@@components/common/SidePanel";
 import { usePopupContext } from "@@components/Layout";
-import AddMemberForm from "./AddMemberForm/AddMemberForm";
-import { useUserValue } from "@@contexts";
+import { useProjectsValue, useUserValue } from "@@contexts";
 import { ConfirmDialog, FormClearX } from "@@components/forms";
-import { ProjectsAPI, TasksAPI } from "@@api/firebase";
+import { ProjectsAPI, TasksAPI, UsersAPI } from "@@api/firebase";
 import { TaskForm } from "@@components/Tasks";
 import { useEffect, useState } from "react";
 import ProjectSchedule from "./tabs/ProjectSchedule/ProjectSchedule";
 import { Unsubscribe } from "firebase/auth";
 import ProjectBacklog from "./tabs/ProjectBacklog/ProjectBacklog";
-import { TaskStatusDetails, getDetailsByStatus } from "@@components/Tasks/TaskStatus/utils/task-statuses";
-import { TaskWithDetails } from "src/app/types/Tasks";
-import { PROJECT_ROLES_OPTIONS } from "../project-roles";
+import {
+  TaskListType,
+  getProjectRoleDetails,
+  getTaskStatusDetails,
+} from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
+import AssignToProjectForm from "./AssignToProjectForm/AssignToProjectForm";
+import ProjectAssigneeIcon from "../ProjectAssigneeIcon/ProjectAssigneeIcon";
 
 type Props = {
   projectData: ProjectTypes.Project | undefined;
@@ -26,10 +29,18 @@ type Props = {
 let UNSUB_TASKS: Unsubscribe | undefined = undefined;
 let UNSUB_PROJECT: Unsubscribe | undefined = undefined;
 
+type TasksSplitted = {
+  schedule: TaskTypes.TaskWithDetails[];
+  backlog: TaskTypes.TaskWithDetails[];
+  archive: TaskTypes.TaskWithDetails[];
+};
+
 const ProjectView: React.FC<Props> = ({ projectData }) => {
-  const [tab, settab] = useState<TaskTypes.TaskListType>("schedule");
-  const [tasks, settasks] = useState<TaskWithDetails[]>([]);
+  const [tab, settab] = useState<TaskListType>("schedule");
+  const [tasks, settasks] = useState<TasksSplitted>({ schedule: [], backlog: [], archive: [] });
   const [project, setproject] = useState<ProjectTypes.Project | undefined>(projectData);
+  const { unboundAssignees } = useProjectsValue();
+  const [assignees, setassignees] = useState<ProjectTypes.ProjectAssigneeFull[]>([]);
   // schedule - statuses: "New", "In progress" + "Blocked", "In review" + "In tests"
   // backlog - "New", occasionally also "Blocked"
   // archive - "Done", "Cancelled"
@@ -45,20 +56,40 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
         setproject(project);
         UNSUB_PROJECT = unsubProject;
         unsubListener("tasks");
-        TasksAPI.listenToProjectTasks(["_", ...project.tasksIds], (data: TaskTypes.Task[], unsubTasks) => {
-          UNSUB_TASKS = unsubTasks;
 
-          const dataWithStatusDetails: TaskWithDetails[] = data.map((task) => {
-            const assignee = project?.teamMembers.find((m) => m.id === task.assigneeId);
-            const assigneeDetails = {
+        const tasksIds = [...project.tasksIds];
+        if (tasksIds?.length) {
+          TasksAPI.listenToTasks(tasksIds, (data: TaskTypes.Task[], unsubTasks) => {
+            console.log(tasksIds, data);
+            UNSUB_TASKS = unsubTasks;
+            const assigneesWithDetails: ProjectTypes.ProjectAssigneeFull[] | undefined = project.assignees.map((assignee) => ({
               ...assignee,
-              roleColor2: PROJECT_ROLES_OPTIONS.find(({ value }) => value === assignee?.role)?.iconClass,
+              names: unboundAssignees[assignee.id]?.names,
+              roleDetails: getProjectRoleDetails(assignee.role),
+            }));
+
+            const tasksWithDetails: TaskTypes.TaskWithDetails[] = data.map((task) => ({
+              ...task,
+              assigneeDetails: assigneesWithDetails.find(({ id }) => id === task.assigneeId),
+              statusDetails: getTaskStatusDetails(task.status),
+            }));
+
+            setassignees(assigneesWithDetails);
+
+            const tasksSplitted: TasksSplitted = {
+              schedule: [],
+              backlog: [],
+              archive: [],
             };
-            const statusDetails = getDetailsByStatus(task.status);
-            return { ...task, assigneeDetails, statusDetails } as any;
+
+            tasksWithDetails.forEach((task) => {
+              tasksSplitted[task.list.type].push(task);
+            });
+
+            settasks(tasksSplitted);
+            console.log(tasksSplitted);
           });
-          settasks(dataWithStatusDetails);
-        });
+        }
       });
     }
 
@@ -76,32 +107,38 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
     }
   };
 
-  const popupAddMemberForm = () =>
+  const popupAssignToProjectForm = () =>
     showPopup(
-      <AddMemberForm
+      <AssignToProjectForm
         user={user}
         project={project}
       />
     );
 
-  const popupConfirmDialog = (member: ProjectTypes.ProjectTeamMember) =>
+  const popupConfirmDialog = (assignee: ProjectTypes.ProjectAssigneeFull) =>
     showPopup(
       <ConfirmDialog
-        submitFn={() => removeMember(member)}
-        whatAction="remove member from project"
+        submitFn={() => removeAssignee(assignee)}
+        whatAction="remove assignee from project"
         closeOnSuccess={true}
       />
     );
 
-  const removeMember = (member: ProjectTypes.ProjectTeamMember) => {
+  const removeAssignee = (assignee: ProjectTypes.ProjectAssigneeFull) => {
     if (project) {
-      ProjectsAPI.userAsTeamMemberBond(member, project, "break")
+      ProjectsAPI.userAsAssigneeBond(assignee, project, "break")
         .then(() => {})
         .catch((e) => console.error(e));
     }
   };
 
-  const popupTaskForm = () => showPopup(<TaskForm project={project} />);
+  const popupTaskForm = (task?: TaskTypes.Task) =>
+    showPopup(
+      <TaskForm
+        project={project}
+        task={task}
+      />
+    );
 
   return (
     <>
@@ -111,6 +148,8 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
 
           {/* Main */}
           <div className="project-view__main flex flex-col justify-start">
+            {/* <RenderObject data={tasks} />
+            {tab} */}
             <ProjectViewHeader
               projectTitle={project?.title}
               setTabFn={(tab) => settab(tab)}
@@ -121,10 +160,19 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
             {tab === "backlog" && (
               <ProjectBacklog
                 project={project}
-                tasks={tasks.filter((t) => t.onList === "backlog")}
+                assignees={assignees}
+                tasks={tasks["backlog"]}
+                popupTaskForm={popupTaskForm}
               />
             )}
-            {tab === "schedule" && <ProjectSchedule tasks={tasks.filter((t) => t.onList === "schedule")} />}
+            {tab === "schedule" && (
+              <ProjectSchedule
+                project={project}
+                assignees={assignees}
+                tasks={tasks["schedule"]}
+                popupTaskForm={popupTaskForm}
+              />
+            )}
           </div>
 
           {/* Side - Right */}
@@ -134,35 +182,40 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
             heightPxBody="540">
             <div className="h-full project-border border border-l-[1px] app_flex_center">
               <Button
-                label="Add member"
-                clickFn={popupAddMemberForm}
+                label="Add assignee"
+                clickFn={popupAssignToProjectForm}
                 formStyle="primary"
               />
             </div>
             <div className="h-full project-border border border-y-0 ">
-              {project?.teamMembers.map((m, i) => (
+              {assignees.map((assignee, i) => (
                 <div
                   className="relative flex items-center py-2 border-none border-transparent"
                   key={i}>
-                  <div
+                  <ProjectAssigneeIcon
+                    assignee={assignee}
+                    tailwindStyles="mx-[10px] "
+                  />
+
+                  {/* <div
                     key={i + "name"}
-                    className={`team-member relative font-app_mono mx-[10px] text-[10px] h-[24px] w-[24px] rounded-full ${m.roleColor} app_flex_center border-2 border-white border-solid
+                    className={`team-assignee relative font-app_mono mx-[10px] text-[10px] h-[24px] w-[24px] rounded-full ${assignee.roleDetails?.styleClasses[1]} app_flex_center border-2 border-white border-solid
                      `}>
-                    <p>{m.email?.substring(0, 2).toUpperCase()}</p>
-                  </div>
+                    <p>{assignee.email?.substring(0, 2).toUpperCase()}</p>
+                  </div> */}
                   <p
-                    key={m.email}
+                    key={assignee.email}
                     className="text-[11px]">
-                    {m.email}
+                    {assignee.email}
                   </p>
 
-                  {user?.authentication.id !== m.id && (
+                  {user?.authentication.id !== assignee.id && (
                     <div className="ml-2">
                       <FormClearX
                         key={i + "x"}
-                        clickFn={() => popupConfirmDialog(m)}
+                        clickFn={() => popupConfirmDialog(assignee)}
                         sizeVariant="I"
-                        relatedItemId={m.id}
+                        relatedItemId={assignee.id}
                       />
                     </div>
                   )}

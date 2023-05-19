@@ -88,42 +88,46 @@ const listenToFirebaseAuthState = (cb: CallbackFn) => {
   // setCodes();
 };
 
-// Code
-
-export const CHECK_CODE = import.meta.env.VITE_REACT_APP_check_Code === "yes";
-export const CHECK_EMAIL_VERIF = import.meta.env.VITE_REACT_APP_check_EmailVerif === "yes";
+export const CHECK_ACCESS = import.meta.env.VITE_REACT_APP_CHECK_ACCESS === "yes";
+const CODE0 = import.meta.env.VITE_REACT_APP_CODE0;
+const CODE1 = import.meta.env.VITE_REACT_APP_CODE1;
 
 const setCodes = async () => {
-  const codes: AppCode[] = [
-    {
-      id: "03f6-4fc0-469e-85b5",
-      isoStart: "2023-05-01T00:00:00.000Z",
-      isoEnd: "2023-05-31T00:00:00.000Z",
-    },
-    {
-      id: "365c-dff7-4f38-9aae",
-      isoStart: "2023-06-01T00:00:00.000Z",
-      isoEnd: "2023-05-30T00:00:00.000Z",
-    },
-  ];
+  if (CODE0 && CODE1) {
+    const codes: AppCode[] = [
+      {
+        id: CODE0,
+        isoStart: "2023-05-01T00:00:00.000Z",
+        isoEnd: "2023-05-31T00:00:00.000Z",
+      },
+      {
+        id: CODE1,
+        isoStart: "2023-06-01T00:00:00.000Z",
+        isoEnd: "2023-05-30T00:00:00.000Z",
+      },
+    ];
 
-  Promise.all([
-    setDoc(doc(FirebaseDB, "codes", codes[0].id), codes[0]),
-    setDoc(doc(FirebaseDB, "codes", codes[1].id), codes[1]),
-  ]).then(
-    () => {
-      console.log("Success");
-    },
-    (e) => console.log(e)
-  );
+    Promise.all([
+      setDoc(doc(FirebaseDB, "codes", codes[0].id), codes[0]),
+      setDoc(doc(FirebaseDB, "codes", codes[1].id), codes[1]),
+    ]).then(
+      () => {
+        console.log("Success");
+      },
+      (e) => console.log(e)
+    );
+  }
 };
 
-const checkIfUserCanUseAPI = async (codeValue = "") => {
-  const emailVerif = !CHECK_EMAIL_VERIF || !!getCurrentFirebaseAuthUser()?.emailVerified;
-  let codeValid = false;
-  if (!CHECK_CODE) {
-    codeValid = true;
+const checkAccessToAPI = async (codeValue = "") => {
+  if (!CHECK_ACCESS) {
+    return { codeValid: true, emailVerif: true };
   }
+
+  const emailVerif = !!getCurrentFirebaseAuthUser()?.emailVerified;
+  console.log("emailVerif", emailVerif);
+
+  let codeValid = false;
 
   if (!codeValue) {
     codeValid = false;
@@ -135,10 +139,13 @@ const checkIfUserCanUseAPI = async (codeValue = "") => {
     codeValid = false;
   }
 
-  const { isoEnd, isoStart } = docSnap.data() as AppCode;
-  const today = new Date(new Date().toISOString());
+  const data = docSnap.data();
+  if (data) {
+    const { isoEnd, isoStart } = docSnap.data() as AppCode;
+    const today = new Date(new Date().toISOString());
 
-  codeValid = new Date(isoEnd) >= today && today >= new Date(isoStart);
+    codeValid = new Date(isoEnd) >= today && today >= new Date(isoStart);
+  }
 
   return { codeValid, emailVerif };
 };
@@ -155,7 +162,7 @@ const AuthAPI = {
   listenToFirebaseAuthState,
   //
   setCodes,
-  checkIfUserCanUseAPI,
+  checkAccessToAPI,
 };
 
 export { AuthAPI };

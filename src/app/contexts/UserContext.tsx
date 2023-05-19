@@ -6,27 +6,26 @@ import { APITypes, AuthAPI, UsersAPI } from "@@api/firebase";
 import { Enums, UserTypes } from "@@types";
 import { useProjectsValue } from "./ProjectsContext";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import { CHECK_CODE, CHECK_EMAIL_VERIF } from "@@api/firebase/handlers/authAPI";
 import { CallbackFn } from "frotsi";
+import { usePopupContext } from "@@components/Layout";
+import AppCodeForm from "@@components/Account/AppCodeForm/AppCodeForm";
 
-// const CHECK_API = CHECK_CODE && CHECK_EMAIL_VERIF;
+// const CHECK_API = CHECK_ACCESS && CHECK_EMAIL_VERIF;
 
 type UserContext = {
   firebaseAuthUser: FirebaseAuthUser | undefined | null;
   user: UserTypes.User | undefined;
   logout: () => void;
   canUseAPI: boolean;
-  // checkIfUserCanUseAPI?: (codeValue?: string) => void;
-  submitCode: (codeValue: string, callback?: CallbackFn) => void;
+  checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => void;
 };
 
-const UserContext = createContext<UserContext>({
+export const UserContext = createContext<UserContext>({
   firebaseAuthUser: undefined,
   user: undefined,
   logout: () => {},
   canUseAPI: false,
-  // checkIfUserCanUseAPI: (codeValue?: string) => {},
-  submitCode: (codeValue: string, callback?: CallbackFn) => {},
+  checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => {},
 });
 
 let UNSUB_AUTH: Unsubscribe | undefined = undefined;
@@ -36,17 +35,20 @@ const UserProvider = ({ children }: any) => {
   const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser>();
   const [user, setuser] = useState<UserTypes.User | undefined>(undefined);
   const [canUseAPI, setcanUseAPI] = useState(false);
-  const [code, setcode] = useState("");
   const navigate = useNavigate();
   const { clearProjects } = useProjectsValue();
-  const { value, setItem, getItem, removeItem } = useLocalStorage();
+  const { setItem, getItem, removeItem } = useLocalStorage();
+  const { showPopup } = usePopupContext();
 
   // 1. Listen to changes in Firebase Authentication related to current user (login, logout, timeout, etc).
   useEffect(() => {
-    unsubAuthListener();
+    console.log("listenToFirebaseAuthState");
+
+    unsubListener("all");
 
     AuthAPI.listenToFirebaseAuthState(async (change: APITypes.FirebaseUserStateChange, unsub0: Unsubscribe) => {
       const firebaseAuthUser: FirebaseAuthUser = change.auth;
+      console.log("firebaseAuthUser", firebaseAuthUser);
 
       UNSUB_AUTH = unsub0;
       if (firebaseAuthUser) {
@@ -57,48 +59,57 @@ const UserProvider = ({ children }: any) => {
       // console.log("[AUTH]: ", firebaseAuthUser);
     });
 
-    return () => unsubAuthListener();
+    return () => unsubListener("all");
   }, []);
+
+  // 1.5
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (user && firebaseAuthUser && !canUseAPI) {
+        showPopup(
+          <AppCodeForm
+            submitFn={checkAccessToAPI}
+            user={user}
+            emailVerified={!!firebaseAuthUser?.emailVerified}
+          />,
+          true
+        );
+      }
+    }, 3000);
+
+    // clears timeout before running the new effect
+    return () => clearTimeout(timeout);
+  }, [user, canUseAPI]);
 
   // 2. Listen to changes in Firebase Cloudstore related to current user (internal data changed: contacts, projects etc).
   useEffect(() => {
-    unsubUserListener();
-    checkIfUserCanUseAPI();
+    console.log("listenToUserData");
+
+    unsubListener("userData");
+    checkAccessToAPI();
 
     if (firebaseAuthUser) {
-      UsersAPI.getUserDetailsById(firebaseAuthUser.uid).then((change: UserTypes.User | undefined) => {
-        if (change) {
-          const user: UserTypes.User = {
-            authentication: change.authentication,
-            contacts: change.contacts,
-            work: change.work,
-            personal: change.personal,
-          };
+      UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: UserTypes.User, unsub1: Unsubscribe) => {
+        console.log("listenToUserData", data);
 
-          putUser(user);
-
-          UsersAPI.listenToUserData(user.authentication.id, (data: UserTypes.User, unsub1: Unsubscribe) => {
-            UNSUB_USER = unsub1;
-            putUser(data);
-            checkIfUserCanUseAPI();
-          });
-        }
+        UNSUB_USER = unsub1;
+        putUser(data);
+        checkAccessToAPI();
       });
     }
 
-    return () => unsubUserListener();
+    return () => unsubListener("userData");
   }, [firebaseAuthUser]);
 
   // 3. Unsubscribers for listeners
-  const unsubAuthListener = () => {
-    if (UNSUB_AUTH) {
+
+  const unsubListener = (name: "auth" | "userData" | "all") => {
+    if (["auth", "all"].includes(name) && UNSUB_AUTH) {
       UNSUB_AUTH();
       UNSUB_AUTH = undefined;
     }
-  };
-
-  const unsubUserListener = () => {
-    if (UNSUB_USER) {
+    if (["userData", "all"].includes(name) && UNSUB_USER) {
       UNSUB_USER();
       UNSUB_USER = undefined;
     }
@@ -112,9 +123,10 @@ const UserProvider = ({ children }: any) => {
     setfirebaseAuthUser(undefined);
   };
 
-  const checkIfUserCanUseAPI = (callback?: CallbackFn) => {
+  const checkAccessToAPI = (code: string = "", callback?: CallbackFn) => {
     const appCode: string = `${code?.length ? code : getItem(Enums.StorageItem.CODE)}`;
-    AuthAPI.checkIfUserCanUseAPI(appCode)
+
+    AuthAPI.checkAccessToAPI(appCode)
       .then((result) => {
         if (callback) {
           callback(result);
@@ -137,18 +149,13 @@ const UserProvider = ({ children }: any) => {
       });
   };
 
-  const submitCode = (codeValue: string, callback?: CallbackFn) => {
-    setcode(codeValue);
-    checkIfUserCanUseAPI(callback);
-  };
-
+  // const submitCode = (codeValue: string, callback?: CallbackFn) => checkAccessToAPI(codeValue, callback);
   const logout = () => {
     AuthAPI.logoutInFirebase().then(
       () => {
         clear();
         clearProjects();
-        // clearTasksData();
-        navigate("/");
+        navigate("/login");
       },
       (error: Error) => {
         console.error("Something went wrong while signing out:");
@@ -157,7 +164,9 @@ const UserProvider = ({ children }: any) => {
     );
   };
   return (
-    <UserContext.Provider value={{ firebaseAuthUser, user, logout, canUseAPI, submitCode }}>{children}</UserContext.Provider>
+    <UserContext.Provider value={{ firebaseAuthUser, user, logout, canUseAPI, checkAccessToAPI }}>
+      {children}
+    </UserContext.Provider>
   );
 };
 

@@ -1,6 +1,7 @@
 import { ProjectTypes, UserTypes } from "@@types";
 import ProjectsTableItem from "../ProjectsTableItem/ProjectsTableItem";
 import { CallbackFn } from "frotsi";
+import { useEffect } from "react";
 
 type Props = {
   projects: ProjectTypes.Project[];

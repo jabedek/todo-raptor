@@ -35,7 +35,7 @@
         "@typescript-eslint/no-unsafe-argument": ["error"],
         "@typescript-eslint/no-unsafe-return": ["warn"],
         "@typescript-eslint/no-unsafe-assignment": ["off"],
-        "@typescript-eslint/no-unsafe-member-access": ["off"],
+        "@typescript-eslint/no-unsafe-assignee-access": ["off"],
         "@typescript-eslint/no-unsafe-call": ["warn"],
         "no-prototype-builtins": ["off"],
         "prefer-const": ["warn"],

@@ -1,8 +1,13 @@
-import { TaskProgressStatus, TaskStatusDetails } from "@@components/Tasks/TaskStatus/utils/task-statuses";
-import { VisualElements } from "./common";
 import { ProjectTypes } from "@@types";
-
-export type TaskListType = "backlog" | "schedule" | "archive";
+import {
+  ProjectRole,
+  StatusGroupName,
+  TaskListType,
+  TaskStatus,
+  TaskStatusShortName,
+} from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
+import { Flatten } from "./common";
+import { ProjectAssigneeFull } from "./Projects";
 
 export type Task = {
   id: string;
@@ -11,15 +16,17 @@ export type Task = {
   tags: string[];
   taskNumber: number;
   assigneeId: string;
-  status: TaskProgressStatus;
+  status: TaskStatusShortName;
   projectId: string;
   createdAt: string;
-  closedAt: string | undefined;
-  visuals: VisualElements;
-  onList: TaskListType;
+  closedAt: string;
+  list: {
+    type: TaskListType;
+    position: number;
+    scheduleColumn: StatusGroupName | "";
+  };
 };
 
-export type TaskWithDetails = Task & {
-  statusDetails: TaskStatusDetails;
-  assigneeDetails: ProjectTypes.ProjectTeamMember | undefined;
-};
+export type TaskWithDetails = Flatten<
+  Task & { statusDetails: TaskStatus } & { assigneeDetails: ProjectTypes.ProjectAssigneeFull | undefined }
+>;

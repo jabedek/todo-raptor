@@ -1,8 +1,20 @@
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
-import { setDoc, doc, getDoc, updateDoc, collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
+import {
+  setDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+  onSnapshot,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 import { FirebaseDB } from "@@api/firebase/firebase-config";
 
-import { UserTypes } from "@@types";
+import { ProjectTypes, UserTypes } from "@@types";
 import { CallbackFn } from "frotsi";
 import { ProjectsAPI } from "./projectsAPI";
 
@@ -30,11 +42,6 @@ const saveNewUserInDB = async (
     },
     personal: {
       names,
-      visuals: {
-        colorPrimary: "",
-        colorSecondary: "",
-        colorTertiary: "",
-      },
     },
     work: {
       projectsIds: [],
@@ -57,33 +64,6 @@ const getUserDetailsById = async (id: string | null | undefined) => {
   const docSnap = await getDoc(docRef);
 
   return docSnap.exists() ? (docSnap.data() as UserTypes.User) : undefined;
-};
-
-const getTeamMembersDataByProjectId = async (projectId: string | null | undefined) => {
-  if (!projectId) {
-    return undefined;
-  }
-
-  return ProjectsAPI.getProjectById(projectId)
-    .then(async (project) => {
-      const membersIds: string[] = ["_"];
-      project?.teamMembers.forEach(({ id }) => {
-        if (id) {
-          membersIds.push(id);
-        }
-      });
-
-      const queryRef = query(UsersRef, where("authentication.id", "in", membersIds));
-      const querySnapshot = await getDocs(queryRef);
-
-      const docs: UserTypes.User[] = [];
-      querySnapshot.forEach((doc) => {
-        docs.push(<UserTypes.User>doc.data());
-      });
-
-      return docs;
-    })
-    .catch((err) => console.error(err));
 };
 
 const getUserDetailsByEmail = async (email: string) => {
@@ -149,7 +129,6 @@ const UsersAPI = {
   saveNewUserInDB,
   getUserDetailsById,
   getUserDetailsByEmail,
-  getTeamMembersDataByProjectId,
 
   updateUserFull,
   updateUserFieldsById,

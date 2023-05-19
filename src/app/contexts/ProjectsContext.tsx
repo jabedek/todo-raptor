@@ -2,40 +2,34 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { Unsubscribe } from "firebase/auth";
 
 import { ProjectTypes } from "@@types";
-import { ProjectsAPI } from "@@api/firebase";
+import { ProjectsAPI, UsersAPI } from "@@api/firebase";
 import { useUserValue } from "./UserContext";
-
-export const PROJECTS_TABLE_DATA_INITIAL2 = {
-  activeManaged: [],
-  activeWorking: [],
-  archivedManaged: [],
-  archivedWorking: [],
-};
+import { ProjectsTableData } from "@@components/Projects/ProjectsTable/ProjectsTable";
 
 type ProjectsDataValue = {
-  projectsData: ProjectTypes.ProjectsTableData;
+  projectsData: ProjectsTableData;
+  unboundAssignees: Record<string, ProjectTypes.UnboundAssignee>;
   clearProjects: () => void;
 };
 
 const ProjectsDataValue = createContext<ProjectsDataValue>({
   projectsData: {
-    activeManaged: [],
-    activeWorking: [],
-    archivedManaged: [],
-    archivedWorking: [],
+    active: [],
+    archived: [],
   },
+  unboundAssignees: {},
   clearProjects: () => {},
 });
 
 let UNSUB_PROJECTS: Unsubscribe | undefined = undefined;
 
 const ProjectsProvider = ({ children }: any) => {
-  const [projectsData, setprojectsData] = useState<ProjectTypes.ProjectsTableData>({
-    activeManaged: [],
-    activeWorking: [],
-    archivedManaged: [],
-    archivedWorking: [],
+  const [projectsData, setprojectsData] = useState<ProjectsTableData>({
+    active: [],
+    archived: [],
   });
+
+  const [unboundAssignees, setunboundAssignees] = useState<Record<string, ProjectTypes.UnboundAssignee>>({});
 
   const { user, canUseAPI } = useUserValue();
 
@@ -45,7 +39,26 @@ const ProjectsProvider = ({ children }: any) => {
     if (user && canUseAPI) {
       ProjectsAPI.listenToUserProjectsData(user, (data: ProjectTypes.Project[], unsubFn) => {
         UNSUB_PROJECTS = unsubFn;
-        sortProjects(user.authentication.id, data);
+        const newProjectsData = sortProjects(data);
+        setprojectsData(newProjectsData);
+
+        const projectAssignees = [...newProjectsData.active.map(({ assignees, id }) => ({ assignees, projectId: id }))];
+        const assigneedIds = [...projectAssignees.map(({ assignees }) => assignees.map(({ id }) => id))].flat();
+        const assigneedIdsUnique = [...new Set(assigneedIds)];
+
+        UsersAPI.getUsersById(assigneedIdsUnique).then((users = []) => {
+          const assignees: Record<string, ProjectTypes.UnboundAssignee> = {};
+
+          users.forEach((user) => {
+            assignees[user.authentication.id] = {
+              id: user.authentication.id,
+              email: user.authentication.email,
+              names: user.personal.names,
+            };
+          });
+
+          setunboundAssignees(assignees);
+        });
       });
     } else {
       clearProjects();
@@ -54,24 +67,19 @@ const ProjectsProvider = ({ children }: any) => {
     return () => unsubListener();
   }, [user?.work.projectsIds]);
 
-  const sortProjects = (userId, projects: ProjectTypes.Project[]) => {
-    let newProjectsData: ProjectTypes.ProjectsTableData = {
-      activeManaged: [],
-      activeWorking: [],
-      archivedManaged: [],
-      archivedWorking: [],
+  const sortProjects = (projects: ProjectTypes.Project[]) => {
+    let newProjectsData: ProjectsTableData = {
+      active: [],
+      archived: [],
     };
     projects.forEach((project) => {
-      const isUserManager = userId === project.managerId;
-
       if (project.archived) {
-        isUserManager ? newProjectsData.archivedManaged.push(project) : newProjectsData.archivedWorking.push(project);
+        newProjectsData.archived.push(project);
       } else {
-        isUserManager ? newProjectsData.activeManaged.push(project) : newProjectsData.activeWorking.push(project);
+        newProjectsData.active.push(project);
       }
     });
-
-    setprojectsData(newProjectsData);
+    return newProjectsData;
   };
 
   const unsubListener = () => {
@@ -83,13 +91,13 @@ const ProjectsProvider = ({ children }: any) => {
 
   const clearProjects = () =>
     setprojectsData({
-      activeManaged: [],
-      activeWorking: [],
-      archivedManaged: [],
-      archivedWorking: [],
+      active: [],
+      archived: [],
     });
 
-  return <ProjectsDataValue.Provider value={{ projectsData, clearProjects }}>{children}</ProjectsDataValue.Provider>;
+  return (
+    <ProjectsDataValue.Provider value={{ projectsData, unboundAssignees, clearProjects }}>{children}</ProjectsDataValue.Provider>
+  );
 };
 
 function useProjectsValue() {

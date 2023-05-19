@@ -11,13 +11,17 @@ const InputTags: React.FC<InputTagsTypes.InputTagsProps> = (props) => {
 
   const [width, setwidth] = useState(`0px`);
 
-  const [values, setvalues] = useState<InputTagsTypes.TagItem[]>(props.values);
+  const [values, setvalues] = useState<InputTagsTypes.TagItem[]>([]);
   const [newTag, setnewTag] = useState<InputTagsTypes.TagItem>();
   const [disabled, setdisabled] = useState(false);
 
   useEffect(() => {
     setdisabled(!!props.disabled);
   }, [props.disabled]);
+
+  useEffect(() => {
+    setvalues([...props.values]);
+  }, [props.values]);
 
   useLayoutEffect(() => {
     const lettersWidth = getTagWidth(newTag?.value.length);

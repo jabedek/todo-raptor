@@ -23,11 +23,10 @@ const Button: React.FC<Props> = (props) => {
   const [style, setStyle] = useState(currentStyle);
 
   const handleClick = (e?: React.FormEvent<HTMLButtonElement>) => {
-    console.log("Button handleClick", props.clickFn);
-
     e?.preventDefault();
 
     if (props?.clickFn) {
+      // console.log("Button handleClick", props.clickFn);
       props.clickFn();
     } else if (props?.href) {
       window.location.href = props.href;

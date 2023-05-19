@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { Logo } from "@@components/Layout";
 import { useUserValue } from "@@contexts";
+import { useEffect, useState } from "react";
 
 const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn }> = ({ path, name, clickFn }) => {
   if (clickFn) {
@@ -25,7 +26,14 @@ const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn
 };
 
 const Header: React.FC = () => {
-  const { user, logout } = useUserValue();
+  const { firebaseAuthUser, user, logout } = useUserValue();
+
+  const [isAuth, setisAuth] = useState(false);
+
+  useEffect(() => {
+    setisAuth(!!(firebaseAuthUser && user));
+    console.log(firebaseAuthUser, user);
+  }, [firebaseAuthUser, user]);
 
   return (
     <header className="z-40 fixed app_header_height app_layout_padding flex content-center items-center justify-between w-full bg-white text-sm font-semibold font-app_primary px-8 py-2 shadow-md">
@@ -33,9 +41,9 @@ const Header: React.FC = () => {
         <Logo />
         <span className="px-3 text-[16px]">Todo-raptor</span>
       </div>
-      <span className="text-[13px]">{`${user ? "Hi, " + user.authentication?.email + "!" : ""}`}</span>
+      <span className="text-[13px]">{`${isAuth && user ? "Hi, " + user.authentication?.email + "!" : ""}`}</span>
       <nav className="w-[420px] flex justify-end gap-[38px]">
-        {!user && (
+        {!isAuth && (
           <>
             <HeaderNavLink
               path="/login"
@@ -48,7 +56,7 @@ const Header: React.FC = () => {
           </>
         )}
 
-        {user && (
+        {isAuth && (
           <>
             <HeaderNavLink
               path="/projects"

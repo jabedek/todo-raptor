@@ -22,6 +22,8 @@ import { useUserValue } from "@@contexts";
 export const ProjectsRef = collection(FirebaseDB, "projects");
 
 const saveNewProject = async (project: ProjectTypes.Project) => {
+  console.log(project);
+
   setDoc(doc(FirebaseDB, "projects", project.id), project).then(
     () => {},
     (error) => console.log("Projects:", error)
@@ -61,20 +63,20 @@ const getProjectById = async (projectId: string) => {
 
 /** Delete project in `projects` collection & in related users' `projectsIds` arrays. */
 const deleteProjectById = async (projectId: string) => {
-  return UsersAPI.getTeamMembersDataByProjectId(projectId)
+  return getAssigneesDataByProjectId(projectId)
     .then(async (res) => {
       deleteDoc(doc(FirebaseDB, "projects", projectId)).then(async () => {
         if (res) {
-          const teamMembers = res.map((member) => {
-            member.work.projectsIds = member.work.projectsIds.filter((pid) => pid !== projectId);
-            return member;
+          const assignees = res.map((assignee) => {
+            assignee.work.projectsIds = assignee.work.projectsIds.filter((pid) => pid !== projectId);
+            return assignee;
           });
 
           await Promise.all(
-            teamMembers.map((member) => {
-              const memberId = member.authentication.id;
-              if (memberId) {
-                return updateDoc(doc(FirebaseDB, "users", memberId), member);
+            assignees.map((assignee) => {
+              const assigneeId = assignee.authentication.id;
+              if (assigneeId) {
+                return updateDoc(doc(FirebaseDB, "users", assigneeId), assignee);
               }
             })
           );
@@ -100,21 +102,48 @@ const changeProjectStatusById = async (userId: string, projectId: string, status
   });
 };
 
-const getAvailableContactsForMembership = (user: UserTypes.User, project: ProjectTypes.Project) => {
+const getAssigneesDataByProjectId = async (projectId: string | null | undefined) => {
+  if (!projectId) {
+    return undefined;
+  }
+
+  return getProjectById(projectId)
+    .then(async (project) => {
+      const assigneesIds: string[] = ["_"];
+      project?.assignees.forEach(({ id }) => {
+        if (id) {
+          assigneesIds.push(id);
+        }
+      });
+
+      const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", assigneesIds));
+      const querySnapshot = await getDocs(queryRef);
+
+      const docs: UserTypes.User[] = [];
+      querySnapshot.forEach((doc) => {
+        docs.push(<UserTypes.User>doc.data());
+      });
+
+      return docs;
+    })
+    .catch((err) => console.error(err));
+};
+
+const getAvailableContactsForAssigneeship = (user: UserTypes.User, project: ProjectTypes.Project) => {
   const userContacts: string[] = user.contacts.contactsIds;
-  const projectMembers: string[] = project.teamMembers
+  const projectAssignees: string[] = project.assignees
     .filter((m) => m.id !== user.authentication.id)
     .map(({ id }) => id) as string[];
-  const contactsNotMembersIds: Set<string> = new Set([...userContacts, ...projectMembers]);
+  const contactsNotAssigneesIds: Set<string> = new Set([...userContacts, ...projectAssignees]);
 
-  return UsersAPI.getUsersById([...contactsNotMembersIds.values()]).then(
+  return UsersAPI.getUsersById([...contactsNotAssigneesIds.values()]).then(
     (users) => {
-      const members: { id: string; email: string }[] = (users || []).map((user) => ({
+      const assignees: { id: string; email: string }[] = (users || []).map((user) => ({
         id: `${user.authentication.id}`,
         email: `${user.authentication.email}`,
       }));
 
-      return members;
+      return assignees;
     },
     (err) => console.error(err)
   );
@@ -124,15 +153,15 @@ const updateProject = async (project: ProjectTypes.Project) => {
   updateDoc(doc(FirebaseDB, "projects", project.id), project);
 };
 
-const userAsTeamMemberBond = async (
-  member: ProjectTypes.ProjectTeamMember,
+const userAsAssigneeBond = async (
+  assignee: ProjectTypes.ProjectAssigneeFull,
   project: ProjectTypes.Project,
   variant: "make" | "break"
 ) => {
   if (variant === "make") {
-    project.teamMembers.push(member);
+    project.assignees.push(assignee);
   } else {
-    project.teamMembers = project.teamMembers.filter((teamMember) => teamMember.id !== member.id);
+    project.assignees = project.assignees.filter((assignee) => assignee.id !== assignee.id);
   }
   updateProject(project);
 };
@@ -152,9 +181,10 @@ const ProjectsAPI = {
   listenToUserProjectsData,
   listenToProjectData,
   deleteProjectById,
-  getAvailableContactsForMembership,
+  getAvailableContactsForAssigneeship,
   updateProject,
-  userAsTeamMemberBond,
+  userAsAssigneeBond,
+  getAssigneesDataByProjectId,
 };
 
 export { ProjectsAPI };

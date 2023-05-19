@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@@components/common";
 import { ContactsProvider } from "@@contexts";
 import { Suspense, lazy } from "react";
 import { RouteObject } from "react-router-dom";
@@ -9,8 +10,8 @@ export const USER_ROUTE_ACCOUNT: RouteObject = {
   path: "account",
   element: (
     <ContactsProvider>
-      <Suspense fallback="Loading AccountPage">
-        <ProtectedRoute>
+      <Suspense fallback={<LoadingSpinner size="xl" />}>
+        <ProtectedRoute path="account">
           <AccountPage />
         </ProtectedRoute>
       </Suspense>

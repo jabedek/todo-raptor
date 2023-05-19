@@ -12,7 +12,7 @@ if (!prodDev) {
 }
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <RouterProvider router={AppRouter} />
-  </React.StrictMode>
+  // <React.StrictMode>
+  <RouterProvider router={AppRouter} />
+  // </React.StrictMode>
 );

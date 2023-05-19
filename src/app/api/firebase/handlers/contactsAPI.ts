@@ -73,7 +73,6 @@ const getContactInvicationById = async (invitationId: string) => {
 };
 
 const getContactInvicationsByIds = async (invitationsIds: string[]) => {
-  UsersAPI.getUserDetailsById;
   if (!invitationsIds) {
     return undefined;
   }

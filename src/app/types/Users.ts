@@ -1,4 +1,4 @@
-import { Flatten, VisualElements } from "./common";
+import { Flatten } from "./common";
 
 export type User = {
   authentication: Flatten<AuthenticationDetails>;
@@ -25,7 +25,6 @@ export type PersonalDetails = {
     lastname: string;
     nickname: string;
   };
-  visuals: VisualElements;
 };
 
 export type WorkDetails = {

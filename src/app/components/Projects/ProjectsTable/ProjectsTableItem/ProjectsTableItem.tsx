@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useEffect } from "react";
 import { CallbackFn } from "frotsi";
 
 import { ProjectTypes, UserTypes } from "@@types";
 import { usePopupContext } from "@@components/Layout";
 import { DeleteProjectForm, ProjectStatus } from "@@components/Projects";
 import { ReactIcons } from "@@components/Layout/preloaded-icons";
-import { ROLES_COLORS } from "@@components/Projects/project-roles";
+import { getProjectRoleDetails } from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
+import ProjectAssigneeIcon from "@@components/Projects/ProjectAssigneeIcon/ProjectAssigneeIcon";
+import { useProjectsValue } from "@@contexts";
 
 type Props = {
   project: ProjectTypes.Project;
@@ -20,14 +22,13 @@ const TAGS_CHARS_LIMIT = 30;
 const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
   const { showPopup } = usePopupContext();
   const navigate = useNavigate();
+  const { unboundAssignees } = useProjectsValue();
   const [userIsCreator, setuserIsCreator] = useState(false);
   const [userIsManager, setuserIsManager] = useState(false);
-  const [membersLimited, setmembersLimited] = useState<ProjectTypes.ProjectTeamMember[]>([]);
+  const [assigneesLimited, setassigneesLimited] = useState<ProjectTypes.ProjectAssigneeFull[]>([]);
   const [tagsLimited, settagsLimited] = useState<string[]>([]);
 
   useLayoutEffect(() => {
-    setmembersLimited(project.teamMembers.slice(0, AVATARS_LIMIT));
-
     const checkTagsCombinedLength = () => {
       let charsLength = 0;
       let lastIndex = 0;
@@ -49,6 +50,17 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
     setuserIsCreator(user?.authentication.id === project.originalCreatorId);
     setuserIsManager(user?.authentication.id === project.managerId);
   }, [user]);
+
+  useEffect(() => {
+    const projectAssignees = project.assignees.map((assignee) => ({ id: assignee.id, role: assignee.role }));
+    const projectAssigneesData = projectAssignees.map((assignee) => ({
+      ...unboundAssignees[assignee.id],
+      role: assignee.role,
+      roleDetails: getProjectRoleDetails(assignee.role),
+    }));
+
+    setassigneesLimited(projectAssigneesData);
+  }, [project, unboundAssignees]);
 
   const popupDelete = () =>
     showPopup(
@@ -93,19 +105,21 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
             <p className="app_ellipsis leading-[1.4] h-[34px]">{project.description}</p>
           </div>
 
-          {/* # Members */}
-          <div className="flex w-full justify-start min-h-[28px] h-[24px] my-[4px] ml-[3px] px-[10px]">
-            {membersLimited.map((m, i) => (
-              <div
-                key={i}
-                className={`team-member relative font-app_mono ml-[-5px] text-[10px] h-[24px] w-[24px] rounded-full ${m.roleColor} app_flex_center border-2 border-white border-solid`}>
-                <p>{m.email?.substring(0, 2).toUpperCase()}</p>
-              </div>
+          {/* # Assignees */}
+          <div className="flex w-full justify-start  h-[24px] my-[4px] ml-[3px] px-[10px]">
+            {assigneesLimited.slice(0, AVATARS_LIMIT).map((assignee, i) => (
+              <ProjectAssigneeIcon
+                assignee={assignee}
+                key={i + "_" + assignee.id}
+                tailwindStyles="ml-[-5px]"
+              />
             ))}
-            {project.teamMembers.length > AVATARS_LIMIT && (
-              <div className=" relative font-app_mono ml-[-5px] text-[10px] h-[24px] w-[24px] app_flex_center border-2 border-white border-solid">
-                <p className=" tracking-[-1.5px]">...</p>
-              </div>
+            {project.assignees.length > AVATARS_LIMIT && (
+              <ProjectAssigneeIcon
+                assignee={"..."}
+                key={1000}
+                tailwindStyles="ml-[-5px]"
+              />
             )}
           </div>
 

@@ -3,31 +3,35 @@ import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
 import { FormWrapper, InputWritten, ResultDisplayer } from "@@components/forms";
 import { useUserValue } from "@@contexts";
-import { CommonTypes } from "@@types";
+import { CommonTypes, UserTypes } from "@@types";
 import { CallbackFn } from "frotsi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-type Props = {};
+type Props = { submitFn: CallbackFn; user: UserTypes.User | undefined; emailVerified: boolean };
 
-const AppCodeForm: React.FC<Props> = ({}) => {
+const AppCodeForm: React.FC<Props> = (props) => {
   const [messageCode, setmessageCode] = useState<CommonTypes.ResultDisplay>({ isError: false, text: "" });
   const [messageEmail, setmessageEmail] = useState<CommonTypes.ResultDisplay>({ isError: false, text: "" });
-  const { submitCode, user, firebaseAuthUser } = useUserValue();
+
   const [code, setcode] = useState("");
   const { hidePopup } = usePopupContext();
 
+  // useEffect(() => {
+  //   console.log(firebaseAuthUser?.emailVerified);
+  // }, [firebaseAuthUser]);
+
   const sendEmail = () => {
-    if (user) {
+    if (props.user) {
       AuthAPI.sendVerificationEmail((result: Error | void) => {
         sendEmailEffect(result);
-      }, user?.authentication.verifEmailsAmount);
+      }, props.user?.authentication.verifEmailsAmount);
     }
   };
 
   const sendEmailEffect = (result: Error | void) => {
-    if (user) {
+    if (props.user) {
       if (!(result instanceof Error)) {
-        if (user?.authentication.verifEmailsAmount) {
+        if (props.user?.authentication.verifEmailsAmount) {
           setmessageEmail({ text: "Email has been re-send. Check your email now and verify it.", isError: false });
         }
       } else {
@@ -38,15 +42,8 @@ const AppCodeForm: React.FC<Props> = ({}) => {
       }
     }
   };
-  const submitCodeEffect = (
-    result:
-      | {
-          codeValid: boolean;
-          emailVerif: boolean;
-        }
-      | Error
-      | void
-  ) => {
+
+  const submitCallback = (result: { codeValid: boolean; emailVerif: boolean } | Error | void) => {
     if (result) {
       if (!(result instanceof Error)) {
         setmessageCode({ text: "Code has been submitted and it is valid.", isError: false });
@@ -57,11 +54,12 @@ const AppCodeForm: React.FC<Props> = ({}) => {
           isError: true,
         });
       }
+    } else {
+      setmessageCode({
+        text: `Could not send a code.`,
+        isError: true,
+      });
     }
-  };
-
-  const submit = () => {
-    submitCode(code, submitCodeEffect);
   };
 
   return (
@@ -70,7 +68,7 @@ const AppCodeForm: React.FC<Props> = ({}) => {
       tailwindStyles="w-[500px] h-[200px]">
       <div className=" flex flex-col font-app_primary ">
         <p className="text-[16px] font-bold w-full text-center mb-2">To use this app fully:</p>
-        {!firebaseAuthUser?.emailVerified && (
+        {!props.emailVerified && (
           <div className="flex flex-col mt-2 mb-4">
             <p className="text-[13px] ">
               <span className="font-app_mono"> - </span> Verify your email address in your mailbox (then refresh this page).
@@ -99,11 +97,14 @@ const AppCodeForm: React.FC<Props> = ({}) => {
             type="text"
           />
         </div>
-        <ResultDisplayer message={messageCode} />
+        <ResultDisplayer
+          message={messageCode}
+          tailwindStyles=" whitespace-break-spaces"
+        />
       </div>
 
       <Button
-        clickFn={submit}
+        clickFn={() => props.submitFn(code, submitCallback)}
         label="Submit"
         formStyle="primary"
         disabled={code.length != 19}

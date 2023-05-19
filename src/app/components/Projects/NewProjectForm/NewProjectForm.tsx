@@ -7,7 +7,6 @@ import { useUserValue } from "@@contexts";
 import { FormWrapper, InputWritten, InputTags, InputTagsTypes } from "@@components/forms";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
-import { ROLES_COLORS } from "../project-roles";
 
 const NewProjectForm: React.FC = () => {
   const { user } = useUserValue();
@@ -17,13 +16,14 @@ const NewProjectForm: React.FC = () => {
   const { hidePopup } = usePopupContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log(user);
     const userId = user?.authentication.id;
     const userEmail = user?.authentication.email;
+
     if (userId && userEmail) {
-      const manager: ProjectTypes.ProjectTeamMember = {
+      const manager: ProjectTypes.ProjectAssignee = {
         id: userId,
         email: userEmail,
-        roleColor: ROLES_COLORS["manager"],
         role: "manager",
       };
       const newProject: ProjectTypes.Project = {
@@ -33,18 +33,15 @@ const NewProjectForm: React.FC = () => {
         tags: [...projectTags.map((t) => t.value)],
         originalCreatorId: userId,
         managerId: userId,
-        teamMembers: [manager],
+        assignees: [manager],
         tasksIds: [],
         tasksCounter: 0,
         status: "active",
         archived: false,
         createdAt: new Date().toISOString(),
-        visuals: {
-          colorPrimary: "",
-          colorSecondary: "",
-          colorTertiary: "",
-        },
+        closedAt: "",
       };
+      console.log(newProject);
 
       const fieldsToUpdate: UserTypes.UserFieldUpdate[] = [
         {
@@ -55,6 +52,7 @@ const NewProjectForm: React.FC = () => {
 
       ProjectsAPI.saveNewProject(newProject).then(() => {
         clear();
+
         UsersAPI.updateUserFieldsById(userId, fieldsToUpdate).then(
           () => {
             clear();

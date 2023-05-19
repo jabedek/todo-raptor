@@ -5,13 +5,9 @@ import { ProjectView } from "@@components/Projects";
 import { ProjectTypes } from "@@types";
 
 const ProjectViewPage: React.FC = () => {
-  const projectData = useLoaderData() as ProjectTypes.Project | undefined;
+  const project = useLoaderData() as ProjectTypes.Project | undefined;
 
-  return (
-    <>
-      <ProjectView projectData={projectData} />
-    </>
-  );
+  return <ProjectView projectData={project} />;
 };
 
 export default ProjectViewPage;

@@ -1,42 +1,6 @@
-import { Flatten, VisualElements } from "./common";
-import { AuthenticationDetails } from "./Users";
-
-export type ProjectStatus = "active" | "completed" | "cancelled";
-
-/**
- * Represents general/basic roles, but also allows for setting project-specific roles.
- * @examples `project#frontend-developer`, `project#designer`
- */
-export type ProjectTeamMemberRole =
-  | "manager"
-  | "product-owner"
-  | "vice-manager"
-  //
-  | "team-leader"
-  //
-  | "analyst"
-  | "designer"
-  //
-  | "intern"
-  | "coworker" // generic
-  //
-  | "tester"
-  //
-  | "ui-designer"
-  //
-  | "developer"
-  //
-  | "spectator"
-  //
-  | `project#${string}`; // custom;
-
-export type ProjectTeamMember = Flatten<
-  Pick<AuthenticationDetails, "id" | "email"> & {
-    role: ProjectTeamMemberRole;
-    roleColor: string;
-    roleColor2?: string;
-  }
->;
+import { ProjectRole, ProjectRoleShortName } from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
+import { Flatten } from "./common";
+import { AuthenticationDetails, PersonalDetails } from "./Users";
 
 export type Project = {
   id: string;
@@ -45,18 +9,30 @@ export type Project = {
   tags: string[];
   managerId: string;
   originalCreatorId: string;
-  teamMembers: ProjectTeamMember[];
+  assignees: ProjectAssignee[];
   tasksIds: string[];
   tasksCounter: number;
   status: ProjectStatus;
   archived: boolean;
   createdAt: string;
-  visuals: VisualElements;
+  closedAt: string;
+  kanbanColumnsOrder: [""];
 };
 
-export type ProjectsTableData = {
-  activeManaged: Project[];
-  activeWorking: Project[];
-  archivedManaged: Project[];
-  archivedWorking: Project[];
-};
+export type ProjectStatus = "active" | "completed" | "cancelled";
+
+export type ProjectAssignee = Flatten<
+  Pick<AuthenticationDetails, "id" | "email"> & {
+    role: ProjectRoleShortName;
+  }
+>;
+
+export type ProjectAssigneeFull = Flatten<
+  Pick<AuthenticationDetails, "id" | "email"> & {
+    role: ProjectRoleShortName;
+  } & Partial<PersonalDetails> & {
+      roleDetails?: Flatten<ProjectRole>;
+    }
+>;
+
+export type UnboundAssignee = Flatten<Pick<ProjectAssignee, "id" | "email"> & Partial<PersonalDetails>>;

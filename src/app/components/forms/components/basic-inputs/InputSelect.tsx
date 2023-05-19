@@ -8,7 +8,7 @@ const InputSelect: React.FC<BasicInputsTypes.InputSelectProps> = (props) => {
   type Option = BasicInputsTypes.SelectOption<typeof props.options>;
   const [focus, setfocus] = useState(false);
   const [isOpened, setisOpened] = useState(false);
-  const [currentOption, setcurrentOption] = useState(props.options.find((v) => props.value === v.value));
+  const [currentOption, setcurrentOption] = useState<Option>();
   const inputId = useRef(generateInputId(props.name, "select")).current;
   const refEl = useRef<HTMLDivElement>(null);
   const [customSelected, setcustomSelected] = useState(false);
@@ -42,6 +42,10 @@ const InputSelect: React.FC<BasicInputsTypes.InputSelectProps> = (props) => {
     }
   }, [props.options]);
 
+  useEffect(() => {
+    setcurrentOption(props.options.find((v) => props.value === v.value));
+  }, [props.value]);
+
   useHandleOutclick<HTMLDivElement>(refEl, (e: any) => {
     setfocus(false);
     setisOpened(false);
@@ -56,9 +60,11 @@ const InputSelect: React.FC<BasicInputsTypes.InputSelectProps> = (props) => {
   };
 
   const handleClick = () => {
-    setfocus(true);
-    setisOpened(!isOpened);
-    refEl.current?.focus();
+    if (!props.disabled) {
+      setfocus(true);
+      setisOpened(!isOpened);
+      refEl.current?.focus();
+    }
   };
 
   const handleCustomWrite = (val: string) => {
@@ -70,7 +76,9 @@ const InputSelect: React.FC<BasicInputsTypes.InputSelectProps> = (props) => {
   return (
     <div
       ref={refEl}
-      className={`app_flex_center  relative my-5 app_input_top h-[40px] min-w-[150px] w-[fit-content] ${props.tailwindStyles}`}
+      className={`app_flex_center  relative my-5 app_input_top h-[40px] min-w-[150px] w-[fit-content] ${
+        props.disabled && "app_input_disabled"
+      } ${props.tailwindStyles}`}
       onClick={handleClick}>
       <div
         tabIndex={0}
@@ -113,6 +121,7 @@ const InputSelect: React.FC<BasicInputsTypes.InputSelectProps> = (props) => {
           value={customValue}
           autoComplete="on"
           tailwindStyles="ml-5 max-w-[150px] w-[150px]"
+          disabled={props.disabled}
         />
       )}
       <label

@@ -18,8 +18,8 @@ export type InputSpecifics = {
 };
 
 export type SelectOption<T> = {
-  label: string;
   value: T;
+  label: string;
   iconClass?: string;
   prefix?: string;
   customWrite?: boolean;

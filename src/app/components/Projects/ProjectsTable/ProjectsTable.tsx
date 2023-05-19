@@ -8,14 +8,19 @@ import { ProjectTypes, UserTypes } from "@@types";
 import { ProjectsAPI } from "@@api/firebase";
 import SidePanel from "@@components/common/SidePanel";
 
+export type ProjectsTableData = {
+  active: ProjectTypes.Project[];
+  archived: ProjectTypes.Project[];
+};
+
 interface ProjectTableProps {
-  projectsData: ProjectTypes.ProjectsTableData | undefined;
+  projectsData: ProjectsTableData | undefined;
   user: UserTypes.User | undefined;
 }
 
 const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
-  const [tab, settab] = useState<"manage" | "work" | "archived">("manage");
-  const [activeCollection, setactiveCollection] = useState<ProjectTypes.Project[]>(projectsData?.activeManaged || []);
+  const [tab, settab] = useState<"active" | "archived">("active");
+  const [activeCollection, setactiveCollection] = useState<ProjectTypes.Project[]>(projectsData?.active || []);
   const { showPopup, hidePopup, popupElement } = usePopupContext();
 
   const popupProject = () => {
@@ -31,21 +36,11 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
     );
   };
 
-  console.log("ProjectsTable", popupProject, NewProjectForm);
+  // console.log("ProjectsTable", popupProject, NewProjectForm);
 
   useEffect(() => {
     if (projectsData) {
-      switch (tab) {
-        case "work":
-          setactiveCollection(projectsData?.activeWorking);
-          break;
-        case "manage":
-          setactiveCollection(projectsData?.activeManaged);
-          break;
-        case "archived":
-          setactiveCollection([...projectsData?.archivedWorking, ...projectsData?.archivedManaged]);
-          break;
-      }
+      setactiveCollection(projectsData[tab]);
     }
   }, [projectsData, tab]);
 
