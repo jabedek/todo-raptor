@@ -55,7 +55,6 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       return { label: assigneeEmail, value: { ...assignee, email: assigneeEmail } };
     });
     setassigneesOptions(options);
-    console.log(task, taskList);
 
     if (task && taskList) {
       const assignee = options.find(({ value }) => value.id === `${task.assigneeId}`)?.value ?? undefined;
