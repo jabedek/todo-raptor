@@ -65,10 +65,6 @@ const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
           onClick={() => handleSubmit("reject")}
           className="invitation-action cursor-pointer text-white rounded-[2px] bg-red-700 hover:bg-red-600 "
         />
-        {/* <MdInventory
-          onClick={() => handleSubmit("archive")}
-          className="invitation-action cursor-pointer text-white rounded-[2px] bg-cyan-700 hover:bg-cyan-600 p-[1px] "
-        /> */}
       </div>
       <p className="flex text-right text-[11px] w-fit">{subject?.message}</p>
     </div>

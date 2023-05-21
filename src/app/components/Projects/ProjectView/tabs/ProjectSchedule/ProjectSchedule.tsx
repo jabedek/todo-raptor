@@ -129,7 +129,7 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm }) => {
     <>
       {fullTasks && simpleSchedule && (
         <DragDropContext onDragEnd={(result: DropResult) => onDragEnd(result, simpleSchedule)}>
-          <div className="flex flex-col h-[458px]">
+          <div className="columns-headers flex flex-col h-[458px]">
             <div className="flex w-full h-[45px]">
               {STATUS_GROUP_NAMES.map((name) => simpleSchedule.columns[name]).map((column, index) => (
                 <div
@@ -141,7 +141,7 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm }) => {
                 </div>
               ))}
             </div>
-            <div className="flex w-full min-h-[455px] max-h-[455px] ">
+            <div className="columns-content flex w-full min-h-[455px] max-h-[455px] ">
               {STATUS_GROUP_NAMES.map((name) => simpleSchedule.columns[name]).map((column, index) => (
                 <Droppable
                   isDropDisabled={!!draggingDisabledId}
@@ -162,6 +162,7 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm }) => {
                               key={index}
                               task={taskDetails}
                               index={index}
+                              projectArchived={!!project?.archived}
                               popupTaskForm={() => popupTaskForm(taskDetails)}
                             />
                           )

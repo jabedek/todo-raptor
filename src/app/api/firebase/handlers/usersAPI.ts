@@ -1,5 +1,5 @@
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
-import { setDoc, doc, getDoc, updateDoc, collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
+import { setDoc, doc, getDoc, updateDoc, collection, getDocs, query, where, onSnapshot, arrayRemove } from "firebase/firestore";
 import { FirebaseDB } from "@@api/firebase/firebase-config";
 
 import { User, UserFieldUpdate } from "@@types";
@@ -76,6 +76,12 @@ const updateUserFull = async (user: User) => {
   updateDoc(doc(FirebaseDB, "users", user.authentication.id), user);
 };
 
+const removeUserTask = async (userId: string, taskId: string) =>
+  updateDoc(doc(FirebaseDB, "users", userId), { "work.tasksIds": arrayRemove(taskId) });
+
+const removeUserProject = async (userId: string, projectId: string) =>
+  updateDoc(doc(FirebaseDB, "users", userId), { "work.projectsIds": arrayRemove(projectId) });
+
 const updateUserFieldsById = async (id: string | null | undefined, fields: UserFieldUpdate[]) => {
   if (!(id && fields)) {
     return undefined;
@@ -123,6 +129,8 @@ const UsersAPI = {
   getUsersById,
 
   listenToUserData,
+  removeUserTask,
+  removeUserProject,
 };
 
 export { UsersAPI };

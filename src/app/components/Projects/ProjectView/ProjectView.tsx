@@ -2,22 +2,14 @@ import { useEffect, useState } from "react";
 import { Unsubscribe } from "firebase/auth";
 
 import "./ProjectView.scss";
-import {
-  Project,
-  FullProjectAssignee,
-  SimpleTask,
-  FullTask,
-  TasksOther,
-  ProjectsFullData,
-  ProjectWithAssigneesRegistry,
-} from "@@types";
+import { Project, FullProjectAssignee, SimpleTask, FullTask, ProjectsFullData, ProjectWithAssigneesRegistry } from "@@types";
 import { ProjectsAPI, TasksAPI } from "@@api/firebase";
 import { useUserValue } from "@@contexts";
 import { Button, SidePanel } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
 import { ConfirmDialog, FormClearX } from "@@components/forms";
 import { TaskForm, TasksVisuals } from "@@components/Tasks";
-import { AssignToProjectForm, ProjectAssigneeIcon, ProjectViewHeader } from "@@components/Projects";
+import { AssignToProjectForm, ProjectAssigneeIcon, ProjectForm, ProjectViewHeader } from "@@components/Projects";
 import ProjectSchedule from "./tabs/ProjectSchedule/ProjectSchedule";
 import ProjectBacklog from "./tabs/ProjectBacklog/ProjectBacklog";
 import { TaskListType } from "@@components/Tasks/visuals/task-visuals";
@@ -31,7 +23,7 @@ let UNSUB_PROJECT: Unsubscribe | undefined = undefined;
 
 const ProjectView: React.FC<Props> = (props) => {
   const [tab, settab] = useState<TaskListType>("schedule");
-  const [tasksOther, settasksOther] = useState<TasksOther<FullTask>>({ backlog: [], archive: [] });
+  const [tasksBacklog, settasksBacklog] = useState<FullTask[]>([]);
   const [project, setproject] = useState<ProjectWithAssigneesRegistry>();
   const { user, canUseAPI } = useUserValue();
   const { showPopup } = usePopupContext();
@@ -48,16 +40,13 @@ const ProjectView: React.FC<Props> = (props) => {
 
           setproject(project);
 
-          if (project && tab !== "schedule") {
+          if (project && tab === "backlog") {
             // Listen to tasks for Backlog & Archive
             unsubListener("tasks_other");
-            TasksAPI.listenToProjectOtherTasks(project, (tasksData: TasksOther<SimpleTask>, unsubTasksOther) => {
-              UNSUB_TASKS_OTHER = unsubTasksOther;
-              const tasksWithDetailsData: TasksOther<FullTask> = {
-                archive: enrichTasksWithAssignees(project.assigneesRegistry, tasksData.archive),
-                backlog: enrichTasksWithAssignees(project.assigneesRegistry, tasksData.backlog),
-              };
-              settasksOther(tasksWithDetailsData);
+            TasksAPI.listenToProjectOtherTasks(project, (tasksData: SimpleTask[], unsubtasksBacklog) => {
+              UNSUB_TASKS_OTHER = unsubtasksBacklog;
+              const tasksWithDetailsData: FullTask[] = enrichTasksWithAssignees(project.assigneesRegistry, tasksData);
+              settasksBacklog(tasksWithDetailsData);
             });
           }
         });
@@ -79,6 +68,14 @@ const ProjectView: React.FC<Props> = (props) => {
     }
   };
 
+  const removeAssignee = (assignee: FullProjectAssignee) => {
+    if (project) {
+      ProjectsAPI.userAsAssigneeBond(assignee, project, "break")
+        .then(() => {})
+        .catch((e) => console.error(e));
+    }
+  };
+
   const popupAssignToProjectForm = () =>
     showPopup(
       <AssignToProjectForm
@@ -96,14 +93,6 @@ const ProjectView: React.FC<Props> = (props) => {
       />
     );
 
-  const removeAssignee = (assignee: FullProjectAssignee) => {
-    if (project) {
-      ProjectsAPI.userAsAssigneeBond(assignee, project, "break")
-        .then(() => {})
-        .catch((e) => console.error(e));
-    }
-  };
-
   const popupTaskForm = (list: TaskListType, task?: SimpleTask) =>
     showPopup(
       <TaskForm
@@ -113,9 +102,14 @@ const ProjectView: React.FC<Props> = (props) => {
       />
     );
 
+  const popupProjectForm = (project: Project) => showPopup(<ProjectForm project={project} />);
+
   return (
     <>
-      <div className="project-view-wrapper flex flex-col rounded-[14px] overflow-hidden">
+      <div
+        className={`project-view-wrapper flex flex-col rounded-[14px] overflow-hidden ${
+          project?.archived && "project-archived"
+        }`}>
         <div className="project-view justify-center font-app_primary bg-[rgba(241,241,241,1)] flex ">
           {/* Side - Left */}
 
@@ -139,7 +133,7 @@ const ProjectView: React.FC<Props> = (props) => {
             {tab === "backlog" && (
               <ProjectBacklog
                 project={project}
-                tasks={tasksOther.backlog}
+                tasks={tasksBacklog}
                 popupTaskForm={(val) => popupTaskForm(tab, val)}
               />
             )}
@@ -158,6 +152,7 @@ const ProjectView: React.FC<Props> = (props) => {
               <Button
                 label="Add assignee"
                 clickFn={popupAssignToProjectForm}
+                disabled={!!project?.archived}
                 formStyle="primary"
               />
             </div>
@@ -195,18 +190,20 @@ const ProjectView: React.FC<Props> = (props) => {
         </div>
 
         <div className="w-full min-h-[100px] max-h-[100px] flex Xbg-neutral-200 bg-[rgb(220,220,220)] project-border border app_flex_center ">
-          <div className="flex gap-4">
-            <Button
-              label="Add task"
-              clickFn={popupTaskForm}
-              formStyle="primary"
-            />
-            <Button
-              label="Edit project"
-              clickFn={popupTaskForm}
-              formStyle="secondary"
-            />
-          </div>
+          {!project?.archived && (
+            <div className="flex gap-4">
+              <Button
+                label="Add task"
+                clickFn={popupTaskForm}
+                formStyle="primary"
+              />
+              <Button
+                label="Edit project"
+                clickFn={() => project && popupProjectForm(project)}
+                formStyle="secondary"
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

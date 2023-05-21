@@ -11,7 +11,7 @@ type Props = {
 
 const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm }) => {
   return (
-    <div className="flex w-full h-full">
+    <div className="task-card flex w-full h-full">
       <div className="flex flex-col w-full h-full">
         {tasks.map((task) => (
           <div
@@ -38,12 +38,13 @@ const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm }) => {
                 </div>
               )}
             </div>
-
-            <div
-              className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
-              onClick={() => popupTaskForm(task)}>
-              <Icons.MdReadMore className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-blue-700" />
-            </div>
+            {!project?.archived && (
+              <div
+                className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
+                onClick={() => popupTaskForm(task)}>
+                <Icons.MdReadMore className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-blue-700" />
+              </div>
+            )}
           </div>
         ))}
       </div>

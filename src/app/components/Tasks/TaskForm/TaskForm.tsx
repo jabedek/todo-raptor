@@ -50,14 +50,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
   const { showPopup, hidePopup } = usePopupContext();
 
   useEffect(() => {
-    const options: Option[] = (project?.assignees || []).map((assignee) => {
-      const assigneeEmail = `${assignee.email}`;
-      return { label: assigneeEmail, value: { ...assignee, email: assigneeEmail } };
-    });
-    setassigneesOptions(options);
-
     if (task && taskList) {
-      const assignee = options.find(({ value }) => value.id === `${task.assigneeId}`)?.value ?? undefined;
       const status = TASK_STATUSES_OPTIONS.find(({ value }) => value === task.status) || TASK_STATUSES_OPTIONS[0];
 
       setformMode("edit");
@@ -65,7 +58,6 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       settitle(task.title);
       setdescription(task.description);
       settags(task.tags.map((value) => ({ value, temporaryId: generateInputId("task-tags", "tag") })));
-      setassignee(assignee);
       setstatus(status.value);
       setnewList(taskList);
     } else {
@@ -73,6 +65,20 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       setid(`task_${generateDocumentId()}`);
     }
   }, [project, task, taskList]);
+
+  useEffect(() => {
+    let options: Option[] = (project?.assignees || []).map((assignee) => {
+      const assigneeEmail = `${assignee.email}`;
+      return { label: assigneeEmail, value: { ...assignee, email: assigneeEmail } };
+    });
+
+    if (formMode === "edit" && task) {
+      const assignee = options.find(({ value }) => value.id === `${task.assigneeId}`)?.value ?? undefined;
+      setassignee(assignee);
+    }
+
+    setassigneesOptions(options);
+  }, [formMode]);
 
   const handleSubmitNewTask = () => {
     if (project) {
@@ -89,7 +95,6 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
         projectId: project.id,
         createdAt: new Date().toISOString(),
         closedAt: "",
-        archived: false,
       };
 
       const { assigneesRegistry, ...newProject } = project;
@@ -98,11 +103,6 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
 
       if (newList === "backlog") {
         newProject.tasksLists.backlog.push(newTask.id);
-      }
-
-      if (newList === "archive") {
-        newProject.tasksLists.archive.push(newTask.id);
-        newTask.archived = true;
       }
 
       if (newList === "schedule") {
@@ -132,7 +132,6 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
         projectId: project.id,
         createdAt: new Date().toISOString(),
         closedAt: "",
-        archived: newList === "archive",
       };
 
       const { assigneesRegistry, ...newProject } = project;
@@ -156,8 +155,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
           newProject.tasksLists[newList] = [...newProject.tasksLists[newList], id];
           scheduleAction.action = "remove-from-schedule";
         } else {
-          newProject.tasksLists["archive"] = newProject.tasksLists["archive"].filter((taskId) => taskId !== id);
-          newProject.tasksLists["backlog"] = newProject.tasksLists["backlog"].filter((taskId) => taskId !== id);
+          newProject.tasksLists.backlog = newProject.tasksLists.backlog.filter((taskId) => taskId !== id);
           scheduleAction.action = "add-to-schedule";
         }
       } else {
@@ -217,14 +215,14 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
   const popupConfirmDialog = (data: { taskId: string; projectId: string; assigneeId?: string }) =>
     showPopup(
       <ConfirmDialog
-        submitFn={() => deleteTask(data.taskId, data.projectId, data.assigneeId || "")}
+        submitFn={() => deleteTask(data.taskId, data.projectId)}
         whatAction="delete task"
         closeOnSuccess={true}
       />
     );
 
-  const deleteTask = async (taskId: string, projectId: string, assigneeId = "") =>
-    TasksAPI.deleteTask(taskId, projectId, assigneeId)
+  const deleteTask = async (taskId: string, projectId: string) =>
+    TasksAPI.deleteTask(taskId, projectId)
       .then(() => {
         setmessage({ text: "Task has been deleted.", isError: false });
         setid(`task_${generateDocumentId()}`);

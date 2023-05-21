@@ -1,4 +1,4 @@
-import { SimpleTask, FullTask, TasksSchedule, TasksOther } from "./Tasks";
+import { SimpleTask, FullTask, TasksSchedule } from "./Tasks";
 import {
   Project,
   ProjectStatus,
@@ -9,7 +9,6 @@ import {
   UnboundAssigneesRegistry,
   ProjectWithAssigneesRegistry,
   ProjectsFullData,
-  ScheduleColumn,
   ScheduleColumns,
 } from "./Projects";
 import { ContactInvitation, Contact } from "./Contacts";
@@ -19,9 +18,7 @@ import { StorageItem } from "./enums";
 export type {
   SimpleTask,
   FullTask,
-  TasksOther,
   TasksSchedule,
-  ScheduleColumn,
   ScheduleColumns,
 
   //

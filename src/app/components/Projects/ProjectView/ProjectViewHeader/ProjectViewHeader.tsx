@@ -2,7 +2,7 @@ import { Icons } from "@@components/Layout";
 import { CallbackFn } from "frotsi";
 
 type Props = {
-  tab: "schedule" | "backlog" | "archive";
+  tab: "schedule" | "backlog";
   projectTitle: string | undefined;
   setTabFn: CallbackFn;
 };
@@ -25,15 +25,6 @@ const ProjectViewHeader: React.FC<Props> = (props) => {
         <div className="app_flex_center ">
           <Icons.MdViewColumn className={`projects-header-icon text-sky-400`} />
           <p>Schedule</p>
-        </div>
-      </div>
-
-      <div
-        className={`header-tab-wrapper ${props.tab === "archive" && "selected"}`}
-        onClick={() => props.setTabFn("archive")}>
-        <div className="app_flex_center ">
-          <Icons.MdInventory className={`projects-header-icon text-gray-400 `} />
-          <p>Archived tasks</p>
         </div>
       </div>
     </div>

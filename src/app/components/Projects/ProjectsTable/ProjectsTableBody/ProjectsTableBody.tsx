@@ -1,11 +1,10 @@
 import { CallbackFn } from "frotsi";
-import { Project, User } from "@@types";
+import { Project, ProjectWithAssigneesRegistry, User } from "@@types";
 import ProjectsTableItem from "../ProjectsTableItem/ProjectsTableItem";
 
 type Props = {
-  projects: Project[];
+  projects: ProjectWithAssigneesRegistry[];
   user: User | undefined;
-  deleteProjectFn: CallbackFn<Promise<void>>;
 };
 
 const ProjectsTableBody: React.FC<Props> = (props) => {
@@ -16,7 +15,6 @@ const ProjectsTableBody: React.FC<Props> = (props) => {
           <ProjectsTableItem
             project={project}
             user={props.user}
-            deleteFn={() => props.deleteProjectFn(project.id)}
             key={i}
           />
         ))}

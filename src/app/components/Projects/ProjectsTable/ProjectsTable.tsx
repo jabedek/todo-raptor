@@ -5,7 +5,7 @@ import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, User } from
 import { ProjectsAPI } from "@@api/firebase";
 import { Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
-import { NewProjectForm, ProjectsTableBody, ProjectsTableHeader } from "@@components/Projects";
+import { ProjectForm, ProjectsTableBody, ProjectsTableHeader } from "@@components/Projects";
 import SidePanel from "@@components/common/SidePanel";
 import { ProjectsFullData } from "@@types";
 
@@ -16,20 +16,11 @@ interface Props {
 
 const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
   const [tab, settab] = useState<"active" | "archived">("active");
-  const [activeCollection, setactiveCollection] = useState<ProjectWithAssigneesRegistry[]>(projectsData?.active || []);
+  const [activeCollection, setactiveCollection] = useState<ProjectWithAssigneesRegistry[]>([]);
   const { showPopup, hidePopup } = usePopupContext();
 
   const popupProject = () => {
-    showPopup(<NewProjectForm />);
-  };
-
-  const deleteProject = async (projectId: string) => {
-    ProjectsAPI.deleteProjectById(projectId).then(
-      (r) => {
-        hidePopup();
-      },
-      (err) => console.error(err)
-    );
+    showPopup(<ProjectForm />);
   };
 
   useEffect(() => {
@@ -54,7 +45,6 @@ const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
             <ProjectsTableBody
               projects={activeCollection}
               user={user}
-              deleteProjectFn={deleteProject}
             />
           </div>
 

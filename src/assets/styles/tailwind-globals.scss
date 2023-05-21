@@ -57,13 +57,18 @@
 
   // ## Checkbox input ##
   .app_input_checkbox {
-    @apply transition-app_input_border duration-200  font-app_primary shadow-none cursor-pointer  h-6 w-6 focus:ring-0 px-0   font-normal focus:border-b-app_tertiary focus:ring-app_tertiary text-app_secondary rounded-sm mr-2 focus:outline-none placeholder-gray-300 
-    disabled:bg-gray-100 disabled:border-b-gray-100 disabled:text-gray-400  border-0  border-b-2 border-b-gray-300  invalid:text-red-700 focus:invalid:border-b-red-500;
+    @apply transition-app_input_border duration-200  font-app_primary shadow-none cursor-pointer  h-6 w-6 focus:ring-0 px-0   font-normal focus:border-app_tertiary focus:ring-app_tertiary text-app_secondary rounded-[4px] mr-2 focus:outline-none placeholder-gray-300 
+    disabled:bg-gray-100 disabled:border-gray-100 disabled:text-gray-400  border-2 border-gray-300  invalid:text-red-700 focus:invalid:border-red-500;
   }
 
-  .app_input_label_checkbox {
+  .app_input_checkbox_title {
+    @apply transition-all whitespace-pre  duration-200 font-app_primary text-gray-600 peer-placeholder-shown:text-base text-sm  font-normal peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-focus:-top-4
+    peer-focus:text-gray-600 peer-focus:text-sm select-none;
+  }
+
+  .app_input_label_option_checkbox {
     @apply transition-all whitespace-pre  duration-200 font-app_primary text-gray-600 peer-placeholder-shown:text-base text-base  font-normal peer-placeholder-shown:text-gray-400
-       peer-required:after:content-['*'];
+       peer-required:after:content-['*'] uppercase;
   }
 
   // ## Radio input ##

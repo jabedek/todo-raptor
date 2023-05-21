@@ -176,29 +176,57 @@ const getProjectScheduleById = async (project: Project) => {
   return docSnap.exists() ? (data as Schedule<SimpleColumn>) : undefined;
 };
 
-/** Delete project in `projects` collection & in related users' `projectsIds` arrays. */
-const deleteProjectById = async (projectId: string) => {
-  return getAssigneesDataByProjectId(projectId)
-    .then(async (res) => {
-      deleteDoc(doc(FirebaseDB, "projects", projectId)).then(async () => {
-        if (res) {
-          const assignees = res.map((assignee) => {
-            assignee.work.projectsIds = assignee.work.projectsIds.filter((pid) => pid !== projectId);
-            return assignee;
-          });
+const deleteScheduleWithTasks = (scheduleId: string) => {
+  getScheduleById(scheduleId).then((schedule) => {
+    if (schedule) {
+      let tasks: string[] = [];
 
-          await Promise.all(
-            assignees.map((assignee) => {
-              const assigneeId = assignee.authentication.id;
-              if (assigneeId) {
-                return updateDoc(doc(FirebaseDB, "users", assigneeId), assignee);
-              }
-            })
-          );
-        }
+      Object.values(schedule.columns).forEach((col) => {
+        col.tasksIdsOrdered.forEach((task) => tasks.push(task));
       });
-    })
-    .catch((err) => console.error(err));
+
+      tasks = [...new Set(tasks)];
+      console.log(tasks);
+
+      Promise.all([...tasks.map((task) => TasksAPI.deleteTask(task, schedule.projectId))]).then(() =>
+        deleteDoc(doc(FirebaseDB, "schedules", scheduleId)).then(() => console.log("deleted schedule"))
+      );
+    }
+  });
+};
+
+const deleteProjectTasks = (scheduleId: string, project: Project) => {
+  getScheduleById(scheduleId).then((schedule) => {
+    if (schedule) {
+      let tasks: string[] = [];
+
+      Object.values(schedule.columns).forEach((col) => {
+        col.tasksIdsOrdered.forEach((task) => tasks.push(task));
+      });
+
+      tasks = [...new Set(tasks)];
+
+      Promise.all([...tasks.map((task) => TasksAPI.deleteTask(task, schedule.projectId))]).then(() =>
+        deleteDoc(doc(FirebaseDB, "schedules", scheduleId)).then(() => console.log("deleted schedule"))
+      );
+    }
+  });
+
+  return Promise.all([
+    deleteScheduleWithTasks(scheduleId),
+    [...project.tasksLists.backlog.map((taskId) => TasksAPI.deleteTask(taskId, project.id))],
+  ]);
+};
+
+const deleteProjectCompletely = async (project: Project, deleteTasks: boolean) => {
+  const projectId = project.id;
+  const scheduleId = project.tasksLists.scheduleId;
+  const tasksRef = deleteTasks ? deleteProjectTasks(scheduleId, project) : new Promise(() => ({}));
+  return tasksRef.then(() => deleteDoc(doc(FirebaseDB, "projects", projectId))).catch((err) => console.error(err));
+};
+
+const archiveProjectCompletely = async (project: Project) => {
+  return updateProject({ ...project, archived: true }).catch((err) => console.error(err));
 };
 
 const getAssigneesDataByProjectId = async (projectId: string | null | undefined) => {
@@ -296,7 +324,7 @@ const ProjectsAPI = {
   getProjectById,
   getProjectScheduleById,
   listenProjectsWithAssigneesData,
-  deleteProjectById,
+  deleteProjectCompletely,
   getAvailableContactsForAssigneeship,
   updateProject,
   updateSchedule,
@@ -308,6 +336,8 @@ const ProjectsAPI = {
   listenScheduleColumns,
   getScheduleColumnsTasks,
   getScheduleById,
+  deleteScheduleWithTasks,
+  archiveProjectCompletely,
 };
 
 export { ProjectsAPI };

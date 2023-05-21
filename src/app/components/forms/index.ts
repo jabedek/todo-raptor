@@ -21,12 +21,14 @@ import {
 } from "./components/basic-inputs/types";
 import { TagItem } from "@@components/forms/components/complex-inputs/InputTags/types";
 import InputTags from "@@components/forms/components/complex-inputs/InputTags/InputTags";
+import InputCheckbox from "./components/basic-inputs/InputCheckbox";
 
 export {
   //
   FormClearX,
   InputDate,
   InputRadios,
+  InputCheckbox,
   InputSelect,
   InputWritten,
   InputTags,

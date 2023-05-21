@@ -24,7 +24,6 @@ export type Project = {
 export type TasksLists = {
   scheduleId: string;
   backlog: string[];
-  archive: string[];
 };
 
 export type Schedule<S extends ScheduleColumnType> = Flatten<{

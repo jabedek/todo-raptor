@@ -19,7 +19,6 @@ export type SimpleTask = {
   projectId: string;
   createdAt: string;
   closedAt: string;
-  archived: boolean;
 };
 
 export type FullTask = Flatten<SimpleTask & { statusDetails: TaskStatus } & { assigneeDetails: FullProjectAssignee | undefined }>;
@@ -29,11 +28,6 @@ export type TasksSchedule<T = SimpleTask | FullTask> = {
   b_working: T[];
   c_checking: T[];
   d_done: T[];
-};
-
-export type TasksOther<T = SimpleTask | FullTask> = {
-  backlog: T[];
-  archive: T[];
 };
 
 export type FullTasksRegistry = Record<string, FullTask>;

@@ -9,13 +9,12 @@ import { DeleteProjectForm, ProjectList, ProjectAssigneeIcon, ProjectsVisuals } 
 type Props = {
   project: ProjectWithAssigneesRegistry;
   user: User | undefined;
-  deleteFn: CallbackFn<Promise<void>>;
 };
 
 const AVATARS_LIMIT = 5;
 const TAGS_CHARS_LIMIT = 30;
 
-const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
+const ProjectsTableItem: React.FC<Props> = ({ project, user }) => {
   const { showPopup } = usePopupContext();
   const navigate = useNavigate();
   const [userIsCreator, setuserIsCreator] = useState(false);
@@ -44,14 +43,6 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
     setuserIsCreator(user?.authentication.id === project.originalCreatorId);
     setuserIsManager(user?.authentication.id === project.managerId);
   }, [user]);
-
-  const popupDelete = () =>
-    showPopup(
-      <DeleteProjectForm
-        project={project}
-        deleteFn={deleteFn}
-      />
-    );
 
   return (
     <>
@@ -118,11 +109,6 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
 
             {/* Actions */}
             <div className="flex justify-between gap-2 min-w-[60px] ">
-              <div
-                className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
-                onClick={popupDelete}>
-                <Icons.MdPlaylistRemove className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-red-700" />
-              </div>
               <div
                 className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
                 onClick={() => navigate(`/projects/${project.id}`)}>

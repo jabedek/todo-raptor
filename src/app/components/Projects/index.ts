@@ -1,4 +1,4 @@
-import NewProjectForm from "./NewProjectForm/NewProjectForm";
+import ProjectForm from "./ProjectForm/ProjectForm";
 import DeleteProjectForm from "./DeleteProjectForm/DeleteProjectForm";
 import ProjectsTable from "./ProjectsTable/ProjectsTable";
 import ProjectsTableHeader from "./ProjectsTable/ProjectsTableHeader/ProjectsTableHeader";
@@ -17,7 +17,7 @@ import { getUserDisplayName } from "./projects-utils";
 import * as ProjectsVisuals from "./visuals/project-visuals";
 
 export {
-  NewProjectForm,
+  ProjectForm,
   DeleteProjectForm,
   ProjectBadge,
   ProjectList,

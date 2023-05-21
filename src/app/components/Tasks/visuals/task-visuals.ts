@@ -53,7 +53,7 @@ export const getStatusGroup = (status: TaskStatusShortName): StatusGroupName => 
   return group;
 };
 
-const taskListTypes = ["backlog", "schedule", "archive"] as const;
+const taskListTypes = ["backlog", "schedule"] as const;
 export type TaskListType = (typeof taskListTypes)[number];
 
 export const TASK_LISTS_OPTIONS: SelectOption<TaskListType>[] = taskListTypes.map((list) => ({
