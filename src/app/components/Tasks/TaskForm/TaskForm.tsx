@@ -24,8 +24,9 @@ import {
   getStatusGroup,
   StatusGroupName,
 } from "../visuals/task-visuals";
-import { SimpleColumn, ProjectWithAssigneesRegistry } from "src/app/types/Projects";
+import { SimpleColumn, ProjectWithAssigneesRegistry, ScheduleAction } from "src/app/types/Projects";
 import { usePopupContext } from "@@components/Layout";
+import { getShortId } from "../task-utils";
 
 type Props = {
   project: ProjectWithAssigneesRegistry | undefined;
@@ -111,14 +112,14 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       newProject.tasksCounter = (project?.tasksCounter || 0) + 1;
       console.log("handleSubmitNewTask", newTask);
 
-      saveTask(newTask, newProject, assigneeId, { column: scheduleColumn, action: "add" });
+      saveTask(newTask, newProject, assigneeId, { oldColumn: "", column: scheduleColumn, action: "add-to-schedule" });
     }
   };
 
   const handleSubmitEditedTask = () => {
     console.log("handleSubmitEditedTask", project);
 
-    if (project) {
+    if (project && task) {
       const assigneeId = assignee?.id || "";
       const taskNumber = (project?.tasksCounter || 0) + 1;
       const newTask: SimpleTask = {
@@ -138,22 +139,30 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       const { assigneesRegistry, ...newProject } = project;
       console.log(newList, taskList);
 
-      let scheduleAction: { column: string; action: "add" | "remove" } = {
+      let scheduleAction: ScheduleAction = {
+        oldColumn: getStatusGroup(task?.status),
         column: getStatusGroup(newTask.status),
-        action: "add",
+        action: "add-to-schedule",
       };
+
+      if (status !== task?.status) {
+      }
 
       console.log(newProject.tasksLists);
 
       let listChanged = taskList !== newList;
 
-      if (newList !== "schedule") {
-        newProject.tasksLists[newList] = [...newProject.tasksLists[newList], id];
-        scheduleAction.action = "remove";
+      if (listChanged) {
+        if (newList !== "schedule") {
+          newProject.tasksLists[newList] = [...newProject.tasksLists[newList], id];
+          scheduleAction.action = "remove-from-schedule";
+        } else {
+          newProject.tasksLists["archive"] = newProject.tasksLists["archive"].filter((taskId) => taskId !== id);
+          newProject.tasksLists["backlog"] = newProject.tasksLists["backlog"].filter((taskId) => taskId !== id);
+          scheduleAction.action = "add-to-schedule";
+        }
       } else {
-        newProject.tasksLists["archive"] = newProject.tasksLists["archive"].filter((taskId) => taskId !== id);
-        newProject.tasksLists["backlog"] = newProject.tasksLists["backlog"].filter((taskId) => taskId !== id);
-        scheduleAction.action = "add";
+        scheduleAction.action = "move";
       }
 
       console.table(task);
@@ -186,17 +195,19 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
   const saveTask = async (
     task: SimpleTask,
     project: Project | null | undefined,
-    assigneeId: string,
-    schedule: { column: string; action: "add" | "remove" }
+    assigneeId: string | undefined,
+    schedule: ScheduleAction
   ) => {
+    if (!project || !task) {
+      return undefined;
+    }
+
     setmessage({ isLoading: true, isError: false, text: "" });
     TasksAPI.saveTask(task, project, assigneeId, schedule)
       .then(() => {
         setmessage({ text: "Task has been saved.", isError: false });
         setid(`task_${generateDocumentId()}`);
-        setTimeout(() => {
-          hidePopup();
-        }, 2000);
+        hidePopup();
       })
       .catch((e) => {
         console.error(e);
@@ -229,10 +240,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       title={`${formMode === "new" ? "Adding" : "Editing"} task [project: #${project?.title}]`}
       submitFn={handleSubmit}
       tailwindStyles="w-[500px]">
-      {/* <div className="w-full app_flex_center mt-3 ">
-        <div className=" bg-[rgb(243,244,246)]  text-[rgb(156,163,175)] font-app_mono font-light text-[12px]">ID:[{id}]</div>
-      </div> */}
-
+      <p className=" w-fit text-[10px] my-2 text-gray-500 font-app_mono flex items-end">{getShortId(id)}</p>
       <InputWritten
         required
         type="text"

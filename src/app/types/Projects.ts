@@ -51,6 +51,8 @@ export type ScheduleColumns<ScheduleColumnType> = {
   d_done: ScheduleColumnType;
 };
 
+export type ScheduleAction = { oldColumn: string; column: string; action: "add-to-schedule" | "move" | "remove-from-schedule" };
+
 export type ProjectStatus = "active" | "completed" | "cancelled";
 
 export type SimpleProjectAssignee = Flatten<IdEmailPair & { role: ProjectRoleShortName }>;

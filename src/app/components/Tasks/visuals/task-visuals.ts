@@ -1,8 +1,8 @@
 import { SelectOption } from "@@components/forms";
 
 /* ### Tasks ### */
-const taskStatusShortNames = ["new", "progress", "review", "tests", "done", "blocked", "cancelled"] as const;
-const taskStatusFullNames = ["New", "In progress", "In review", "In tests", "Done", "Blocked", "Cancelled"] as const;
+const taskStatusShortNames = ["new", "progress", "blocked", "review", "tests", "done", "cancelled"] as const;
+const taskStatusFullNames = ["New", "In progress", "Blocked", "In review", "In tests", "Done", "Cancelled"] as const;
 
 export type TaskStatusShortName = (typeof taskStatusShortNames)[number];
 type TaskStatusFullName = (typeof taskStatusFullNames)[number];

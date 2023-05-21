@@ -16,37 +16,40 @@ import { CallbackFn } from "frotsi";
 import { FirebaseDB, ProjectsAPI } from "@@api/firebase";
 import { SimpleTask, Project, TasksOther, FullTask, TasksSchedule } from "@@types";
 import { getTaskStatusDetails } from "@@components/Tasks/visuals/task-visuals";
-import { SimpleColumn, FullProjectAssignee, Schedule } from "src/app/types/Projects";
+import { SimpleColumn, FullProjectAssignee, Schedule, ScheduleAction } from "src/app/types/Projects";
 
 const TasksRef = collection(FirebaseDB, "tasks");
 
-const saveTask = async (
-  task: SimpleTask,
-  project: Project | null | undefined,
-  assigneeId: string,
-  schedule: { column: string; action: "add" | "remove" }
-) => {
-  if (!project) {
-    return undefined;
-  }
+const saveTask = (task: SimpleTask, project: Project, assigneeId: string | undefined, schedule: ScheduleAction) => {
+  const promises: Promise<void>[] = [
+    setDoc(doc(FirebaseDB, "tasks", task.id), task),
+    updateDoc(doc(FirebaseDB, "projects", project.id), project),
+  ];
 
-  const promiseTasks = setDoc(doc(FirebaseDB, "tasks", task.id), task);
-  const promiseProjects = updateDoc(doc(FirebaseDB, "projects", project.id), project);
-
-  const promises: Promise<void>[] = [promiseTasks, promiseProjects];
-
-  if (assigneeId.length) {
-    const promiseUsers = updateDoc(doc(FirebaseDB, "users", assigneeId), { "work.tasksIds": arrayUnion(task.id) });
-    promises.push(promiseUsers);
-  }
-
-  if (schedule.column.length) {
+  if (schedule) {
     const scheduleId = project.tasksLists.scheduleId;
-    const promiseSchedule = updateDoc(doc(FirebaseDB, "schedules", scheduleId), {
-      [`columns.${schedule.column}.tasksIdsOrdered`]: schedule.action === "add" ? arrayUnion(task.id) : arrayRemove(task.id),
-    });
-    promises.push(promiseSchedule);
+    if (schedule.action !== "move") {
+      promises.push(
+        updateDoc(doc(FirebaseDB, "schedules", scheduleId), {
+          [`columns.${schedule.column}.tasksIdsOrdered`]:
+            schedule.action === "add-to-schedule" ? arrayUnion(task.id) : arrayRemove(task.id),
+        })
+      );
+    } else {
+      if (schedule.column !== schedule.oldColumn) {
+        promises.push(
+          updateDoc(doc(FirebaseDB, "schedules", scheduleId), {
+            [`columns.${schedule.column}.tasksIdsOrdered`]: arrayUnion(task.id),
+            [`columns.${schedule.oldColumn}.tasksIdsOrdered`]: arrayRemove(task.id),
+          })
+        );
+      }
+    }
   }
+
+  assigneeId?.length
+    ? promises.push(updateDoc(doc(FirebaseDB, "users", assigneeId), { "work.tasksIds": arrayUnion(task.id) }))
+    : undefined;
 
   return Promise.all(promises)
     .then(() => {})
