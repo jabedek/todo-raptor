@@ -87,10 +87,10 @@ const ProjectView: React.FC<Props> = (props) => {
       />
     );
 
-  const popupConfirmDialog = (assignee: FullProjectAssignee) =>
+  const popupConfirmDialog = (data: FullProjectAssignee) =>
     showPopup(
       <ConfirmDialog
-        submitFn={() => removeAssignee(assignee)}
+        submitFn={() => removeAssignee(data)}
         whatAction="remove assignee from project"
         closeOnSuccess={true}
       />
@@ -104,11 +104,12 @@ const ProjectView: React.FC<Props> = (props) => {
     }
   };
 
-  const popupTaskForm = (task?: SimpleTask) =>
+  const popupTaskForm = (list: TaskListType, task?: SimpleTask) =>
     showPopup(
       <TaskForm
         project={project}
         task={task}
+        taskList={list}
       />
     );
 
@@ -139,14 +140,14 @@ const ProjectView: React.FC<Props> = (props) => {
               <ProjectBacklog
                 project={project}
                 tasks={tasksOther.backlog}
-                popupTaskForm={popupTaskForm}
+                popupTaskForm={(val) => popupTaskForm(tab, val)}
               />
             )}
             {tab === "schedule" && (
               <ProjectSchedule
                 project={project}
                 // tasksColumns={tasksColumns}
-                popupTaskForm={popupTaskForm}
+                popupTaskForm={(val) => popupTaskForm(tab, val)}
               />
             )}
           </div>

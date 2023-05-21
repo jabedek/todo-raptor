@@ -3,6 +3,8 @@ import { ProjectAssigneeIcon } from "@@components/Projects";
 import { SimpleTask, FullTask } from "@@types";
 import { Icons } from "@@components/Layout";
 import { CallbackFn } from "frotsi";
+import { getShortId } from "@@components/Tasks/task-utils";
+import { useState } from "react";
 
 type Props = {
   task: FullTask;
@@ -12,6 +14,8 @@ type Props = {
 };
 
 const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, draggingDisabled }) => {
+  const [shortId, setshortId] = useState(getShortId(task.id));
+
   return (
     <Draggable
       isDragDisabled={draggingDisabled}
@@ -38,10 +42,10 @@ const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, draggingDisable
             <span className="h-[18px] app_ellipsis_inline w-full">{task.title}</span>
           </div>
 
-          <div className="flex w-full justify-between align-center items-center h-[26px]">
-            <span className=" italic text-gray-400 font-app_mono h-full w-[46px] text-left text-[14px] leading-[26px]">
-              #{task.taskNumber || "X"}
-            </span>
+          <div className="flex w-full justify-between  h-[26px]">
+            <p className=" w-[96px] text-[9px]  text-gray-500 font-app_mono flex items-end">
+              {shortId} #{task.taskNumber}
+            </p>
             <div
               className="action-wrapper min-h-[26px] min-w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
               onClick={popupTaskForm}>

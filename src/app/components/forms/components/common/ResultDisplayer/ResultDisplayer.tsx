@@ -1,4 +1,4 @@
-export type ResultDisplay = { text: string; isError: boolean };
+export type ResultDisplay = { text: string; isError: boolean; isLoading?: boolean };
 
 type Props = { message: ResultDisplay | undefined; tailwindStyles?: string };
 
@@ -6,8 +6,10 @@ const ResultDisplayer: React.FC<Props> = ({ message, tailwindStyles }) => {
   return (
     <div
       className={`min-h-[56px] app_flex_center transition-all duration-200 italic text-sm overflow-x-auto whitespace-pre
-      ${message && message?.isError ? "text-red-500" : "text-green-500"} ${tailwindStyles}`}>
-      {message?.text}
+      ${
+        message?.isLoading ? "text-app_tertiary" : message && message?.isError ? "text-red-500" : "text-green-500"
+      } ${tailwindStyles}`}>
+      {message?.isLoading ? "Loading..." : message?.text}
     </div>
   );
 };

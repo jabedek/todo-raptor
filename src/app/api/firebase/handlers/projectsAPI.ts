@@ -144,6 +144,14 @@ const listenProjectsWithAssigneesData = async (projectsIds: string[], getArchive
   });
 };
 
+const getScheduleById = async (scheduleId: string) => {
+  const docRef = doc(FirebaseDB, "schedules", scheduleId);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+
+  return docSnap.exists() ? (data as Schedule<SimpleColumn>) : undefined;
+};
+
 const getProjectById = async (projectId: string) => {
   if (!projectId) {
     return undefined;
@@ -299,6 +307,7 @@ const ProjectsAPI = {
   //
   listenScheduleColumns,
   getScheduleColumnsTasks,
+  getScheduleById,
 };
 
 export { ProjectsAPI };

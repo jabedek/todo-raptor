@@ -17,7 +17,7 @@ const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
     let timer: NodeJS.Timeout | undefined;
     const anyUser = !!(user || firebaseAuthUser);
     const isValid = !!(anyUser && canUseAPI);
-    console.log(user, canUseAPI);
+    console.log(firebaseAuthUser, user, canUseAPI);
 
     if (!isValid) {
       timer = setTimeout(() => {

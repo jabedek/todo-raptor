@@ -1,5 +1,6 @@
 import { Icons } from "@@components/Layout";
 import { getUserDisplayName } from "@@components/Projects";
+import { getShortId } from "@@components/Tasks/task-utils";
 import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, SimpleTask, FullTask } from "@@types";
 
 type Props = {
@@ -19,8 +20,10 @@ const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm }) => {
             <div className={` ${task.statusDetails.styleClasses[0]} ml-[1px] text-[13px] min-w-[100px] max-w-[140px]`}>
               {task.statusDetails.fullName}
             </div>
-            <div className={` w-[300px]  text-[13px] app_ellipsis X_inline`}>
-              <span className="pr-[5px] italic text-gray-500 font-app_mono ">#{task.taskNumber || "X"}</span>
+            <div className={` w-[300px] flex items-center text-[13px] app_ellipsis X_inline`}>
+              <div className="pr-[5px] w-[96px] text-[9px]  text-gray-500 font-app_mono ">
+                {getShortId(task.id)} #{task.taskNumber}
+              </div>
               <span className="font-extrabold">{task.title}</span>
             </div>
 

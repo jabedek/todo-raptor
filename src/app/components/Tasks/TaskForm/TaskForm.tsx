@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { generateDocumentId } from "frotsi";
+import { generateDocumentId, generateInputId } from "frotsi";
 
 import {
   FormWrapper,
@@ -10,6 +10,7 @@ import {
   ResultDisplayer,
   TagItem,
   SelectOption,
+  ConfirmDialog,
 } from "@@components/forms";
 import { Project, SimpleProjectAssignee, SimpleTask } from "@@types";
 import { Button } from "@@components/common";
@@ -24,13 +25,15 @@ import {
   StatusGroupName,
 } from "../visuals/task-visuals";
 import { SimpleColumn, ProjectWithAssigneesRegistry } from "src/app/types/Projects";
+import { usePopupContext } from "@@components/Layout";
 
 type Props = {
   project: ProjectWithAssigneesRegistry | undefined;
   task?: SimpleTask;
+  taskList: TaskListType;
 };
 
-const TaskForm: React.FC<Props> = ({ project, task }) => {
+const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
   type Option = SelectOption<SimpleProjectAssignee>;
   const [id, setid] = useState("");
   const [title, settitle] = useState("");
@@ -38,36 +41,44 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
   const [tags, settags] = useState<TagItem[]>([]);
   const [assignee, setassignee] = useState<SimpleProjectAssignee>();
   const [status, setstatus] = useState<TaskStatusShortName>(TASK_STATUSES_OPTIONS[0].value);
-  const [list, setlist] = useState<TaskListType>("backlog");
+  const [newList, setnewList] = useState<TaskListType>("backlog");
 
   const [assigneesOptions, setassigneesOptions] = useState<Option[]>([]);
   const [message, setmessage] = useState<ResultDisplay>();
   const [formMode, setformMode] = useState<"new" | "edit">("new");
+  const { showPopup, hidePopup } = usePopupContext();
 
   useEffect(() => {
     const options: Option[] = (project?.assignees || []).map((assignee) => {
       const assigneeEmail = `${assignee.email}`;
       return { label: assigneeEmail, value: { ...assignee, email: assigneeEmail } };
     });
-
     setassigneesOptions(options);
-  }, [project?.assignees]);
+    console.log(task, taskList);
 
-  useEffect(() => {
-    if (task) {
+    if (task && taskList) {
+      const assignee = options.find(({ value }) => value.id === `${task.assigneeId}`)?.value ?? undefined;
+      const status = TASK_STATUSES_OPTIONS.find(({ value }) => value === task.status) || TASK_STATUSES_OPTIONS[0];
+
       setformMode("edit");
       setid(task.id);
+      settitle(task.title);
+      setdescription(task.description);
+      settags(task.tags.map((value) => ({ value, temporaryId: generateInputId("task-tags", "tag") })));
+      setassignee(assignee);
+      setstatus(status.value);
+      setnewList(taskList);
     } else {
       setformMode("new");
       setid(`task_${generateDocumentId()}`);
     }
-  }, [task]);
+  }, [project, task, taskList]);
 
   const handleSubmitNewTask = () => {
     if (project) {
       const assigneeId = assignee?.id || "";
       const taskNumber = (project?.tasksCounter || 0) + 1;
-      const task: SimpleTask = {
+      const newTask: SimpleTask = {
         id,
         title: title.replace(RegExp(/\s{2,}/gm), " ").trim(),
         description,
@@ -85,33 +96,74 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
 
       let scheduleColumn = "";
 
-      if (list === "backlog") {
-        newProject.tasksLists.backlog.push(task.id);
+      if (newList === "backlog") {
+        newProject.tasksLists.backlog.push(newTask.id);
       }
 
-      if (list === "archive") {
-        newProject.tasksLists.archive.push(task.id);
-        task.archived = true;
+      if (newList === "archive") {
+        newProject.tasksLists.archive.push(newTask.id);
+        newTask.archived = true;
       }
 
-      if (list === "schedule") {
-        scheduleColumn = getStatusGroup(task.status);
+      if (newList === "schedule") {
+        scheduleColumn = getStatusGroup(newTask.status);
       }
       newProject.tasksCounter = (project?.tasksCounter || 0) + 1;
+      console.log("handleSubmitNewTask", newTask);
 
-      TasksAPI.saveNewTaskInDB(task, newProject, assigneeId, scheduleColumn)
-        .then(() => {
-          setmessage({ text: "SimpleTask has been added to project.", isError: false });
-          setid(`task_${generateDocumentId()}`);
-        })
-        .catch((e) => {
-          console.error(e);
-          setmessage({ isError: true, text: "Error during adding task. See console." });
-        });
+      saveTask(newTask, newProject, assigneeId, { column: scheduleColumn, action: "add" });
     }
   };
 
-  const handleSubmitEditedTask = () => {};
+  const handleSubmitEditedTask = () => {
+    console.log("handleSubmitEditedTask", project);
+
+    if (project) {
+      const assigneeId = assignee?.id || "";
+      const taskNumber = (project?.tasksCounter || 0) + 1;
+      const newTask: SimpleTask = {
+        id,
+        title: title.replace(RegExp(/\s{2,}/gm), " ").trim(),
+        description,
+        tags: tags.map((t) => t.value),
+        assigneeId: assigneeId,
+        status,
+        taskNumber,
+        projectId: project.id,
+        createdAt: new Date().toISOString(),
+        closedAt: "",
+        archived: newList === "archive",
+      };
+
+      const { assigneesRegistry, ...newProject } = project;
+      console.log(newList, taskList);
+
+      let scheduleAction: { column: string; action: "add" | "remove" } = {
+        column: getStatusGroup(newTask.status),
+        action: "add",
+      };
+
+      console.log(newProject.tasksLists);
+
+      let listChanged = taskList !== newList;
+
+      if (newList !== "schedule") {
+        newProject.tasksLists[newList] = [...newProject.tasksLists[newList], id];
+        scheduleAction.action = "remove";
+      } else {
+        newProject.tasksLists["archive"] = newProject.tasksLists["archive"].filter((taskId) => taskId !== id);
+        newProject.tasksLists["backlog"] = newProject.tasksLists["backlog"].filter((taskId) => taskId !== id);
+        scheduleAction.action = "add";
+      }
+
+      console.table(task);
+      console.table(newTask);
+
+      newProject.tasksCounter = (project?.tasksCounter || 0) + 1;
+
+      saveTask(newTask, newProject, assigneeId, scheduleAction);
+    }
+  };
 
   const handleSubmit = () => {
     if (formMode === "new") {
@@ -128,12 +180,53 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
     settags([]);
     setassignee(undefined);
     setstatus(TASK_STATUSES_OPTIONS[0].value);
-    setlist("backlog");
+    setnewList("backlog");
   };
+
+  const saveTask = async (
+    task: SimpleTask,
+    project: Project | null | undefined,
+    assigneeId: string,
+    schedule: { column: string; action: "add" | "remove" }
+  ) => {
+    setmessage({ isLoading: true, isError: false, text: "" });
+    TasksAPI.saveTask(task, project, assigneeId, schedule)
+      .then(() => {
+        setmessage({ text: "Task has been saved.", isError: false });
+        setid(`task_${generateDocumentId()}`);
+        setTimeout(() => {
+          hidePopup();
+        }, 2000);
+      })
+      .catch((e) => {
+        console.error(e);
+        setmessage({ isError: true, text: "Error during saving task. See console." });
+      });
+  };
+
+  const popupConfirmDialog = (data: { taskId: string; projectId: string; assigneeId?: string }) =>
+    showPopup(
+      <ConfirmDialog
+        submitFn={() => deleteTask(data.taskId, data.projectId, data.assigneeId || "")}
+        whatAction="delete task"
+        closeOnSuccess={true}
+      />
+    );
+
+  const deleteTask = async (taskId: string, projectId: string, assigneeId = "") =>
+    TasksAPI.deleteTask(taskId, projectId, assigneeId)
+      .then(() => {
+        setmessage({ text: "Task has been deleted.", isError: false });
+        setid(`task_${generateDocumentId()}`);
+      })
+      .catch((e) => {
+        console.error(e);
+        setmessage({ isError: true, text: "Error during deleting task. See console." });
+      });
 
   return (
     <FormWrapper
-      title={`Adding task to project [${project?.title}]`}
+      title={`${formMode === "new" ? "Adding" : "Editing"} task [project: #${project?.title}]`}
       submitFn={handleSubmit}
       tailwindStyles="w-[500px]">
       {/* <div className="w-full app_flex_center mt-3 ">
@@ -183,9 +276,9 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
           required
           name="task-list"
           selectWidth="w-[200px]"
-          changeFn={(value) => setlist(value)}
+          changeFn={(value) => setnewList(value)}
           label="List"
-          value={list}
+          value={newList}
           options={TASK_LISTS_OPTIONS}
         />
       </div>
@@ -205,7 +298,7 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
         <Button
           formStyle="primary"
           disabled={!(status && title)}
-          clickFn={handleSubmitNewTask}>
+          clickFn={handleSubmit}>
           Submit
         </Button>
 
@@ -214,6 +307,15 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
             formStyle="secondary"
             clickFn={resetForm}>
             Clear
+          </Button>
+        )}
+
+        {formMode === "edit" && (
+          <Button
+            formStyle="secondary"
+            disabled={!(status && title && project && id)}
+            clickFn={() => project && popupConfirmDialog({ taskId: id, projectId: project.id, assigneeId: assignee?.id })}>
+            Delete
           </Button>
         )}
       </div>

@@ -13,3 +13,5 @@ export const enrichTasksWithAssignees = (projectAssignees: ProjectAssigneesRegis
 
   return tasksWithDetails;
 };
+
+export const getShortId = (id: string) => `${id.substring(0, 1)}_${id.substring(15, 18)}_${id.substring(id.length - 3)}`;

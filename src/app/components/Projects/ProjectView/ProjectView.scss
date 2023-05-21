@@ -1,6 +1,6 @@
 $header-height: 50px;
 $side-width: 220px;
-$body-width: 692px;
+$body-width: 680px;
 
 .side-panel {
   width: $side-width;
@@ -20,6 +20,7 @@ $body-width: 692px;
 
 .project-view-wrapper {
   height: 690px;
+  min-width: 900px;
 }
 
 .project-view {
@@ -28,11 +29,12 @@ $body-width: 692px;
   width: 100%;
   height: auto;
   overflow: hidden;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.15);
   // border-radius: 14px;
 
   &__main {
     position: relative;
-    width: 100%;
+    width: calc(100% - $side-width);
     height: auto;
     overflow: hidden;
 
@@ -68,6 +70,7 @@ $body-width: 692px;
       padding: 6px;
       height: calc(100% - $header-height);
       width: 100%;
+      min-width: $body-width;
       overflow-y: scroll;
     }
   }

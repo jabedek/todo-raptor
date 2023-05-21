@@ -42,34 +42,36 @@ const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
 
   return (
     <>
-      <div className="projects-table font-app_primary bg-[rgba(241,241,241,1)] flex ">
-        {/* Main */}
-        <div className="projects-table__main flex flex-col justify-between">
-          <ProjectsTableHeader
-            setTabFn={(tab) => settab(tab)}
-            tab={tab}
-          />
+      <div className="projects-table-wrapper flex flex-col rounded-[14px] overflow-hidden">
+        <div className="projects-table font-app_primary bg-[rgba(241,241,241,1)] flex ">
+          {/* Main */}
+          <div className="projects-table__main flex flex-col justify-between">
+            <ProjectsTableHeader
+              setTabFn={(tab) => settab(tab)}
+              tab={tab}
+            />
 
-          <ProjectsTableBody
-            projects={activeCollection}
-            user={user}
-            deleteProjectFn={deleteProject}
-          />
-        </div>
-
-        {/* Side */}
-        <SidePanel for="projects-table">
-          <div className="h-full  border-l-[1px]  project-border border app_flex_center">
-            <Button
-              label="New Project"
-              clickFn={popupProject}
-              formStyle="primary"
+            <ProjectsTableBody
+              projects={activeCollection}
+              user={user}
+              deleteProjectFn={deleteProject}
             />
           </div>
-          <div className="h-full bg-white project-border border border-t-0  ">
-            <div className="w-full h-full "></div>
-          </div>
-        </SidePanel>
+
+          {/* Side */}
+          <SidePanel for="projects-table">
+            <div className="h-full  border-l-[1px]  project-border border app_flex_center">
+              <Button
+                label="New Project"
+                clickFn={popupProject}
+                formStyle="primary"
+              />
+            </div>
+            <div className="h-full bg-white project-border border border-t-0  ">
+              <div className="w-full h-full "></div>
+            </div>
+          </SidePanel>
+        </div>
       </div>
     </>
   );
