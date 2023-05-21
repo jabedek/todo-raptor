@@ -1,3 +1,5 @@
+import { getProjectRoleDetails } from "@@components/Projects/visuals/project-visuals";
+import { CallbackFn } from "frotsi";
 import {
   setDoc,
   doc,
@@ -10,42 +12,135 @@ import {
   onSnapshot,
   updateDoc,
   deleteDoc,
-  arrayRemove,
 } from "firebase/firestore";
-
 import { FirebaseDB } from "@@api/firebase/firebase-config";
-import { ProjectTypes, UserTypes } from "@@types";
+import {
+  Project,
+  FullProjectAssignee,
+  ProjectAssigneesRegistry,
+  ProjectsFullData,
+  UnboundAssigneesRegistry,
+  User,
+  ProjectWithAssigneesRegistry,
+  FullTask,
+} from "@@types";
 import { UsersAPI } from "./usersAPI";
-import { CallbackFn } from "frotsi";
-import { useUserValue } from "@@contexts";
+import { FullColumn, Schedule, ScheduleColumns, SimpleColumn, SimpleProjectAssignee } from "src/app/types/Projects";
+import { TasksAPI } from "./tasksAPI";
 
 export const ProjectsRef = collection(FirebaseDB, "projects");
+export const ProjectsSchedulesColumnsRef = collection(FirebaseDB, "schedules");
 
-const saveNewProject = async (project: ProjectTypes.Project) => {
-  console.log(project);
-
-  setDoc(doc(FirebaseDB, "projects", project.id), project).then(
+const saveNewProject = async (project: Project, schedule: Schedule<SimpleColumn>) => {
+  Promise.all([
+    setDoc(doc(FirebaseDB, "schedules", schedule.id), schedule),
+    setDoc(doc(FirebaseDB, "projects", project.id), project),
+  ]).then(
     () => {},
     (error) => console.log("Projects:", error)
   );
 };
 
-const listenToUserProjectsData = async (user: UserTypes.User, cb: CallbackFn) => {
-  if (!user) {
+const listenScheduleColumns = async (project: Project, cb: CallbackFn) => {
+  const queryRef = doc(FirebaseDB, "schedules", project.tasksLists.scheduleId);
+
+  const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+    const schedule = <Schedule<SimpleColumn>>querySnapshot.data();
+    cb(querySnapshot.exists() ? schedule : undefined, unsub);
+  });
+};
+
+const getScheduleColumnsTasks = async (
+  schedule: Schedule<SimpleColumn>,
+  fullAssignees: Record<string, FullProjectAssignee>
+): Promise<Schedule<FullColumn<FullTask>>> => {
+  const promises: Promise<FullTask[]>[] = [
+    TasksAPI.fetchTasksDataOrdered(schedule.columns.a_new.tasksIdsOrdered, fullAssignees),
+    TasksAPI.fetchTasksDataOrdered(schedule.columns.b_working.tasksIdsOrdered, fullAssignees),
+    TasksAPI.fetchTasksDataOrdered(schedule.columns.c_checking.tasksIdsOrdered, fullAssignees),
+    TasksAPI.fetchTasksDataOrdered(schedule.columns.d_done.tasksIdsOrdered, fullAssignees),
+  ];
+
+  return Promise.all(promises).then((tasksArrays) => {
+    const [a_new, b_working, c_checking, d_done] = tasksArrays;
+
+    const fullSchedule: Schedule<FullColumn<FullTask>> = {
+      ...schedule,
+      columns: {
+        a_new: { ...schedule.columns.a_new, tasks: a_new },
+        b_working: { ...schedule.columns.b_working, tasks: b_working },
+        c_checking: { ...schedule.columns.c_checking, tasks: c_checking },
+        d_done: { ...schedule.columns.d_done, tasks: d_done },
+      },
+    };
+
+    return fullSchedule;
+  });
+};
+
+const listenProjectsWithAssigneesData = async (projectsIds: string[], getArchived: boolean, cb: CallbackFn) => {
+  if (!projectsIds.length) {
     return undefined;
   }
 
-  const userProjectsIds = ["_", ...user.work.projectsIds];
+  const userProjectsIds = [...projectsIds];
   const queryRef = query(ProjectsRef, where("id", "in", userProjectsIds));
 
   const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-    let docs: ProjectTypes.Project[] = [];
+    let projects: Project[] = [];
     querySnapshot.forEach((doc) => {
-      const project = doc.data() as ProjectTypes.Project;
-      docs.push(project);
+      const project = doc.data() as Project;
+      projects.push(project);
     });
 
-    cb(docs, unsub);
+    let newProjectsData: ProjectsFullData = {
+      active: [],
+      archived: [],
+    };
+    projects.forEach((project) => {
+      if (project.archived) {
+        newProjectsData.archived.push({ ...project, assigneesRegistry: {} });
+      } else {
+        newProjectsData.active.push({ ...project, assigneesRegistry: {} });
+      }
+    });
+
+    const activeAssignees = [...newProjectsData.active.map(({ assignees, id }) => ({ assignees, projectId: id }))];
+    const activeAssigneedIds = [...activeAssignees.map(({ assignees }) => assignees.map(({ id }) => id))].flat();
+    let uniqueIds = [...new Set(activeAssigneedIds)];
+    if (getArchived) {
+      const archivedAssignees = [...newProjectsData.archived.map(({ assignees, id }) => ({ assignees, projectId: id }))];
+      const archivedAssigneedIds = [...archivedAssignees.map(({ assignees }) => assignees.map(({ id }) => id))].flat();
+      uniqueIds = [...new Set([...archivedAssigneedIds, ...activeAssigneedIds])];
+    }
+
+    UsersAPI.getUsersById(uniqueIds).then((users = []) => {
+      const assignees: UnboundAssigneesRegistry = {};
+
+      users.forEach((user) => {
+        assignees[user.authentication.id] = {
+          id: user.authentication.id,
+          email: user.authentication.email,
+          names: user.personal.names,
+        };
+      });
+
+      const projectsWithRegistry: ProjectWithAssigneesRegistry[] = newProjectsData.active.map((project) => {
+        const assigneesRegistry: ProjectAssigneesRegistry = {};
+        project.assignees.forEach((assignee) => {
+          const { id, role } = assignee;
+          assigneesRegistry[id] = { ...assignees[id], role, roleDetails: getProjectRoleDetails(role) };
+        });
+        return { ...project, assigneesRegistry };
+      });
+
+      const projectData: ProjectsFullData = {
+        active: projectsWithRegistry,
+        archived: newProjectsData.archived,
+      };
+
+      cb(projectData, unsub);
+    });
   });
 };
 
@@ -58,7 +153,19 @@ const getProjectById = async (projectId: string) => {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
 
-  return docSnap.exists() ? (data as ProjectTypes.Project) : undefined;
+  return docSnap.exists() ? (data as Project) : undefined;
+};
+
+const getProjectScheduleById = async (project: Project) => {
+  if (!project) {
+    return undefined;
+  }
+
+  const docRef = doc(FirebaseDB, "schedules", project.tasksLists.scheduleId);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+
+  return docSnap.exists() ? (data as Schedule<SimpleColumn>) : undefined;
 };
 
 /** Delete project in `projects` collection & in related users' `projectsIds` arrays. */
@@ -86,22 +193,6 @@ const deleteProjectById = async (projectId: string) => {
     .catch((err) => console.error(err));
 };
 
-const archiveProjectById = async (userId: string, projectId: string) => {
-  UsersAPI;
-
-  updateDoc(doc(FirebaseDB, "projects", projectId), {
-    archived: true,
-  });
-};
-
-const changeProjectStatusById = async (userId: string, projectId: string, status: ProjectTypes.ProjectStatus) => {
-  UsersAPI;
-
-  updateDoc(doc(FirebaseDB, "projects", projectId), {
-    status,
-  });
-};
-
 const getAssigneesDataByProjectId = async (projectId: string | null | undefined) => {
   if (!projectId) {
     return undefined;
@@ -109,19 +200,19 @@ const getAssigneesDataByProjectId = async (projectId: string | null | undefined)
 
   return getProjectById(projectId)
     .then(async (project) => {
-      const assigneesIds: string[] = ["_"];
-      project?.assignees.forEach(({ id }) => {
-        if (id) {
-          assigneesIds.push(id);
-        }
-      });
+      const assigneesIds: string[] = [];
+      project?.assignees.forEach(({ id }) => assigneesIds.push(id));
+
+      if (!assigneesIds.length) {
+        return [];
+      }
 
       const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", assigneesIds));
       const querySnapshot = await getDocs(queryRef);
 
-      const docs: UserTypes.User[] = [];
+      const docs: User[] = [];
       querySnapshot.forEach((doc) => {
-        docs.push(<UserTypes.User>doc.data());
+        docs.push(<User>doc.data());
       });
 
       return docs;
@@ -129,7 +220,37 @@ const getAssigneesDataByProjectId = async (projectId: string | null | undefined)
     .catch((err) => console.error(err));
 };
 
-const getAvailableContactsForAssigneeship = (user: UserTypes.User, project: ProjectTypes.Project) => {
+const getProjectFullAssignees = async (project: Project): Promise<Record<string, FullProjectAssignee>> => {
+  const assigneesIds: string[] = [];
+  const assigneesIdsRegistry: Record<string, SimpleProjectAssignee> = {};
+  const fullAssigneesRegistry: Record<string, FullProjectAssignee> = {};
+
+  project.assignees.forEach((assignee) => {
+    assigneesIdsRegistry[assignee.id] = assignee;
+    assigneesIds.push(assignee.id);
+  });
+
+  if (!assigneesIds.length) {
+    return {};
+  }
+
+  return UsersAPI.getUsersById(assigneesIds).then((users: User[] = []) => {
+    users.forEach((user) => {
+      const userId = user.authentication.id;
+      const full: FullProjectAssignee = {
+        ...assigneesIdsRegistry[userId],
+        roleDetails: getProjectRoleDetails(assigneesIdsRegistry[userId].role),
+        names: user.personal.names,
+      };
+
+      fullAssigneesRegistry[userId] = full;
+    });
+
+    return fullAssigneesRegistry;
+  });
+};
+
+const getAvailableContactsForAssigneeship = (user: User, project: Project) => {
   const userContacts: string[] = user.contacts.contactsIds;
   const projectAssignees: string[] = project.assignees
     .filter((m) => m.id !== user.authentication.id)
@@ -149,15 +270,11 @@ const getAvailableContactsForAssigneeship = (user: UserTypes.User, project: Proj
   );
 };
 
-const updateProject = async (project: ProjectTypes.Project) => {
-  updateDoc(doc(FirebaseDB, "projects", project.id), project);
-};
+const updateProject = async (project: Project) => updateDoc(doc(FirebaseDB, "projects", project.id), project);
 
-const userAsAssigneeBond = async (
-  assignee: ProjectTypes.ProjectAssigneeFull,
-  project: ProjectTypes.Project,
-  variant: "make" | "break"
-) => {
+const updateSchedule = async (schedule: Schedule<SimpleColumn>) => updateDoc(doc(FirebaseDB, "schedules", schedule.id), schedule);
+
+const userAsAssigneeBond = async (assignee: FullProjectAssignee, project: Project, variant: "make" | "break") => {
   if (variant === "make") {
     project.assignees.push(assignee);
   } else {
@@ -166,25 +283,22 @@ const userAsAssigneeBond = async (
   updateProject(project);
 };
 
-const listenToProjectData = (projectId: string | undefined | null, cb: CallbackFn) => {
-  if (projectId) {
-    const unsub: Unsubscribe = onSnapshot(doc(FirebaseDB, "projects", projectId), (doc) => {
-      const data = doc.data();
-      cb(data, unsub);
-    });
-  }
-};
-
 const ProjectsAPI = {
   saveNewProject,
   getProjectById,
-  listenToUserProjectsData,
-  listenToProjectData,
+  getProjectScheduleById,
+  listenProjectsWithAssigneesData,
   deleteProjectById,
   getAvailableContactsForAssigneeship,
   updateProject,
+  updateSchedule,
   userAsAssigneeBond,
   getAssigneesDataByProjectId,
+  //
+  getProjectFullAssignees,
+  //
+  listenScheduleColumns,
+  getScheduleColumnsTasks,
 };
 
 export { ProjectsAPI };

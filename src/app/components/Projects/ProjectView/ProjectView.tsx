@@ -1,105 +1,77 @@
-import { Button, RenderObject } from "@@components/common";
-
-// import "../ProjectsTable/ProjectsTable.scss";
-import "./ProjectView.scss";
-import { ProjectTypes, TaskTypes, UserTypes } from "@@types";
-import ProjectViewHeader from "./ProjectViewHeader/ProjectViewHeader";
-import SidePanel from "@@components/common/SidePanel";
-import { usePopupContext } from "@@components/Layout";
-import { useProjectsValue, useUserValue } from "@@contexts";
-import { ConfirmDialog, FormClearX } from "@@components/forms";
-import { ProjectsAPI, TasksAPI, UsersAPI } from "@@api/firebase";
-import { TaskForm } from "@@components/Tasks";
 import { useEffect, useState } from "react";
-import ProjectSchedule from "./tabs/ProjectSchedule/ProjectSchedule";
 import { Unsubscribe } from "firebase/auth";
-import ProjectBacklog from "./tabs/ProjectBacklog/ProjectBacklog";
+
+import "./ProjectView.scss";
 import {
-  TaskListType,
-  getProjectRoleDetails,
-  getTaskStatusDetails,
-} from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
-import AssignToProjectForm from "./AssignToProjectForm/AssignToProjectForm";
-import ProjectAssigneeIcon from "../ProjectAssigneeIcon/ProjectAssigneeIcon";
+  Project,
+  FullProjectAssignee,
+  SimpleTask,
+  FullTask,
+  TasksOther,
+  ProjectsFullData,
+  ProjectWithAssigneesRegistry,
+} from "@@types";
+import { ProjectsAPI, TasksAPI } from "@@api/firebase";
+import { useUserValue } from "@@contexts";
+import { Button, SidePanel } from "@@components/common";
+import { usePopupContext } from "@@components/Layout";
+import { ConfirmDialog, FormClearX } from "@@components/forms";
+import { TaskForm, TasksVisuals } from "@@components/Tasks";
+import { AssignToProjectForm, ProjectAssigneeIcon, ProjectViewHeader } from "@@components/Projects";
+import ProjectSchedule from "./tabs/ProjectSchedule/ProjectSchedule";
+import ProjectBacklog from "./tabs/ProjectBacklog/ProjectBacklog";
+import { TaskListType } from "@@components/Tasks/visuals/task-visuals";
+import { enrichTasksWithAssignees } from "@@components/Tasks/task-utils";
+import { useNavigate } from "react-router-dom";
 
-type Props = {
-  projectData: ProjectTypes.Project | undefined;
-};
+type Props = { projectData: Project | undefined; projectId: string };
 
-let UNSUB_TASKS: Unsubscribe | undefined = undefined;
+let UNSUB_TASKS_OTHER: Unsubscribe | undefined = undefined;
 let UNSUB_PROJECT: Unsubscribe | undefined = undefined;
 
-type TasksSplitted = {
-  schedule: TaskTypes.TaskWithDetails[];
-  backlog: TaskTypes.TaskWithDetails[];
-  archive: TaskTypes.TaskWithDetails[];
-};
-
-const ProjectView: React.FC<Props> = ({ projectData }) => {
+const ProjectView: React.FC<Props> = (props) => {
   const [tab, settab] = useState<TaskListType>("schedule");
-  const [tasks, settasks] = useState<TasksSplitted>({ schedule: [], backlog: [], archive: [] });
-  const [project, setproject] = useState<ProjectTypes.Project | undefined>(projectData);
-  const { unboundAssignees } = useProjectsValue();
-  const [assignees, setassignees] = useState<ProjectTypes.ProjectAssigneeFull[]>([]);
-  // schedule - statuses: "New", "In progress" + "Blocked", "In review" + "In tests"
-  // backlog - "New", occasionally also "Blocked"
-  // archive - "Done", "Cancelled"
-
+  const [tasksOther, settasksOther] = useState<TasksOther<FullTask>>({ backlog: [], archive: [] });
+  const [project, setproject] = useState<ProjectWithAssigneesRegistry>();
   const { user, canUseAPI } = useUserValue();
-
   const { showPopup } = usePopupContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     unsubListener("project");
-    if (projectData && user && canUseAPI) {
-      ProjectsAPI.listenToProjectData(projectData.id, (project: ProjectTypes.Project, unsubProject) => {
-        setproject(project);
-        UNSUB_PROJECT = unsubProject;
-        unsubListener("tasks");
+    if (props.projectData !== undefined) {
+      if (user && canUseAPI) {
+        const projectData = props.projectData;
+        ProjectsAPI.listenProjectsWithAssigneesData([projectData.id], true, (data: ProjectsFullData, unsubProject) => {
+          UNSUB_PROJECT = unsubProject;
+          const project = projectData?.archived ? data.archived[0] : data.active[0];
 
-        const tasksIds = [...project.tasksIds];
-        if (tasksIds?.length) {
-          TasksAPI.listenToTasks(tasksIds, (data: TaskTypes.Task[], unsubTasks) => {
-            console.log(tasksIds, data);
-            UNSUB_TASKS = unsubTasks;
-            const assigneesWithDetails: ProjectTypes.ProjectAssigneeFull[] | undefined = project.assignees.map((assignee) => ({
-              ...assignee,
-              names: unboundAssignees[assignee.id]?.names,
-              roleDetails: getProjectRoleDetails(assignee.role),
-            }));
+          setproject(project);
 
-            const tasksWithDetails: TaskTypes.TaskWithDetails[] = data.map((task) => ({
-              ...task,
-              assigneeDetails: assigneesWithDetails.find(({ id }) => id === task.assigneeId),
-              statusDetails: getTaskStatusDetails(task.status),
-            }));
-
-            setassignees(assigneesWithDetails);
-
-            const tasksSplitted: TasksSplitted = {
-              schedule: [],
-              backlog: [],
-              archive: [],
-            };
-
-            tasksWithDetails.forEach((task) => {
-              tasksSplitted[task.list.type].push(task);
+          if (project && tab !== "schedule") {
+            // Listen to tasks for Backlog & Archive
+            unsubListener("tasks_other");
+            TasksAPI.listenToProjectOtherTasks(project, (tasksData: TasksOther<SimpleTask>, unsubTasksOther) => {
+              UNSUB_TASKS_OTHER = unsubTasksOther;
+              const tasksWithDetailsData: TasksOther<FullTask> = {
+                archive: enrichTasksWithAssignees(project.assigneesRegistry, tasksData.archive),
+                backlog: enrichTasksWithAssignees(project.assigneesRegistry, tasksData.backlog),
+              };
+              settasksOther(tasksWithDetailsData);
             });
-
-            settasks(tasksSplitted);
-            console.log(tasksSplitted);
-          });
-        }
-      });
+          }
+        });
+      }
+    } else {
+      navigate("/projects");
     }
-
     return () => unsubListener("all");
-  }, [project?.tasksCounter]);
+  }, [props, tab]);
 
-  const unsubListener = (name: "tasks" | "project" | "all") => {
-    if (["tasks", "all"].includes(name) && UNSUB_TASKS) {
-      UNSUB_TASKS();
-      UNSUB_TASKS = undefined;
+  const unsubListener = (name: "tasks_other" | "project" | "all") => {
+    if (["tasks_other", "all"].includes(name) && UNSUB_TASKS_OTHER) {
+      UNSUB_TASKS_OTHER();
+      UNSUB_TASKS_OTHER = undefined;
     }
     if (["project", "all"].includes(name) && UNSUB_PROJECT) {
       UNSUB_PROJECT();
@@ -115,7 +87,7 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
       />
     );
 
-  const popupConfirmDialog = (assignee: ProjectTypes.ProjectAssigneeFull) =>
+  const popupConfirmDialog = (assignee: FullProjectAssignee) =>
     showPopup(
       <ConfirmDialog
         submitFn={() => removeAssignee(assignee)}
@@ -124,7 +96,7 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
       />
     );
 
-  const removeAssignee = (assignee: ProjectTypes.ProjectAssigneeFull) => {
+  const removeAssignee = (assignee: FullProjectAssignee) => {
     if (project) {
       ProjectsAPI.userAsAssigneeBond(assignee, project, "break")
         .then(() => {})
@@ -132,7 +104,7 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
     }
   };
 
-  const popupTaskForm = (task?: TaskTypes.Task) =>
+  const popupTaskForm = (task?: SimpleTask) =>
     showPopup(
       <TaskForm
         project={project}
@@ -142,7 +114,7 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
 
   return (
     <>
-      <div className="flex flex-col rounded-[14px] overflow-hidden">
+      <div className="project-view-wrapper flex flex-col rounded-[14px] overflow-hidden">
         <div className="project-view justify-center font-app_primary bg-[rgba(241,241,241,1)] flex ">
           {/* Side - Left */}
 
@@ -156,30 +128,31 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
               tab={tab}
             />
 
-            <div className={`text-[14px] h-[40px] font-bold w-full text-center py-2 bg-neutral-200`}> {project?.title} </div>
+            <div
+              className={` min-h-[40px] max-h-[40px] font-app_primary font-bold w-full app_flex_center text-center bg-neutral-200`}>
+              <p className="h-full text-[14px]  py-2">
+                <span className="text-[13px] font-light ">Project: </span>
+                {project?.title}
+              </p>
+            </div>
             {tab === "backlog" && (
               <ProjectBacklog
                 project={project}
-                assignees={assignees}
-                tasks={tasks["backlog"]}
+                tasks={tasksOther.backlog}
                 popupTaskForm={popupTaskForm}
               />
             )}
             {tab === "schedule" && (
               <ProjectSchedule
                 project={project}
-                assignees={assignees}
-                tasks={tasks["schedule"]}
+                // tasksColumns={tasksColumns}
                 popupTaskForm={popupTaskForm}
               />
             )}
           </div>
 
           {/* Side - Right */}
-          <SidePanel
-            widthPx="220"
-            heightPxHeader="50"
-            heightPxBody="540">
+          <SidePanel for="project-view">
             <div className="h-full project-border border border-l-[1px] app_flex_center">
               <Button
                 label="Add assignee"
@@ -188,44 +161,39 @@ const ProjectView: React.FC<Props> = ({ projectData }) => {
               />
             </div>
             <div className="h-full project-border border border-y-0 ">
-              {assignees.map((assignee, i) => (
-                <div
-                  className="relative flex items-center py-2 border-none border-transparent"
-                  key={i}>
-                  <ProjectAssigneeIcon
-                    assignee={assignee}
-                    tailwindStyles="mx-[10px] "
-                  />
+              {project &&
+                Object.entries(project.assigneesRegistry).map(([assigneeId, assignee], i) => (
+                  <div
+                    className="relative flex items-center py-2 border-none border-transparent"
+                    key={i}>
+                    <ProjectAssigneeIcon
+                      assignee={assignee}
+                      tailwindStyles="mx-[10px] "
+                    />
 
-                  {/* <div
-                    key={i + "name"}
-                    className={`team-assignee relative font-app_mono mx-[10px] text-[10px] h-[24px] w-[24px] rounded-full ${assignee.roleDetails?.styleClasses[1]} app_flex_center border-2 border-white border-solid
-                     `}>
-                    <p>{assignee.email?.substring(0, 2).toUpperCase()}</p>
-                  </div> */}
-                  <p
-                    key={assignee.email}
-                    className="text-[11px]">
-                    {assignee.email}
-                  </p>
+                    <p
+                      key={assignee.email}
+                      className="text-[11px]">
+                      {assignee.email}
+                    </p>
 
-                  {user?.authentication.id !== assignee.id && (
-                    <div className="ml-2">
-                      <FormClearX
-                        key={i + "x"}
-                        clickFn={() => popupConfirmDialog(assignee)}
-                        sizeVariant="I"
-                        relatedItemId={assignee.id}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
+                    {user?.authentication.id !== assignee.id && (
+                      <div className="ml-2">
+                        <FormClearX
+                          key={i + "x"}
+                          clickFn={() => popupConfirmDialog(assignee)}
+                          sizeVariant="I"
+                          relatedItemId={assignee.id}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
           </SidePanel>
         </div>
 
-        <div className="w-full h-[100px] flex bg-neutral-200 project-border border app_flex_center ">
+        <div className="w-full min-h-[100px] max-h-[100px] flex Xbg-neutral-200 bg-[rgb(220,220,220)] project-border border app_flex_center ">
           <div className="flex gap-4">
             <Button
               label="Add task"

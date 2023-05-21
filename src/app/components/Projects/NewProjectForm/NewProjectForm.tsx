@@ -1,56 +1,69 @@
 import { useState } from "react";
 import { generateDocumentId } from "frotsi";
 
-import { ProjectTypes, UserTypes } from "@@types";
+import { Project, SimpleProjectAssignee, ScheduleColumn, ScheduleColumns, UserFieldUpdate } from "@@types";
 import { ProjectsAPI, UsersAPI } from "@@api/firebase";
 import { useUserValue } from "@@contexts";
-import { FormWrapper, InputWritten, InputTags, InputTagsTypes } from "@@components/forms";
+import { FormWrapper, InputTags, InputWritten, TagItem } from "@@components/forms";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
+import { getScheduleColumnsEmpty } from "../projects-utils";
+import { Schedule, SimpleColumn } from "src/app/types/Projects";
 
 const NewProjectForm: React.FC = () => {
   const { user } = useUserValue();
   const [projectTitle, setProjectTitle] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
-  const [projectTags, setProjectTags] = useState<InputTagsTypes.TagItem[]>([]);
+  const [projectTags, setProjectTags] = useState<TagItem[]>([]);
   const { hidePopup } = usePopupContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log(user);
     const userId = user?.authentication.id;
     const userEmail = user?.authentication.email;
 
     if (userId && userEmail) {
-      const manager: ProjectTypes.ProjectAssignee = {
+      const manager: SimpleProjectAssignee = {
         id: userId,
         email: userEmail,
         role: "manager",
       };
-      const newProject: ProjectTypes.Project = {
-        id: `proj_${generateDocumentId()}`,
+      const projectId = `proj_${generateDocumentId()}`;
+      const scheduleId = `sche_${generateDocumentId()}`;
+
+      const newProject: Project = {
+        id: projectId,
         title: projectTitle,
         description: projectDescription,
         tags: [...projectTags.map((t) => t.value)],
         originalCreatorId: userId,
         managerId: userId,
         assignees: [manager],
-        tasksIds: [],
+        tasksLists: {
+          archive: [],
+          backlog: [],
+          scheduleId,
+        },
         tasksCounter: 0,
         status: "active",
         archived: false,
         createdAt: new Date().toISOString(),
         closedAt: "",
       };
-      console.log(newProject);
 
-      const fieldsToUpdate: UserTypes.UserFieldUpdate[] = [
+      const newSchedule: Schedule<SimpleColumn> = {
+        id: scheduleId,
+        projectId,
+        columns: getScheduleColumnsEmpty("simple"),
+      };
+
+      const fieldsToUpdate: UserFieldUpdate[] = [
         {
           fieldPath: "work.projectsIds",
           value: [...user.work.projectsIds, newProject.id],
         },
       ];
 
-      ProjectsAPI.saveNewProject(newProject).then(() => {
+      ProjectsAPI.saveNewProject(newProject, newSchedule).then(() => {
         clear();
 
         UsersAPI.updateUserFieldsById(userId, fieldsToUpdate).then(

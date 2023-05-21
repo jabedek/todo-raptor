@@ -1,17 +1,10 @@
-import { ProjectTypes } from "@@types";
 import { useState, useEffect } from "react";
 import "./ProjectAssigneeIcon.scss";
-import { getUserDisplayName } from "../project-utils";
-import { PersonalDetails } from "src/app/types/Users";
-import { ProjectRole } from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
-import { Flatten } from "src/app/types/common";
-
-// type Assignee = { email: string } & {
-//   roleDetails?: Flatten<ProjectRole>;
-// } & Partial<Pick<PersonalDetails, "names">>;
+import { getUserDisplayName } from "../projects-utils";
+import { Flatten, FullProjectAssignee } from "@@types";
 
 type Props = {
-  assignee: Flatten<Partial<ProjectTypes.ProjectAssigneeFull>> | "..." | undefined;
+  assignee: Flatten<Partial<FullProjectAssignee>> | "..." | undefined;
   tailwindStyles?: string;
 };
 
@@ -20,8 +13,6 @@ const ProjectAssigneeIcon: React.FC<Props> = ({ assignee, tailwindStyles }) => {
   const [assigneeStyles, setassigneeStyles] = useState("");
 
   useEffect(() => {
-    console.log(assignee);
-
     if (assignee) {
       if (assignee !== "...") {
         if (assignee.names) {

@@ -1,3 +1,5 @@
 import TaskForm from "./TaskForm/TaskForm";
 
-export { TaskForm };
+import * as TasksVisuals from "./visuals/task-visuals";
+
+export { TaskForm, TasksVisuals };

@@ -1,15 +1,14 @@
-import { ProjectTypes } from "@@types";
+import { TasksVisuals } from "@@components/Tasks";
 import {
-  ProjectRole,
-  StatusGroupName,
-  TaskListType,
-  TaskStatus,
   TaskStatusShortName,
-} from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
-import { Flatten } from "./common";
-import { ProjectAssigneeFull } from "./Projects";
+  TaskListType,
+  StatusGroupName,
+  TaskStatus,
+  StatusGroup,
+} from "@@components/Tasks/visuals/task-visuals";
+import { Flatten, FullProjectAssignee } from "@@types";
 
-export type Task = {
+export type SimpleTask = {
   id: string;
   title: string;
   description: string;
@@ -20,13 +19,21 @@ export type Task = {
   projectId: string;
   createdAt: string;
   closedAt: string;
-  list: {
-    type: TaskListType;
-    position: number;
-    scheduleColumn: StatusGroupName | "";
-  };
+  archived: boolean;
 };
 
-export type TaskWithDetails = Flatten<
-  Task & { statusDetails: TaskStatus } & { assigneeDetails: ProjectTypes.ProjectAssigneeFull | undefined }
->;
+export type FullTask = Flatten<SimpleTask & { statusDetails: TaskStatus } & { assigneeDetails: FullProjectAssignee | undefined }>;
+
+export type TasksSchedule<T = SimpleTask | FullTask> = {
+  a_new: T[];
+  b_working: T[];
+  c_checking: T[];
+  d_done: T[];
+};
+
+export type TasksOther<T = SimpleTask | FullTask> = {
+  backlog: T[];
+  archive: T[];
+};
+
+export type FullTasksRegistry = Record<string, FullTask>;

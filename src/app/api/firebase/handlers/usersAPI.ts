@@ -1,22 +1,9 @@
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
-import {
-  setDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  getDocs,
-  query,
-  where,
-  onSnapshot,
-  arrayUnion,
-  arrayRemove,
-} from "firebase/firestore";
+import { setDoc, doc, getDoc, updateDoc, collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
 import { FirebaseDB } from "@@api/firebase/firebase-config";
 
-import { ProjectTypes, UserTypes } from "@@types";
+import { User, UserFieldUpdate } from "@@types";
 import { CallbackFn } from "frotsi";
-import { ProjectsAPI } from "./projectsAPI";
 
 export const UsersRef = collection(FirebaseDB, "users");
 
@@ -28,7 +15,7 @@ const saveNewUserInDB = async (
     nickname: string;
   }
 ) => {
-  const appUser: UserTypes.User = {
+  const appUser: User = {
     authentication: {
       id: user.uid,
       email: user.email || "",
@@ -63,7 +50,7 @@ const getUserDetailsById = async (id: string | null | undefined) => {
   const docRef = doc(FirebaseDB, "users", id);
   const docSnap = await getDoc(docRef);
 
-  return docSnap.exists() ? (docSnap.data() as UserTypes.User) : undefined;
+  return docSnap.exists() ? (docSnap.data() as User) : undefined;
 };
 
 const getUserDetailsByEmail = async (email: string) => {
@@ -73,15 +60,15 @@ const getUserDetailsByEmail = async (email: string) => {
 
   const queryRef = query(UsersRef, where("authentication.email", "==", email));
   const querySnapshot = await getDocs(queryRef);
-  const docs: UserTypes.User[] = [];
+  const docs: User[] = [];
   querySnapshot.forEach((doc) => {
-    docs.push(<UserTypes.User>doc.data());
+    docs.push(<User>doc.data());
   });
 
   return docs[0];
 };
 
-const updateUserFull = async (user: UserTypes.User) => {
+const updateUserFull = async (user: User) => {
   if (!user || !user.authentication.id) {
     return undefined;
   }
@@ -89,7 +76,7 @@ const updateUserFull = async (user: UserTypes.User) => {
   updateDoc(doc(FirebaseDB, "users", user.authentication.id), user);
 };
 
-const updateUserFieldsById = async (id: string | null | undefined, fields: UserTypes.UserFieldUpdate[]) => {
+const updateUserFieldsById = async (id: string | null | undefined, fields: UserFieldUpdate[]) => {
   if (!(id && fields)) {
     return undefined;
   }
@@ -107,9 +94,9 @@ const getUsersById = async (usersIds: string[]) => {
   const queryRef = query(UsersRef, where("authentication.id", "in", [...usersIds]));
 
   const querySnapshot = await getDocs(queryRef);
-  const docs: UserTypes.User[] = [];
+  const docs: User[] = [];
   querySnapshot.forEach((doc) => {
-    docs.push(<UserTypes.User>doc.data());
+    docs.push(<User>doc.data());
   });
 
   return docs;

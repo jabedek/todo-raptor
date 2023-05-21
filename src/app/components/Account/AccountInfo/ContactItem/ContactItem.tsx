@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 
 import "./ContactItem.scss";
-import { ContactsTypes } from "@@types";
+import { ContactInvitation } from "@@types";
 import { DateFormatter, DateFormats } from "@@utils/date-formatter";
 import { ContactsAPI } from "@@api/firebase";
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
+import { Icons } from "@@components/Layout";
 
-const ContactItem: React.FC<{ invitation: ContactsTypes.ContactInvitation; perspectiveOf: "sender" | "receiver" }> = ({
-  invitation,
-  perspectiveOf,
-}) => {
+type Props = { invitation: ContactInvitation; perspectiveOf: "sender" | "receiver" };
+const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
   const date = DateFormatter.formatToString(new Date().toISOString(), DateFormats["YYYY-MM-DD"]);
   const [subject, setSubject] = useState<{ status: string; message: string }>();
 
@@ -25,7 +23,7 @@ const ContactItem: React.FC<{ invitation: ContactsTypes.ContactInvitation; persp
   }, [invitation, perspectiveOf]);
 
   const handleSubmit = (variant: "accept" | "reject") => {
-    let updatedInv: ContactsTypes.ContactInvitation = { ...invitation };
+    let updatedInv: ContactInvitation = { ...invitation };
 
     switch (variant) {
       case "accept":
@@ -58,12 +56,12 @@ const ContactItem: React.FC<{ invitation: ContactsTypes.ContactInvitation; persp
       </div>
       <div className="flex Xflex-col items-center justify-evenly w-[64px] h-fit ">
         {perspectiveOf === "sender" && (
-          <ReactIcons.MdCheck
+          <Icons.MdCheck
             onClick={() => handleSubmit("accept")}
             className="invitation-action cursor-pointer text-white rounded-[2px] bg-green-700 hover:bg-green-600"
           />
         )}
-        <ReactIcons.MdClose
+        <Icons.MdClose
           onClick={() => handleSubmit("reject")}
           className="invitation-action cursor-pointer text-white rounded-[2px] bg-red-700 hover:bg-red-600 "
         />

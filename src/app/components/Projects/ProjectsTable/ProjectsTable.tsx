@@ -1,27 +1,23 @@
 import React, { useEffect, useState } from "react";
 
 import "./ProjectsTable.scss";
+import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, User } from "@@types";
+import { ProjectsAPI } from "@@api/firebase";
 import { Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
 import { NewProjectForm, ProjectsTableBody, ProjectsTableHeader } from "@@components/Projects";
-import { ProjectTypes, UserTypes } from "@@types";
-import { ProjectsAPI } from "@@api/firebase";
 import SidePanel from "@@components/common/SidePanel";
+import { ProjectsFullData } from "@@types";
 
-export type ProjectsTableData = {
-  active: ProjectTypes.Project[];
-  archived: ProjectTypes.Project[];
-};
-
-interface ProjectTableProps {
-  projectsData: ProjectsTableData | undefined;
-  user: UserTypes.User | undefined;
+interface Props {
+  projectsData: ProjectsFullData | undefined;
+  user: User | undefined;
 }
 
-const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
+const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
   const [tab, settab] = useState<"active" | "archived">("active");
-  const [activeCollection, setactiveCollection] = useState<ProjectTypes.Project[]>(projectsData?.active || []);
-  const { showPopup, hidePopup, popupElement } = usePopupContext();
+  const [activeCollection, setactiveCollection] = useState<ProjectWithAssigneesRegistry[]>(projectsData?.active || []);
+  const { showPopup, hidePopup } = usePopupContext();
 
   const popupProject = () => {
     showPopup(<NewProjectForm />);
@@ -36,10 +32,10 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
     );
   };
 
-  // console.log("ProjectsTable", popupProject, NewProjectForm);
-
   useEffect(() => {
     if (projectsData) {
+      console.log(projectsData);
+
       setactiveCollection(projectsData[tab]);
     }
   }, [projectsData, tab]);
@@ -62,10 +58,7 @@ const ProjectsTable: React.FC<ProjectTableProps> = ({ projectsData, user }) => {
         </div>
 
         {/* Side */}
-        <SidePanel
-          widthPx="220"
-          heightPxHeader="50"
-          heightPxBody="540">
+        <SidePanel for="projects-table">
           <div className="h-full  border-l-[1px]  project-border border app_flex_center">
             <Button
               label="New Project"

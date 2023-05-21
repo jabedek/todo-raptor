@@ -2,12 +2,17 @@ import React from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { ProjectView } from "@@components/Projects";
-import { ProjectTypes } from "@@types";
+import { Project } from "@@types";
 
 const ProjectViewPage: React.FC = () => {
-  const project = useLoaderData() as ProjectTypes.Project | undefined;
+  const routeData = useLoaderData() as { projectData: Project | undefined; projectId: string };
 
-  return <ProjectView projectData={project} />;
+  return (
+    <ProjectView
+      projectData={routeData.projectData}
+      projectId={routeData.projectId}
+    />
+  );
 };
 
 export default ProjectViewPage;

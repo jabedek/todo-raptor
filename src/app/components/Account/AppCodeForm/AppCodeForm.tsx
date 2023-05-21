@@ -1,24 +1,19 @@
+import { CallbackFn } from "frotsi";
+import { useState } from "react";
+
 import { AuthAPI } from "@@api/firebase";
+import { User } from "@@types";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
-import { FormWrapper, InputWritten, ResultDisplayer } from "@@components/forms";
-import { useUserValue } from "@@contexts";
-import { CommonTypes, UserTypes } from "@@types";
-import { CallbackFn } from "frotsi";
-import { useEffect, useState } from "react";
+import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
 
-type Props = { submitFn: CallbackFn; user: UserTypes.User | undefined; emailVerified: boolean };
+type Props = { submitFn: CallbackFn; user: User | undefined; emailVerified: boolean };
 
 const AppCodeForm: React.FC<Props> = (props) => {
-  const [messageCode, setmessageCode] = useState<CommonTypes.ResultDisplay>({ isError: false, text: "" });
-  const [messageEmail, setmessageEmail] = useState<CommonTypes.ResultDisplay>({ isError: false, text: "" });
-
+  const [messageCode, setmessageCode] = useState<ResultDisplay>({ isError: false, text: "" });
+  const [messageEmail, setmessageEmail] = useState<ResultDisplay>({ isError: false, text: "" });
   const [code, setcode] = useState("");
   const { hidePopup } = usePopupContext();
-
-  // useEffect(() => {
-  //   console.log(firebaseAuthUser?.emailVerified);
-  // }, [firebaseAuthUser]);
 
   const sendEmail = () => {
     if (props.user) {

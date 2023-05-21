@@ -2,9 +2,10 @@ import { Children, useLayoutEffect, ReactElement, JSXElementConstructor, ReactFr
 
 type Props = {
   children: React.ReactNode;
-  widthPx: string; // 220
-  heightPxHeader: string; // 60
-  heightPxBody: string; // 600 - 60 = 540
+  for: string;
+  // widthPx: string;
+  // heightPxHeader: string;
+  // heightPxBody: string;
 };
 
 type ReactDivElement = ReactElement<JSXElementConstructor<HTMLDivElement>>;
@@ -63,19 +64,9 @@ const SidePanel: React.FC<Props> = (props) => {
 
   return (
     <>
-      <div
-        className=" flex flex-col bg-white justify-between h-auto "
-        style={{ minWidth: `${props.widthPx}px` }}>
-        <div
-          className="w-full h-[60px] side-top"
-          style={{ height: `${props.heightPxHeader}px` }}>
-          {divTop}
-        </div>
-        <div
-          className="w-full h-[540px] side-bottom"
-          style={{ height: `${props.heightPxBody}px` }}>
-          {divBottom}
-        </div>
+      <div className={`side-panel side-panel--${props.for} flex flex-col bg-white justify-between h-auto `}>
+        <div className="w-full side-top">{divTop}</div>
+        <div className="w-full side-bottom">{divBottom}</div>
       </div>
     </>
   );

@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { User as FirebaseAuthUser } from "firebase/auth";
 
-import { ResultDisplayer } from "@@components/forms";
+import { ResultDisplay, ResultDisplayer } from "@@components/forms";
 import { Button } from "@@components/common";
 import { AuthAPI } from "@@api/firebase";
-import { CommonTypes } from "@@types";
 import { useUserValue } from "@@contexts";
 
-const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null | undefined }> = ({ firebaseUser }) => {
+type Props = { firebaseUser: FirebaseAuthUser | null | undefined };
+
+const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
   const { user } = useUserValue();
-  const [message, setmessage] = useState<CommonTypes.ResultDisplay | undefined>(undefined);
+  const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
   const [wait, setwait] = useState(0);
 
   const verifEmailsAmount = useRef(user?.authentication?.verifEmailsAmount);
@@ -38,7 +39,7 @@ const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null | undef
     if (firebaseUser && firebaseUser.emailVerified === false && !wait && verifEmailsAmount.current !== undefined) {
       switch (verifEmailsAmount.current) {
         case 0: {
-          const msg: CommonTypes.ResultDisplay = {
+          const msg: ResultDisplay = {
             text: `You are registered but not verified. Verification email has been sent right now - 
             please check your mail box. If you haven't gotten it, you can try resending it.`,
             isError: true,
@@ -48,7 +49,7 @@ const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null | undef
         }
 
         default: {
-          const msg: CommonTypes.ResultDisplay = {
+          const msg: ResultDisplay = {
             text: `You are registered but not verified. Verification email has been already sent to you - 
             please check your mail box. If you haven't gotten it, you can try resending it.`,
             isError: true,
@@ -66,7 +67,7 @@ const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null | undef
     }
   };
 
-  const sendEmail = (successMessage: CommonTypes.ResultDisplay) => {
+  const sendEmail = (successMessage: ResultDisplay) => {
     if (verifEmailsAmount.current !== undefined && firebaseUser) {
       AuthAPI.sendVerificationEmail((result: Error | void) => {
         sendEmailEffect(result, successMessage);
@@ -74,7 +75,7 @@ const UserVerification: React.FC<{ firebaseUser: FirebaseAuthUser | null | undef
     }
   };
 
-  const sendEmailEffect = (result: Error | void, successMessage: CommonTypes.ResultDisplay) => {
+  const sendEmailEffect = (result: Error | void, successMessage: ResultDisplay) => {
     if (!(result instanceof Error)) {
       if (user && user.authentication && verifEmailsAmount.current !== undefined) {
         setmessage(successMessage);

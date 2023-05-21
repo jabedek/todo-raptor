@@ -2,10 +2,24 @@ $header-height: 50px;
 $side-width: 220px;
 $body-width: 692px;
 
-.project-border {
-  border-color: rgb(220, 220, 220);
-  border-style: solid;
-  border-collapse: collapse;
+.side-panel {
+  width: $side-width;
+
+  height: calc($header-height + 540px);
+
+  &--project-view {
+    .side-top {
+      height: $header-height;
+    }
+
+    .side-bottom {
+      height: 540px;
+    }
+  }
+}
+
+.project-view-wrapper {
+  height: 690px;
 }
 
 .project-view {

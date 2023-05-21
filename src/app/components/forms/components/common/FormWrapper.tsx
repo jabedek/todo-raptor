@@ -1,12 +1,13 @@
 import { CallbackFn } from "frotsi";
-import { Children } from "react";
 
-const FormWrapper: React.FC<{
+type Props = {
   title: string;
   children: React.ReactNode;
   submitFn?: CallbackFn;
   tailwindStyles?: string;
-}> = ({ title, children, tailwindStyles, submitFn }) => {
+};
+
+const FormWrapper: React.FC<Props> = ({ title, children, tailwindStyles, submitFn }) => {
   return (
     <form
       onSubmit={submitFn}

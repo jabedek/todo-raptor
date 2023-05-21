@@ -4,5 +4,6 @@ import Logo from "./Logo/Logo";
 import Sidebar from "./Sidebar/Sidebar";
 import Page from "./Page/Page";
 import { PopupProvider, usePopupContext } from "./Popup/Popup";
+import { Icons } from "./preloaded-icons";
 
-export { Layout, Header, Logo, Sidebar, Page, PopupProvider, usePopupContext };
+export { Layout, Header, Logo, Sidebar, Page, PopupProvider, usePopupContext, Icons };

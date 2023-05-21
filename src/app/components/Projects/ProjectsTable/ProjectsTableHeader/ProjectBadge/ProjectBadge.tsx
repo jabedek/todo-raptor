@@ -1,8 +1,9 @@
+import { Icons } from "@@components/Layout";
 import { useState, useLayoutEffect } from "react";
 
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
+type Props = { variant: "active" | "archived"; label?: string };
 
-const ProjectBadge: React.FC<{ variant: "active" | "archived"; label?: string }> = (props) => {
+const ProjectBadge: React.FC<Props> = (props) => {
   const [color, setcolor] = useState("");
 
   useLayoutEffect(() => {
@@ -21,8 +22,8 @@ const ProjectBadge: React.FC<{ variant: "active" | "archived"; label?: string }>
   return (
     <>
       <div className=" app_flex_center">
-        {props.variant === "archived" && <ReactIcons.MdInventory className={`projects-header-icon ${color}`} />}
-        {props.variant !== "archived" && <ReactIcons.MdCardMembership className={`projects-header-icon ${color}`} />}
+        {props.variant === "archived" && <Icons.MdInventory className={`projects-header-icon ${color}`} />}
+        {props.variant !== "archived" && <Icons.MdCardMembership className={`projects-header-icon ${color}`} />}
 
         <p>{props.label + ""}</p>
       </div>

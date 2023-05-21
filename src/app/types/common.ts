@@ -1,12 +1,6 @@
-export type ResultDisplay = { text: string; isError: boolean };
-
-export type VisualElements = {
-  // main bg-color
-  colorPrimary: string;
-  // main font-color
-  colorSecondary: string;
-  // details color
-  colorTertiary: string;
+export type IdEmailPair = {
+  id: string;
+  email: string;
 };
 
 /**
@@ -19,8 +13,3 @@ export type VisualElements = {
 export type Flatten<T> = {
   [K in keyof T]: T[K];
 } & {};
-
-export type IdEmailPair = {
-  id: string;
-  email: string;
-};

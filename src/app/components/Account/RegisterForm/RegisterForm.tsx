@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { UserCredential } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
-import { CommonTypes } from "@@types";
-import { FormWrapper, InputWritten, Validator, ResultDisplayer } from "@@components/forms";
 import { UsersAPI, AuthAPI } from "@@api/firebase";
+import { FormWrapper, InputWritten, ResultDisplayer, ResultDisplay } from "@@components/forms";
 import { Button } from "@@components/common";
+import { validateEmailPassword } from "@@components/forms/simple-validation";
 
 const RegisterForm: React.FC = () => {
   const [password, setpassword] = useState("");
@@ -14,43 +14,11 @@ const RegisterForm: React.FC = () => {
   const [name, setname] = useState("");
   const [lastname, setlastname] = useState("");
   const [nickname, setnickname] = useState("");
-  const [message, setmessage] = useState<CommonTypes.ResultDisplay | undefined>(undefined);
+  const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
   const navigate = useNavigate();
 
-  const validateForm = (email: string, password: string, confirmPassword: string) => {
-    let isValid = true;
-    let message = "";
-    const { validity: emailPatternValid, partialResults: emailResults } = Validator.email(email);
-    const { validity: passwordPatternValid, partialResults: passwordResults } = Validator.password(password);
-
-    if (!email) {
-      isValid = false;
-      message += "Email not provided. ";
-      return { isValid, message };
-    }
-
-    if (!emailPatternValid) {
-      isValid = false;
-      message += "Wrong email pattern. ";
-    }
-
-    if (!(password && confirmPassword)) {
-      isValid = false;
-      message += "Password not provided. ";
-      return { isValid, message };
-    } else if (password !== confirmPassword) {
-      isValid = false;
-      message += "Passwords does not match. ";
-      return { isValid, message };
-    }
-
-    if (!passwordPatternValid) {
-      isValid = false;
-      message += "Wrong password pattern. ";
-    }
-
-    return { isValid, message: isValid ? "Credentials are error-free. Sending..." : message };
-  };
+  const validateForm = (formEmail: string, formPassword: string, formConfirmPassword: string) =>
+    validateEmailPassword(formEmail, formPassword, formConfirmPassword);
 
   const handleSubmit = async () => {
     const { isValid, message } = validateForm(email, password, confirmPassword);
@@ -113,7 +81,7 @@ const RegisterForm: React.FC = () => {
           name="password"
           changeFn={(val) => setpassword(val)}
           label="Password"
-          hint={Validator.passwordHint()}
+          hint={"Validator.passwordHint()"}
           value={password}
           tailwindStyles="min-w-[250px] w-full"
         />

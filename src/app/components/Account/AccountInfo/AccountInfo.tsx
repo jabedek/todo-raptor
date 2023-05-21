@@ -5,20 +5,18 @@ import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
 import { UserVerification, AccountContacts } from "@@components/Account";
 import { useContactsValue, useUserValue } from "@@contexts";
-import { UserTypes } from "@@types";
+import { User } from "@@types";
 import { UsersAPI } from "@@api/firebase";
 
 const AccountInfo: React.FC = () => {
   const { user, firebaseAuthUser } = useUserValue();
   const { contacts } = useContactsValue();
-  const { showPopup, popupElement } = usePopupContext();
+  const { showPopup } = usePopupContext();
   const [name, setname] = useState(user?.personal?.names?.name);
   const [lastname, setlastname] = useState(user?.personal?.names?.lastname);
   const [nickname, setnickname] = useState(user?.personal?.names?.nickname);
   const [userChanged, setuserChanged] = useState(false);
   const popupVerification = () => showPopup(<UserVerification firebaseUser={firebaseAuthUser} />);
-
-  console.log("accountinfo", popupVerification, UserVerification);
 
   useEffect(() => {
     if (user) {
@@ -34,7 +32,7 @@ const AccountInfo: React.FC = () => {
 
   const update = () => {
     if (user) {
-      const updatedUser: UserTypes.User = { ...user };
+      const updatedUser: User = { ...user };
       if (updatedUser.personal && userChanged) {
         updatedUser.personal.names.name = name ?? updatedUser.personal.names.name;
         updatedUser.personal.names.lastname = lastname ?? updatedUser.personal.names.lastname;

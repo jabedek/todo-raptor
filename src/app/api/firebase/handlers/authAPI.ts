@@ -10,11 +10,8 @@ import {
   signOut,
 } from "firebase/auth";
 
-import { APITypes, FirebaseApp, FirebaseAuth, FirebaseDB, UsersAPI } from "@@api/firebase";
-import { onSnapshot, doc, getDoc, setDoc } from "firebase/firestore";
-import { useLocalStorage } from "@@hooks";
-import { Enums } from "@@types";
-import { AppCode } from "../types";
+import { AppCode, FirebaseApp, FirebaseAuth, FirebaseDB, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const getCurrentFirebaseAuthUser = () => getAuth(FirebaseApp).currentUser;
 
@@ -72,13 +69,13 @@ const logoutInFirebase = () => signOut(FirebaseAuth);
 // Listener - Firebase Authentication
 const listenToAuthState = (cb: CallbackFn) => {
   const unsub: Unsubscribe = getAuth(FirebaseApp).onAuthStateChanged(async (auth: FirebaseAuthUser | null) =>
-    cb(<APITypes.FirebaseUserStateChange>{ auth, cause: "auth" }, unsub)
+    cb(<FirebaseUserStateChange>{ auth, cause: "auth" }, unsub)
   );
 };
 
 const listenToIdTokenState = (cb: CallbackFn) => {
   const unsub: Unsubscribe = getAuth(FirebaseApp).onIdTokenChanged(async (auth: FirebaseAuthUser | null) =>
-    cb(<APITypes.FirebaseUserStateChange>{ auth, cause: "idToken" }, unsub)
+    cb(<FirebaseUserStateChange>{ auth, cause: "idToken" }, unsub)
   );
 };
 

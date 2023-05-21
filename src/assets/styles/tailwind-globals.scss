@@ -87,6 +87,6 @@
   }
 
   .app_form_button {
-    @apply transition-all duration-200 font-app_primary h-[32px] px-[32px] cursor-pointer rounded-[5px] uppercase focus-visible:outline-none outline-none border-gray-300 border-[1px];
+    @apply transition-all duration-200 font-app_primary h-[32px] px-[32px] cursor-pointer rounded-[5px] uppercase focus-visible:outline-none outline-none border-gray-400 border-opacity-50 border-[1px];
   }
 }

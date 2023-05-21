@@ -1,15 +1,15 @@
 import { CallbackFn } from "frotsi";
 import { useState, useEffect } from "react";
 
-import { FormClearX, InputTagsTypes } from "@@components/forms";
+import { FormClearX, TagItem } from "@@components/forms";
 import { getTagWidth } from "../helpers";
 
-type TagProps = {
+type Props = {
   deleteFn: CallbackFn;
-  item: InputTagsTypes.TagItem;
+  item: TagItem;
 };
 
-const InputTag: React.FC<TagProps> = ({ deleteFn, item }) => {
+const InputTag: React.FC<Props> = ({ deleteFn, item }) => {
   const [width, setwidth] = useState(`0px`);
 
   useEffect(() => {

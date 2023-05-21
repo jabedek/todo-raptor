@@ -2,17 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { useState, useLayoutEffect, useEffect } from "react";
 import { CallbackFn } from "frotsi";
 
-import { ProjectTypes, UserTypes } from "@@types";
-import { usePopupContext } from "@@components/Layout";
-import { DeleteProjectForm, ProjectStatus } from "@@components/Projects";
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
-import { getProjectRoleDetails } from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
-import ProjectAssigneeIcon from "@@components/Projects/ProjectAssigneeIcon/ProjectAssigneeIcon";
-import { useProjectsValue } from "@@contexts";
+import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, User } from "@@types";
+import { usePopupContext, Icons } from "@@components/Layout";
+import { DeleteProjectForm, ProjectList, ProjectAssigneeIcon, ProjectsVisuals } from "@@components/Projects";
 
 type Props = {
-  project: ProjectTypes.Project;
-  user: UserTypes.User | undefined;
+  project: ProjectWithAssigneesRegistry;
+  user: User | undefined;
   deleteFn: CallbackFn<Promise<void>>;
 };
 
@@ -22,10 +18,8 @@ const TAGS_CHARS_LIMIT = 30;
 const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
   const { showPopup } = usePopupContext();
   const navigate = useNavigate();
-  const { unboundAssignees } = useProjectsValue();
   const [userIsCreator, setuserIsCreator] = useState(false);
   const [userIsManager, setuserIsManager] = useState(false);
-  const [assigneesLimited, setassigneesLimited] = useState<ProjectTypes.ProjectAssigneeFull[]>([]);
   const [tagsLimited, settagsLimited] = useState<string[]>([]);
 
   useLayoutEffect(() => {
@@ -50,17 +44,6 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
     setuserIsCreator(user?.authentication.id === project.originalCreatorId);
     setuserIsManager(user?.authentication.id === project.managerId);
   }, [user]);
-
-  useEffect(() => {
-    const projectAssignees = project.assignees.map((assignee) => ({ id: assignee.id, role: assignee.role }));
-    const projectAssigneesData = projectAssignees.map((assignee) => ({
-      ...unboundAssignees[assignee.id],
-      role: assignee.role,
-      roleDetails: getProjectRoleDetails(assignee.role),
-    }));
-
-    setassigneesLimited(projectAssigneesData);
-  }, [project, unboundAssignees]);
 
   const popupDelete = () =>
     showPopup(
@@ -107,13 +90,15 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
 
           {/* # Assignees */}
           <div className="flex w-full justify-start  h-[24px] my-[4px] ml-[3px] px-[10px]">
-            {assigneesLimited.slice(0, AVATARS_LIMIT).map((assignee, i) => (
-              <ProjectAssigneeIcon
-                assignee={assignee}
-                key={i + "_" + assignee.id}
-                tailwindStyles="ml-[-5px]"
-              />
-            ))}
+            {Object.entries(project.assigneesRegistry)
+              .slice(0, AVATARS_LIMIT)
+              .map(([assigneeId, assignee], i) => (
+                <ProjectAssigneeIcon
+                  assignee={assignee}
+                  key={i + "_" + assigneeId}
+                  tailwindStyles="ml-[-5px]"
+                />
+              ))}
             {project.assignees.length > AVATARS_LIMIT && (
               <ProjectAssigneeIcon
                 assignee={"..."}
@@ -125,7 +110,7 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
 
           <div className="flex w-full justify-between items-center px-[10px]">
             {/* # Status */}
-            <ProjectStatus
+            <ProjectList
               status={project.status}
               userIsCreator={userIsCreator}
               userIsManager={userIsManager}
@@ -133,20 +118,15 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user, deleteFn }) => {
 
             {/* Actions */}
             <div className="flex justify-between gap-2 min-w-[60px] ">
-              {/* <div
-                className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
-                onClick={popupDelete}>
-                <MdInventory className="h-[12px] w-[12px] font-[300] text-gray-500 group-hover:text-red-700" />
-              </div> */}
               <div
                 className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
                 onClick={popupDelete}>
-                <ReactIcons.MdPlaylistRemove className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-red-700" />
+                <Icons.MdPlaylistRemove className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-red-700" />
               </div>
               <div
                 className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
                 onClick={() => navigate(`/projects/${project.id}`)}>
-                <ReactIcons.MdReadMore className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-blue-700" />
+                <Icons.MdReadMore className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-blue-700" />
               </div>
             </div>
           </div>

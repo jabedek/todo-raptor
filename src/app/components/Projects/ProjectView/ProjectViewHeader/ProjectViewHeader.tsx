@@ -1,4 +1,4 @@
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
+import { Icons } from "@@components/Layout";
 import { CallbackFn } from "frotsi";
 
 type Props = {
@@ -14,7 +14,7 @@ const ProjectViewHeader: React.FC<Props> = (props) => {
         className={`header-tab-wrapper ${props.tab === "backlog" && "selected"}`}
         onClick={() => props.setTabFn("backlog")}>
         <div className="app_flex_center ">
-          <ReactIcons.MdShelves className={`projects-header-icon text-indigo-400`} />
+          <Icons.MdShelves className={`projects-header-icon text-indigo-400`} />
           <p>Backlog</p>
         </div>
       </div>
@@ -23,7 +23,7 @@ const ProjectViewHeader: React.FC<Props> = (props) => {
         className={`header-tab-wrapper ${props.tab === "schedule" && "selected"}`}
         onClick={() => props.setTabFn("schedule")}>
         <div className="app_flex_center ">
-          <ReactIcons.MdViewColumn className={`projects-header-icon text-sky-400`} />
+          <Icons.MdViewColumn className={`projects-header-icon text-sky-400`} />
           <p>Schedule</p>
         </div>
       </div>
@@ -32,8 +32,8 @@ const ProjectViewHeader: React.FC<Props> = (props) => {
         className={`header-tab-wrapper ${props.tab === "archive" && "selected"}`}
         onClick={() => props.setTabFn("archive")}>
         <div className="app_flex_center ">
-          <ReactIcons.MdInventory className={`projects-header-icon text-gray-500`} />
-          <p>Archive</p>
+          <Icons.MdInventory className={`projects-header-icon text-gray-400 `} />
+          <p>Archived tasks</p>
         </div>
       </div>
     </div>

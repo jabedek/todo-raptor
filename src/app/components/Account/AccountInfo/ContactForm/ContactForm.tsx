@@ -1,16 +1,16 @@
 import { generateDocumentId } from "frotsi";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { FormWrapper, InputWritten, ResultDisplayer } from "@@components/forms";
 import { ContactsAPI, UsersAPI } from "@@api/firebase";
-import { UserTypes, CommonTypes, ContactsTypes } from "@@types";
+import { ContactInvitation, UserFieldUpdate } from "@@types";
 import { useUserValue } from "@@contexts";
+import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
 import { Button } from "@@components/common";
 
 const ContactForm: React.FC = () => {
   const { user } = useUserValue();
   const [email, setemail] = useState("");
-  const [message, setmessage] = useState<CommonTypes.ResultDisplay>();
+  const [message, setmessage] = useState<ResultDisplay>();
 
   const handleSubmit = () => {
     if (email === user?.authentication.email) {
@@ -40,7 +40,7 @@ const ContactForm: React.FC = () => {
         ContactsAPI.checkIfPendingInvitationExists(receiverId, senderId).then((invitations) => {
           if (invitations && !invitations.length) {
             const newId = `invi_${generateDocumentId()}`;
-            const invitation: ContactsTypes.ContactInvitation = {
+            const invitation: ContactInvitation = {
               id: newId,
               sender: { id: senderId, email },
               receiver: {
@@ -53,13 +53,13 @@ const ContactForm: React.FC = () => {
 
             ContactsAPI.saveNewInvitation(invitation).then(
               () => {
-                const fieldToUpdateCurrentUser: UserTypes.UserFieldUpdate[] = [
+                const fieldToUpdateCurrentUser: UserFieldUpdate[] = [
                   {
                     fieldPath: "contacts.invitationsIds",
                     value: [...(user.contacts.invitationsIds || []), newId],
                   },
                 ];
-                const fieldToUpdateSubject: UserTypes.UserFieldUpdate[] = [
+                const fieldToUpdateSubject: UserFieldUpdate[] = [
                   {
                     fieldPath: "contacts.invitationsIds",
                     value: [...(receiver.contacts.invitationsIds || []), newId],

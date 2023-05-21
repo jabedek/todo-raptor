@@ -5,7 +5,9 @@ import { Logo } from "@@components/Layout";
 import { useUserValue } from "@@contexts";
 import { useEffect, useState } from "react";
 
-const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn }> = ({ path, name, clickFn }) => {
+type Props = { path: string; name: string; clickFn?: CallbackFn };
+
+const HeaderNavLink: React.FC<Props> = ({ path, name, clickFn }) => {
   if (clickFn) {
     return (
       <div
@@ -27,12 +29,10 @@ const HeaderNavLink: React.FC<{ path: string; name: string; clickFn?: CallbackFn
 
 const Header: React.FC = () => {
   const { firebaseAuthUser, user, logout } = useUserValue();
-
   const [isAuth, setisAuth] = useState(false);
 
   useEffect(() => {
     setisAuth(!!(firebaseAuthUser && user));
-    console.log(firebaseAuthUser, user);
   }, [firebaseAuthUser, user]);
 
   return (

@@ -1,4 +1,4 @@
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
+import { Icons } from "@@components/Layout";
 import { CallbackFn } from "frotsi";
 import { useEffect, useState, CSSProperties } from "react";
 
@@ -7,9 +7,6 @@ type Props = {
   sizeVariant: "I" | "II" | "III";
   relatedItemId?: string | number;
 };
-
-// filter: drop-shadow(0.35px 0.35px 2px rgba(0, 0, 0, 0.35));
-//         box-shadow: 0.5px  0.5px  3px rgba(0, 0, 0, 0.5) !important;
 
 const FormClearX: React.FC<Props> = ({ clickFn, relatedItemId, sizeVariant }) => {
   const [styles, setstyles] = useState<CSSProperties>();
@@ -57,10 +54,10 @@ const FormClearX: React.FC<Props> = ({ clickFn, relatedItemId, sizeVariant }) =>
   return (
     <>
       <div
-        className="transition-all duration-200 hover:rotate-180 cursor-pointer relative bg-white rounded-full app_flex_center text-center"
+        className="transition-all duration-200 hover:rotate-180 cursor-pointer relative bg-white  text-red-700  hover:text-red-500 rounded-full app_flex_center text-center"
         style={styles}
         onClick={handleClick}>
-        <ReactIcons.MdClear className="absolute rounded-full text-red-700  hover:text-red-500" />
+        <Icons.MdClear className="absolute rounded-full" />
       </div>
     </>
   );

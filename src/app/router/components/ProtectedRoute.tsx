@@ -1,25 +1,28 @@
 import { Navigate, useNavigate } from "react-router-dom";
-import { useUserValue } from "src/app/contexts";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { LoadingSpinner } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
 import { UserContext } from "src/app/contexts/UserContext";
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode; path: string; logPath?: string }> = ({ children, path, logPath }) => {
-  const { user, canUseAPI } = useContext(UserContext);
+type Props = { children: React.ReactNode; path: string; logPath?: string };
+
+const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
+  const { firebaseAuthUser, user, canUseAPI } = useContext(UserContext);
   const [canRoute, setcanRoute] = useState<"checking" | boolean>("checking");
   const navigate = useNavigate();
   const { hidePopup } = usePopupContext();
   const fallbackPath = "/login";
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let timer: NodeJS.Timeout | undefined;
-    const isValid = !!(user && canUseAPI);
+    const anyUser = !!(user || firebaseAuthUser);
+    const isValid = !!(anyUser && canUseAPI);
     console.log(user, canUseAPI);
 
     if (!isValid) {
       timer = setTimeout(() => {
-        const canRoute = !!(user && canUseAPI);
+        const anyUser = !!(user || firebaseAuthUser);
+        const canRoute = !!(anyUser && canUseAPI);
         console.log("canRoute", canRoute);
 
         setcanRoute(canRoute);
@@ -38,7 +41,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; path: string; logPat
     }
 
     return () => clearTimeout(timer);
-  }, [user, canUseAPI]);
+  }, [firebaseAuthUser, user, canUseAPI]);
 
   useEffect(() => {
     if (logPath) {
@@ -58,10 +61,13 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; path: string; logPat
 
       {canRoute === "checking" && (
         <>
-          <p className="w-full text-center my-5 text-[18px] font-bold font-app_primary  text-app_tertiary drop-shadow-[app_text_sharp] ">
+          <p className="w-full text-center my-5 text-[18px] font-bold font-app_primary  text-app_secondary drop-shadow-[app_text_sharp] ">
             Checking user...
           </p>
-          <LoadingSpinner size="xl" />
+          <LoadingSpinner
+            size="xl"
+            colors="border-app_secondary border-t-app_quarternary"
+          />
         </>
       )}
     </>

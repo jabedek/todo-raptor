@@ -6,38 +6,42 @@ import {
   InputSelect,
   InputWritten,
   InputTags,
-  InputTagsTypes,
-  BasicInputsTypes,
+  ResultDisplay,
   ResultDisplayer,
+  TagItem,
+  SelectOption,
 } from "@@components/forms";
-import { CommonTypes, ProjectTypes, TaskTypes } from "@@types";
+import { Project, SimpleProjectAssignee, SimpleTask } from "@@types";
 import { Button } from "@@components/common";
 import { TasksAPI } from "@@api/firebase";
+import { TasksVisuals } from "..";
 import {
-  TASK_LISTS_OPTIONS,
+  TaskStatusShortName,
   TASK_STATUSES_OPTIONS,
   TaskListType,
-  TaskStatus,
-  TaskStatusShortName,
-} from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
+  TASK_LISTS_OPTIONS,
+  getStatusGroup,
+  StatusGroupName,
+} from "../visuals/task-visuals";
+import { SimpleColumn, ProjectWithAssigneesRegistry } from "src/app/types/Projects";
 
 type Props = {
-  project: ProjectTypes.Project | undefined;
-  task?: TaskTypes.Task;
+  project: ProjectWithAssigneesRegistry | undefined;
+  task?: SimpleTask;
 };
 
 const TaskForm: React.FC<Props> = ({ project, task }) => {
-  type Option = BasicInputsTypes.SelectOption<ProjectTypes.ProjectAssignee>;
+  type Option = SelectOption<SimpleProjectAssignee>;
   const [id, setid] = useState("");
   const [title, settitle] = useState("");
   const [description, setdescription] = useState("");
-  const [tags, settags] = useState<InputTagsTypes.TagItem[]>([]);
-  const [assignee, setassignee] = useState<ProjectTypes.ProjectAssignee>();
+  const [tags, settags] = useState<TagItem[]>([]);
+  const [assignee, setassignee] = useState<SimpleProjectAssignee>();
   const [status, setstatus] = useState<TaskStatusShortName>(TASK_STATUSES_OPTIONS[0].value);
   const [list, setlist] = useState<TaskListType>("backlog");
 
   const [assigneesOptions, setassigneesOptions] = useState<Option[]>([]);
-  const [message, setmessage] = useState<CommonTypes.ResultDisplay>();
+  const [message, setmessage] = useState<ResultDisplay>();
   const [formMode, setformMode] = useState<"new" | "edit">("new");
 
   useEffect(() => {
@@ -60,29 +64,44 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
   }, [task]);
 
   const handleSubmitNewTask = () => {
-    if (project && assignee) {
+    if (project) {
+      const assigneeId = assignee?.id || "";
       const taskNumber = (project?.tasksCounter || 0) + 1;
-      const task: TaskTypes.Task = {
+      const task: SimpleTask = {
         id,
         title: title.replace(RegExp(/\s{2,}/gm), " ").trim(),
         description,
         tags: tags.map((t) => t.value),
-        assigneeId: assignee.id,
+        assigneeId: assigneeId,
         status,
         taskNumber,
         projectId: project.id,
         createdAt: new Date().toISOString(),
         closedAt: "",
-        list: {
-          type: list,
-          position: 1000 + taskNumber,
-          scheduleColumn: "",
-        },
+        archived: false,
       };
 
-      TasksAPI.saveNewTaskInDB(task, assignee, project)
+      const { assigneesRegistry, ...newProject } = project;
+
+      let scheduleColumn = "";
+
+      if (list === "backlog") {
+        newProject.tasksLists.backlog.push(task.id);
+      }
+
+      if (list === "archive") {
+        newProject.tasksLists.archive.push(task.id);
+        task.archived = true;
+      }
+
+      if (list === "schedule") {
+        scheduleColumn = getStatusGroup(task.status);
+      }
+      newProject.tasksCounter = (project?.tasksCounter || 0) + 1;
+
+      TasksAPI.saveNewTaskInDB(task, newProject, assigneeId, scheduleColumn)
         .then(() => {
-          setmessage({ text: "Task has been added to project.", isError: false });
+          setmessage({ text: "SimpleTask has been added to project.", isError: false });
           setid(`task_${generateDocumentId()}`);
         })
         .catch((e) => {
@@ -132,7 +151,6 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
       />
 
       <InputSelect
-        required
         name="assignee"
         selectWidth="w-[460px]"
         changeFn={(val) => setassignee(val)}
@@ -186,7 +204,7 @@ const TaskForm: React.FC<Props> = ({ project, task }) => {
       <div className="flex w-full justify-evenly mt-1">
         <Button
           formStyle="primary"
-          disabled={!(status && title && assignee)}
+          disabled={!(status && title)}
           clickFn={handleSubmitNewTask}>
           Submit
         </Button>

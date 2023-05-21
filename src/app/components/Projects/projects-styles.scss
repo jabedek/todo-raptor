@@ -1,20 +1,33 @@
+.project-border {
+  border-color: rgb(220, 220, 220);
+  border-style: solid;
+  border-collapse: collapse;
+}
+
 .projects-header-icon {
   height: 18px !important;
   width: 18px !important;
   margin-right: 10px !important;
+  filter: drop-shadow(0px 0px 0.6px rgba(10, 10, 10));
 }
 
 .header-tab-wrapper {
   position: relative;
   z-index: 1;
   cursor: pointer;
+  transition: all 200ms;
 
   div {
     height: 100%;
+    padding: 4px 7px;
+    border-radius: 3px;
   }
 
-  &.selected p {
-    text-decoration: 2px underline black;
+  &.selected div {
+    background: rgb(120, 120, 120);
+    p {
+      color: white;
+    }
   }
 
   &:not(.selected) div {
@@ -22,8 +35,8 @@
     max-height: 50px !important;
     transition: all 200ms;
 
-    &:hover p {
-      text-decoration: 2px underline lightgray;
+    &:hover {
+      background: rgb(220, 220, 220);
     }
   }
 }

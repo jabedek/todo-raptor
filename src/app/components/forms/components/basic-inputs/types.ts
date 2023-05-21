@@ -1,9 +1,9 @@
 import { CallbackFn } from "frotsi";
 
-type InputDateTime = "date" | "month" | "time" | "week";
-type InputChoice = "checkbox" | "radio" | "select";
-type InputWritten = "text" | "email" | "password" | "number" | "search" | "url" | "tel" | "textarea";
-export type InputType = InputDateTime | InputChoice | InputWritten;
+export type InputDateTimeType = "date" | "month" | "time" | "week";
+export type InputChoiceType = "checkbox" | "radio" | "select";
+export type InputWrittenType = "text" | "email" | "password" | "number" | "search" | "url" | "tel" | "textarea";
+export type InputType = InputDateTimeType | InputChoiceType | InputWrittenType;
 
 type SideEffectCallback<E extends HTMLElement = HTMLElement> = (inputId: string, event: React.ChangeEvent<E>) => any;
 
@@ -25,11 +25,6 @@ export type SelectOption<T> = {
   customWrite?: boolean;
 };
 
-export type RadioOption<T> = SelectOption<T> & {
-  default?: boolean;
-  notselectable?: boolean;
-};
-
 // BASIC
 export type InputProps = {
   value: any;
@@ -41,30 +36,4 @@ export type InputProps = {
   disabled?: boolean;
   label?: string;
   tailwindStyles?: string;
-};
-
-export type InputWrittenProps = InputProps & {
-  type: InputWritten;
-  inputTypeSpecs?: InputSpecifics;
-  pattern?: string;
-  focus?: boolean;
-  hint?: string;
-  autoComplete?: string;
-};
-export type InputDateProps = InputProps & {
-  type: InputDateTime;
-  inputTypeSpecs?: InputSpecifics;
-  focus?: boolean;
-};
-
-export type InputSelectProps = InputProps & {
-  inputTypeSpecs?: InputSpecifics;
-  options: SelectOption<any>[];
-  focus?: boolean;
-  selectWidth?: string;
-};
-
-export type InputRadiosProps = Omit<InputProps, "value"> & {
-  options: RadioOption<any>[];
-  orientation?: "horizontal" | "vertical";
 };

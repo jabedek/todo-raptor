@@ -1,11 +1,18 @@
 import { generateInputId } from "frotsi";
 import { useEffect, useState, useRef } from "react";
 import { useHandleOutclick } from "@@hooks";
-import { BasicInputsTypes, InputWritten } from "@@components/forms";
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
+import { InputProps, InputSpecifics, InputWritten, SelectOption } from "@@components/forms";
+import { Icons } from "@@components/Layout";
 
-const InputSelect: React.FC<BasicInputsTypes.InputSelectProps> = (props) => {
-  type Option = BasicInputsTypes.SelectOption<typeof props.options>;
+type Props = InputProps & {
+  inputTypeSpecs?: InputSpecifics;
+  options: SelectOption<any>[];
+  focus?: boolean;
+  selectWidth?: string;
+};
+
+const InputSelect: React.FC<Props> = (props) => {
+  type Option = SelectOption<typeof props.options>;
   const [focus, setfocus] = useState(false);
   const [isOpened, setisOpened] = useState(false);
   const [currentOption, setcurrentOption] = useState<Option>();
@@ -87,7 +94,7 @@ const InputSelect: React.FC<BasicInputsTypes.InputSelectProps> = (props) => {
         className={`app_input peer ${focus ? "border-b-app_tertiary" : ""}   bg-transparent  px-1 my-1 ${props.selectWidth}`}>
         <div className="relative h-full flex items-center align-middle justify-between select-none text-[14px]">
           <span className={`${currentOption?.iconClass}`}>{currentOption?.label ?? "Select"}</span>
-          <ReactIcons.MdUnfoldMore className={`text-gray-700 transition-all duration-400 text-[18px] `} />
+          <Icons.MdUnfoldMore className={`text-gray-700 transition-all duration-400 text-[18px] `} />
         </div>
         <div
           className={` z-10 absolute  transition-all duration-400 

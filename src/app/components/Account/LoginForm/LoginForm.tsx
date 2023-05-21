@@ -2,47 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserCredential } from "firebase/auth";
 
-import { CommonTypes } from "@@types";
+import {} from "@@types";
 import { AuthAPI } from "@@api/firebase";
-import { FormWrapper, InputWritten, Validator, ResultDisplayer } from "@@components/forms";
+import { FormWrapper, InputWritten, ResultDisplayer, ResultDisplay } from "@@components/forms";
 import { Button } from "@@components/common";
+import { validate, validateEmailPassword } from "@@components/forms/simple-validation";
 
 const LoginForm: React.FC = () => {
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
-  const [message, setmessage] = useState<CommonTypes.ResultDisplay | undefined>(undefined);
+  const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
   const navigate = useNavigate();
 
-  const validateForm = (email: string, password: string) => {
-    let isValid = true;
-    let message = "";
-    const { validity: emailPatternValid, partialResults: emailResults } = Validator.email(email);
-    const { validity: passwordPatternValid, partialResults: passwordResults } = Validator.password(password);
-
-    if (!email) {
-      isValid = false;
-      message += "Email not provided. ";
-      return { isValid, message };
-    }
-
-    if (!emailPatternValid) {
-      isValid = false;
-      message += "Wrong email pattern. ";
-    }
-
-    if (!password) {
-      isValid = false;
-      message += "Password not provided. ";
-      return { isValid, message };
-    }
-
-    if (!passwordPatternValid) {
-      isValid = false;
-      message += "Wrong password pattern. ";
-    }
-
-    return { isValid, message: isValid ? "Credentials are error-free. Sending..." : message };
-  };
+  const validateForm = (formEmail: string, formPassword: string) => validateEmailPassword(formEmail, formPassword);
 
   const handleSubmit = async () => {
     const { isValid, message } = validateForm(email, password);

@@ -1,30 +1,26 @@
-import { ProjectsAPI } from "@@api/firebase";
-import {
-  PROJECT_ROLES_OPTIONS,
-  ProjectRole,
-  ProjectRoleShortName,
-} from "@@components/RolesStatusesVisuals/roles-statuses-visuals";
-import { Button } from "@@components/common";
-import { BasicInputsTypes, FormWrapper, InputSelect, ResultDisplayer } from "@@components/forms";
-import { CommonTypes, ProjectTypes, UserTypes } from "@@types";
 import { useEffect, useState } from "react";
+import { ProjectsAPI } from "@@api/firebase";
+import { Button } from "@@components/common";
+import { FormWrapper, InputSelect, ResultDisplay, ResultDisplayer, SelectOption } from "@@components/forms";
+import { IdEmailPair, Project, User } from "@@types";
+import { ProjectsVisuals } from "@@components/Projects";
 
 type Props = {
-  user: UserTypes.User | undefined;
-  project: ProjectTypes.Project | undefined;
+  user: User | undefined;
+  project: Project | undefined;
 };
 
 const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
-  const [assignee, setassignee] = useState<CommonTypes.IdEmailPair>();
-  const [assigneesOptions, setassigneesOptions] = useState<BasicInputsTypes.SelectOption<CommonTypes.IdEmailPair>[]>([]);
-  const [role, setrole] = useState<ProjectRoleShortName>();
-  const [message, setmessage] = useState<CommonTypes.ResultDisplay | undefined>(undefined);
+  const [assignee, setassignee] = useState<IdEmailPair>();
+  const [assigneesOptions, setassigneesOptions] = useState<SelectOption<IdEmailPair>[]>([]);
+  const [role, setrole] = useState<ProjectsVisuals.ProjectRoleShortName>();
+  const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
 
   useEffect(() => {
     if (user && project) {
       ProjectsAPI.getAvailableContactsForAssigneeship(user, project).then((assignees) => {
         if (assignees) {
-          const options: BasicInputsTypes.SelectOption<CommonTypes.IdEmailPair>[] = assignees.map((assignee) => ({
+          const options: SelectOption<IdEmailPair>[] = assignees.map((assignee) => ({
             value: assignee,
             label: assignee.email,
           }));
@@ -68,7 +64,7 @@ const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
           label="Assignee Role"
           value={role}
           disabled={!assignee}
-          options={PROJECT_ROLES_OPTIONS}
+          options={ProjectsVisuals.PROJECT_ROLES_OPTIONS}
         />
       </div>
 

@@ -1,20 +1,18 @@
+import { CallbackFn } from "frotsi";
 import { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 
-import { APITypes, AuthAPI, UsersAPI } from "@@api/firebase";
-import { Enums, UserTypes } from "@@types";
-import { useProjectsValue } from "./ProjectsContext";
-import { useLocalStorage } from "../hooks/useLocalStorage";
-import { CallbackFn } from "frotsi";
+import { AuthAPI, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
+import { StorageItem, User } from "@@types";
 import { usePopupContext } from "@@components/Layout";
-import AppCodeForm from "@@components/Account/AppCodeForm/AppCodeForm";
-
-// const CHECK_API = CHECK_ACCESS && CHECK_EMAIL_VERIF;
+// import { useProjectsValue } from "@@contexts";
+import { useLocalStorage } from "@@hooks";
+import { AppCodeForm } from "@@components/Account";
 
 type UserContext = {
   firebaseAuthUser: FirebaseAuthUser | undefined | null;
-  user: UserTypes.User | undefined;
+  user: User | undefined;
   logout: () => void;
   canUseAPI: boolean;
   checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => void;
@@ -32,37 +30,48 @@ let UNSUB_AUTH: Unsubscribe | undefined = undefined;
 let UNSUB_USER: Unsubscribe | undefined = undefined;
 
 const UserProvider = ({ children }: any) => {
-  const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser>();
-  const [user, setuser] = useState<UserTypes.User | undefined>(undefined);
+  const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser | undefined | null>();
+  const [user, setuser] = useState<User | undefined>(undefined);
   const [canUseAPI, setcanUseAPI] = useState(false);
   const navigate = useNavigate();
-  const { clearProjects } = useProjectsValue();
+  // const { clearProjects } = useProjectsValue();
   const { setItem, getItem, removeItem } = useLocalStorage();
   const { showPopup } = usePopupContext();
 
-  // 1. Listen to changes in Firebase Authentication related to current user (login, logout, timeout, etc).
   useEffect(() => {
-    console.log("listenToFirebaseAuthState");
-
+    setfirebaseAuthUser(AuthAPI.getCurrentFirebaseAuthUser());
     unsubListener("all");
 
-    AuthAPI.listenToFirebaseAuthState(async (change: APITypes.FirebaseUserStateChange, unsub0: Unsubscribe) => {
+    AuthAPI.listenToFirebaseAuthState(async (change: FirebaseUserStateChange, unsub0: Unsubscribe) => {
       const firebaseAuthUser: FirebaseAuthUser = change.auth;
-      console.log("firebaseAuthUser", firebaseAuthUser);
-
       UNSUB_AUTH = unsub0;
-      if (firebaseAuthUser) {
-        setfirebaseAuthUser(firebaseAuthUser);
-      } else {
+      setfirebaseAuthUser(firebaseAuthUser);
+      if (!firebaseAuthUser) {
         clear();
       }
-      // console.log("[AUTH]: ", firebaseAuthUser);
     });
 
     return () => unsubListener("all");
   }, []);
 
-  // 1.5
+  useEffect(() => {
+    console.log("listenToUserData");
+
+    unsubListener("userData");
+    checkAccessToAPI();
+
+    if (firebaseAuthUser) {
+      UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: User, unsub1: Unsubscribe) => {
+        console.log("listenToUserData", data);
+
+        UNSUB_USER = unsub1;
+        putUser(data);
+        checkAccessToAPI();
+      });
+    }
+
+    return () => unsubListener("userData");
+  }, [firebaseAuthUser]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -78,31 +87,8 @@ const UserProvider = ({ children }: any) => {
       }
     }, 3000);
 
-    // clears timeout before running the new effect
     return () => clearTimeout(timeout);
   }, [user, canUseAPI]);
-
-  // 2. Listen to changes in Firebase Cloudstore related to current user (internal data changed: contacts, projects etc).
-  useEffect(() => {
-    console.log("listenToUserData");
-
-    unsubListener("userData");
-    checkAccessToAPI();
-
-    if (firebaseAuthUser) {
-      UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: UserTypes.User, unsub1: Unsubscribe) => {
-        console.log("listenToUserData", data);
-
-        UNSUB_USER = unsub1;
-        putUser(data);
-        checkAccessToAPI();
-      });
-    }
-
-    return () => unsubListener("userData");
-  }, [firebaseAuthUser]);
-
-  // 3. Unsubscribers for listeners
 
   const unsubListener = (name: "auth" | "userData" | "all") => {
     if (["auth", "all"].includes(name) && UNSUB_AUTH) {
@@ -115,8 +101,7 @@ const UserProvider = ({ children }: any) => {
     }
   };
 
-  // 4. Context functions
-  const putUser = (user: UserTypes.User) => setuser(user);
+  const putUser = (user: User) => setuser(user);
 
   const clear = () => {
     setuser(undefined);
@@ -124,7 +109,7 @@ const UserProvider = ({ children }: any) => {
   };
 
   const checkAccessToAPI = (code: string = "", callback?: CallbackFn) => {
-    const appCode: string = `${code?.length ? code : getItem(Enums.StorageItem.CODE)}`;
+    const appCode: string = `${code?.length ? code : getItem(StorageItem.CODE)}`;
 
     AuthAPI.checkAccessToAPI(appCode)
       .then((result) => {
@@ -133,12 +118,12 @@ const UserProvider = ({ children }: any) => {
         }
         const { codeValid, emailVerif } = result;
         if (codeValid) {
-          setItem(Enums.StorageItem.CODE, appCode);
+          setItem(StorageItem.CODE, appCode);
           if (emailVerif) {
             setcanUseAPI(true);
           }
         } else {
-          removeItem(Enums.StorageItem.CODE);
+          removeItem(StorageItem.CODE);
           setcanUseAPI(false);
         }
       })
@@ -149,12 +134,11 @@ const UserProvider = ({ children }: any) => {
       });
   };
 
-  // const submitCode = (codeValue: string, callback?: CallbackFn) => checkAccessToAPI(codeValue, callback);
   const logout = () => {
     AuthAPI.logoutInFirebase().then(
       () => {
         clear();
-        clearProjects();
+        // clearProjects();
         navigate("/login");
       },
       (error: Error) => {

@@ -1,9 +1,17 @@
+import { InputProps, InputSpecifics, InputWrittenType } from "@@components/forms";
 import { generateInputId } from "frotsi";
 import { useRef, useState } from "react";
 
-import { BasicInputsTypes } from "@@components/forms";
+type Props = InputProps & {
+  type: InputWrittenType;
+  inputTypeSpecs?: InputSpecifics;
+  pattern?: string;
+  focus?: boolean;
+  hint?: string;
+  autoComplete?: string;
+};
 
-const InputWritten: React.FC<BasicInputsTypes.InputWrittenProps> = (props) => {
+const InputWritten: React.FC<Props> = (props) => {
   const [focus, setfocus] = useState(false);
   const inputId = useRef(generateInputId(props.name, props.type)).current;
 
@@ -20,7 +28,7 @@ const InputWritten: React.FC<BasicInputsTypes.InputWrittenProps> = (props) => {
 
   return (
     <div
-      className={`app_flex_center  relative mb-8 app_input_top h-[40px] min-w-[150px] w-[fit-content] ${props.tailwindStyles}`}
+      className={`app_flex_center  relative mb-8 app_input_top h-fit min-h-[40px] min-w-[150px] w-[fit-content] ${props.tailwindStyles}`}
       onFocus={() => setfocus(true)}
       onBlur={() => setfocus(false)}>
       {props.type !== "textarea" && (

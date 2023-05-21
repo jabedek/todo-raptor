@@ -1,11 +1,10 @@
-import { ProjectTypes, UserTypes } from "@@types";
-import ProjectsTableItem from "../ProjectsTableItem/ProjectsTableItem";
 import { CallbackFn } from "frotsi";
-import { useEffect } from "react";
+import { Project, User } from "@@types";
+import ProjectsTableItem from "../ProjectsTableItem/ProjectsTableItem";
 
 type Props = {
-  projects: ProjectTypes.Project[];
-  user: UserTypes.User | undefined;
+  projects: Project[];
+  user: User | undefined;
   deleteProjectFn: CallbackFn<Promise<void>>;
 };
 

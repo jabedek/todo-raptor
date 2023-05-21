@@ -1,17 +1,14 @@
-import { usePopupContext } from "@@components/Layout";
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
-import { getUserDisplayName } from "@@components/Projects/project-utils";
-import { TaskForm } from "@@components/Tasks";
-import { ProjectTypes, TaskTypes } from "@@types";
+import { Icons } from "@@components/Layout";
+import { getUserDisplayName } from "@@components/Projects";
+import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, SimpleTask, FullTask } from "@@types";
 
 type Props = {
-  project: ProjectTypes.Project | undefined;
-  tasks: TaskTypes.TaskWithDetails[];
-  assignees: ProjectTypes.ProjectAssigneeFull[];
-  popupTaskForm: (task?: TaskTypes.Task) => void;
+  project: ProjectWithAssigneesRegistry | undefined;
+  tasks: FullTask[];
+  popupTaskForm: (task?: SimpleTask) => void;
 };
 
-const ProjectBacklog: React.FC<Props> = ({ project, tasks, assignees, popupTaskForm }) => {
+const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm }) => {
   return (
     <div className="flex w-full h-full">
       <div className="flex flex-col w-full h-full">
@@ -42,7 +39,7 @@ const ProjectBacklog: React.FC<Props> = ({ project, tasks, assignees, popupTaskF
             <div
               className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
               onClick={() => popupTaskForm(task)}>
-              <ReactIcons.MdReadMore className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-blue-700" />
+              <Icons.MdReadMore className="h-[16px] w-[16px] font-[300] text-gray-500 group-hover:text-blue-700" />
             </div>
           </div>
         ))}

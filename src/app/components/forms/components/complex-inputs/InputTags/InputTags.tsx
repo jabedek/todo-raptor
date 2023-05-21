@@ -1,18 +1,25 @@
-import { generateInputId } from "frotsi";
+import { CallbackFn, generateInputId } from "frotsi";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import "./InputTags.scss";
-import { FormClearX, InputTag, InputTagsTypes } from "@@components/forms";
+import { FormClearX, InputProps, TagItem } from "@@components/forms";
 import { getTagWidth } from "./helpers";
+import InputTag from "./InputTag/InputTag";
 
-const InputTags: React.FC<InputTagsTypes.InputTagsProps> = (props) => {
+type Props = Omit<InputProps, "value"> & {
+  values: TagItem[];
+  hint?: string;
+  changeFn: CallbackFn;
+};
+
+const InputTags: React.FC<Props> = (props) => {
   const inputId = useRef(generateInputId(props.name, props.name)).current;
   const ref = useRef<HTMLInputElement>(null);
 
   const [width, setwidth] = useState(`0px`);
 
-  const [values, setvalues] = useState<InputTagsTypes.TagItem[]>([]);
-  const [newTag, setnewTag] = useState<InputTagsTypes.TagItem>();
+  const [values, setvalues] = useState<TagItem[]>([]);
+  const [newTag, setnewTag] = useState<TagItem>();
   const [disabled, setdisabled] = useState(false);
 
   useEffect(() => {
@@ -56,7 +63,7 @@ const InputTags: React.FC<InputTagsTypes.InputTagsProps> = (props) => {
   };
 
   const handleBlur = () => {
-    const newValues: InputTagsTypes.TagItem[] = [...values].filter((v: InputTagsTypes.TagItem) => v.value && v.temporaryId);
+    const newValues: TagItem[] = [...values].filter((v: TagItem) => v.value && v.temporaryId);
     if (newTag?.temporaryId && newTag.value) {
       newValues.push({ ...newTag });
     }
@@ -95,7 +102,7 @@ const InputTags: React.FC<InputTagsTypes.InputTagsProps> = (props) => {
     updateValues([]);
   };
 
-  const updateValues = (values: InputTagsTypes.TagItem[]) => {
+  const updateValues = (values: TagItem[]) => {
     setvalues(values);
     props.changeFn(values);
   };

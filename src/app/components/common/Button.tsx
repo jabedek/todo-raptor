@@ -12,7 +12,7 @@ type Props = {
 };
 
 const primaryStyle = "bg-app_primary text-white border-app_primary ";
-const secondaryStyle = "bg-white-100 transition-all duration-200 hover:bg-white-200 text-app_secondary ";
+const secondaryStyle = "bg-white-100 transition-all duration-200 hover:bg-white-200 text-black ";
 
 const disabledStyle = "bg-gray-100 text-gray-400 border-gray-600";
 const basicFormButtonStyle =
@@ -26,7 +26,6 @@ const Button: React.FC<Props> = (props) => {
     e?.preventDefault();
 
     if (props?.clickFn) {
-      // console.log("Button handleClick", props.clickFn);
       props.clickFn();
     } else if (props?.href) {
       window.location.href = props.href;

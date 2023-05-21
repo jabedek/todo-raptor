@@ -1,23 +1,20 @@
 import { useEffect, useState } from "react";
 import { usePopupContext } from "@@components/Layout";
-import { UserTypes, ContactsTypes } from "@@types";
-import { ContactsAPI, UsersAPI } from "@@api/firebase";
+import { Contact, ContactInvitation, User } from "@@types";
+import { ContactsAPI } from "@@api/firebase";
 import { Button } from "@@components/common";
-import { ReactIcons } from "@@components/Layout/preloaded-icons";
-import ContactForm from "../ContactForm/ContactForm";
-import ContactItem from "../ContactItem/ContactItem";
+import { Icons } from "@@components/Layout";
+import { ContactForm, ContactItem } from "@@components/Account";
 
-const AccountContacts: React.FC<{ user: UserTypes.User | undefined; contacts: ContactsTypes.Contact[] }> = ({
-  user,
-  contacts,
-}) => {
-  // const [userContacts, setuserContacts] = useState<ContactsTypes.Contact[]>(contacts);
-  const [invitesSent, setinvitesSent] = useState<ContactsTypes.ContactInvitation[]>([]);
-  const [invitesReceived, setinvitesReceived] = useState<ContactsTypes.ContactInvitation[]>([]);
+type Props = { user: User | undefined; contacts: Contact[] };
+
+const AccountContacts: React.FC<Props> = ({ user, contacts }) => {
+  const [invitesSent, setinvitesSent] = useState<ContactInvitation[]>([]);
+  const [invitesReceived, setinvitesReceived] = useState<ContactInvitation[]>([]);
 
   const { showPopup, popupElement } = usePopupContext();
   const popupInvitation = () => showPopup(<ContactForm />);
-  const deleteContact = (contact: ContactsTypes.Contact) => {
+  const deleteContact = (contact: Contact) => {
     if (contact.id && user?.authentication.id) {
       ContactsAPI.updateContactsBond(contact.id, user?.authentication.id, "break").fireAndForget();
     }
@@ -27,20 +24,10 @@ const AccountContacts: React.FC<{ user: UserTypes.User | undefined; contacts: Co
     setTimeout(() => {
       const currentUserId = user?.authentication?.id;
 
-      // // 1. Fetch Contacts
-      // if (contactsIds?.length) {
-      //   UsersAPI.getUsersById(contactsIds).then((users) => {
-      //     setuserContacts(users || []);
-      //   });
-      // } else {
-      //   setuserContacts([]);
-      // }
-
-      // 2. Fetch Invitations and split
       ContactsAPI.getCurrentUserPendingContactInvicationsByIds().then((invitations) => {
         if (invitations) {
-          const sent: ContactsTypes.ContactInvitation[] = [];
-          const received: ContactsTypes.ContactInvitation[] = [];
+          const sent: ContactInvitation[] = [];
+          const received: ContactInvitation[] = [];
 
           invitations.forEach((invite) => {
             if (currentUserId === invite.receiver.id) {
@@ -77,7 +64,7 @@ const AccountContacts: React.FC<{ user: UserTypes.User | undefined; contacts: Co
               <div className="flex items-center justify-between p-2 w-full border-b text-md">
                 <p>{contact.email}</p>
                 <p>
-                  <ReactIcons.MdClose
+                  <Icons.MdClose
                     onClick={() => deleteContact(contact)}
                     className="cursor-pointer text-white rounded-[2px] bg-red-700 hover:bg-red-600"
                   />

@@ -1,9 +1,19 @@
 import { generateInputId } from "frotsi";
 import { useState, useEffect, useRef } from "react";
 
-import { BasicInputsTypes, InputWritten } from "@@components/forms";
+import { InputProps, InputWritten, SelectOption } from "@@components/forms";
 
-const InputRadios: React.FC<BasicInputsTypes.InputRadiosProps> = (props) => {
+type RadioOption<T> = SelectOption<T> & {
+  default?: boolean;
+  notselectable?: boolean;
+};
+
+type Props = Omit<InputProps, "value"> & {
+  options: RadioOption<any>[];
+  orientation?: "horizontal" | "vertical";
+};
+
+const InputRadios: React.FC<Props> = (props) => {
   const [focus, setfocus] = useState(false);
   const [valueWritten, setValueWritten] = useState("");
   const [selectedWrite, setSelectedWrite] = useState(false);
@@ -23,7 +33,7 @@ const InputRadios: React.FC<BasicInputsTypes.InputRadiosProps> = (props) => {
     }
   }, [props.options[0].label, props.options[0].value]);
 
-  const updateValueRadio = (e: React.ChangeEvent<HTMLInputElement>, option: BasicInputsTypes.RadioOption<any>) => {
+  const updateValueRadio = (e: React.ChangeEvent<HTMLInputElement>, option: RadioOption<any>) => {
     const val = e.currentTarget.value;
     const id = e.currentTarget.id;
     if (!option.notselectable) {

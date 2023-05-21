@@ -13,14 +13,14 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { AuthAPI, FirebaseDB, UsersAPI } from "@@api/firebase";
-import { ContactsTypes, UserTypes } from "@@types";
+import { ContactInvitation, User } from "@@types";
 import { CallbackFn } from "frotsi";
-import { useUserValue } from "@@contexts";
+import { Contact } from "src/app/types/Contacts";
 
 export const ContactsInvitationsRef = collection(FirebaseDB, "contacts-invitations");
 export const ProjectInvitationsRef = collection(FirebaseDB, "project-invitations");
 
-const saveNewInvitation = async (data: ContactsTypes.ContactInvitation) => {
+const saveNewInvitation = async (data: ContactInvitation) => {
   setDoc(doc(FirebaseDB, "contacts-invitations", data.id), data).then(
     () => console.log(),
     (error) => console.log(error)
@@ -47,14 +47,14 @@ const checkIfPendingInvitationExists = async (receiverId: string, senderId: stri
   const querySnapshot = await getDocs(queryRef);
   const querySnapshotSwapped = await getDocs(queryRefSwapped);
 
-  const docs: ContactsTypes.ContactInvitation[] = [];
+  const docs: ContactInvitation[] = [];
 
   querySnapshot.forEach((doc) => {
-    docs.push(<ContactsTypes.ContactInvitation>doc.data());
+    docs.push(<ContactInvitation>doc.data());
   });
 
   querySnapshotSwapped.forEach((doc) => {
-    docs.push(<ContactsTypes.ContactInvitation>doc.data());
+    docs.push(<ContactInvitation>doc.data());
   });
 
   return docs;
@@ -69,7 +69,7 @@ const getContactInvicationById = async (invitationId: string) => {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
 
-  return docSnap.exists() ? (data as ContactsTypes.ContactInvitation) : undefined;
+  return docSnap.exists() ? (data as ContactInvitation) : undefined;
 };
 
 const getContactInvicationsByIds = async (invitationsIds: string[]) => {
@@ -79,23 +79,23 @@ const getContactInvicationsByIds = async (invitationsIds: string[]) => {
 
   const queryRef = query(ContactsInvitationsRef, where("id", "in", [...invitationsIds]));
   const querySnapshot = await getDocs(queryRef);
-  const docs: ContactsTypes.ContactInvitation[] = [];
+  const docs: ContactInvitation[] = [];
   querySnapshot.forEach((doc) => {
-    docs.push(<ContactsTypes.ContactInvitation>doc.data());
+    docs.push(<ContactInvitation>doc.data());
   });
 
   return docs;
 };
 
 const getCurrentUserPendingContactInvicationsByIds = async () => {
-  return UsersAPI.getUserDetailsById(AuthAPI.getCurrentFirebaseAuthUser()?.uid).then(async (user: UserTypes.User | undefined) => {
+  return UsersAPI.getUserDetailsById(AuthAPI.getCurrentFirebaseAuthUser()?.uid).then(async (user: User | undefined) => {
     const invitationsIds = user?.contacts.invitationsIds || [];
-    const docs: ContactsTypes.ContactInvitation[] = [];
+    const docs: ContactInvitation[] = [];
     if (invitationsIds.length) {
       const queryRef = query(ContactsInvitationsRef, where("id", "in", [...invitationsIds]), where("status", "==", "pending"));
       const querySnapshot = await getDocs(queryRef);
       querySnapshot.forEach((doc) => {
-        docs.push(<ContactsTypes.ContactInvitation>doc.data());
+        docs.push(<ContactInvitation>doc.data());
       });
     }
 
@@ -103,7 +103,7 @@ const getCurrentUserPendingContactInvicationsByIds = async () => {
   });
 };
 
-const resolvePendingInvitation = async (invitation: ContactsTypes.ContactInvitation) => {
+const resolvePendingInvitation = async (invitation: ContactInvitation) => {
   if (!invitation) {
     return undefined;
   }
@@ -141,26 +141,18 @@ const updateContactsBond = async (userId0: string, userId1: string, variant: "ma
   }
 };
 
-// const getContactsDataById = async (contactsIds: string[]) => {
-//  return UsersAPI.getUsersById(contactsIds).then((users) => {
-//     if (users) {
-//       return users.map(({ authentication }) => ({ id: authentication.id, email: authentication.email }));
-//     }
-//   });
-// };
-
-const listenToUserContactsData = async (user: UserTypes.User, cb: CallbackFn) => {
-  if (!user) {
+const listenToUserContactsData = async (user: User, cb: CallbackFn) => {
+  if (!user || user.contacts.contactsIds) {
     return undefined;
   }
 
-  const ids = ["_", ...user.contacts.contactsIds];
+  const ids = [...user.contacts.contactsIds];
   const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", ids));
 
   const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-    let docs: ContactsTypes.Contact[] = [];
+    let docs: Contact[] = [];
     querySnapshot.forEach((doc) => {
-      const { authentication } = doc.data() as UserTypes.User;
+      const { authentication } = doc.data() as User;
       docs.push({ id: authentication.id, email: `${authentication.email}` });
     });
 

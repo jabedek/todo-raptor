@@ -1,8 +1,8 @@
-import { LoadingSpinner } from "@@components/common";
-import { ProjectsProvider } from "@@contexts";
-import { ProjectTypes } from "@@types";
 import { Suspense, lazy } from "react";
 import { Outlet, RouteObject } from "react-router-dom";
+
+import { LoadingSpinner } from "@@components/common";
+import { Project } from "@@types";
 import { ProjectsAPI } from "src/app/api/firebase";
 import ProtectedRoute from "src/app/router/components/ProtectedRoute";
 
@@ -13,11 +13,9 @@ export const USER_ROUTE_PROJECTS: RouteObject = {
   path: "projects",
 
   element: (
-    <ProjectsProvider>
-      <ProtectedRoute path="projects">
-        <Outlet />
-      </ProtectedRoute>
-    </ProjectsProvider>
+    <ProtectedRoute path="projects">
+      <Outlet />
+    </ProtectedRoute>
   ),
   children: [
     {
@@ -36,8 +34,10 @@ export const USER_ROUTE_PROJECTS: RouteObject = {
           <ProjectViewPage />
         </Suspense>
       ),
-      loader: async ({ params }): Promise<ProjectTypes.Project | undefined> =>
-        await ProjectsAPI.getProjectById(`${params.projectId}`),
+      loader: async ({ params }): Promise<any> => ({
+        projectData: await ProjectsAPI.getProjectById(`${params.projectId}`),
+        projectId: params.projectId,
+      }),
     },
   ],
 };

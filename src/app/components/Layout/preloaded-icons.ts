@@ -17,7 +17,7 @@ import {
   MdAssignmentInd,
 } from "react-icons/md";
 
-export const ReactIcons = {
+export const Icons = {
   MdCheck,
   MdClose,
   MdClear,
