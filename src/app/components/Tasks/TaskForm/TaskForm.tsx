@@ -141,7 +141,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       }
 
       let listChanged = taskList !== newList;
-
+      console.table({ ...newProject });
       if (listChanged) {
         if (newList !== "schedule") {
           newProject.tasksLists[newList] = [...newProject.tasksLists[newList], id];
@@ -153,6 +153,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       } else {
         scheduleAction.action = "move";
       }
+      console.table({ ...newProject });
 
       console.table(task);
       console.table(newTask);
