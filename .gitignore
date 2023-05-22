@@ -7,7 +7,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-.firebase
 .env
 node_modules
 dist
@@ -24,3 +23,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.firebase
+.firebase/todo-raptor/hosting/assets/account-page-a6d16cf1.js
+.firebase/todo-raptor/hosting/assets/index-264a6bd4.js
+.firebase/todo-raptor/hosting/assets/login-page-f1ab2d7b.js
+.firebase/todo-raptor/hosting/assets/project-view-page-918f132f.js
+.firebase/todo-raptor/hosting/assets/ProjectAssigneeIcon-c4f8ff5f.js
+.firebase/todo-raptor/hosting/assets/projects-dashboard-page-e431bfce.js
+.firebase/todo-raptor/hosting/assets/register-page-00984d96.js
+.firebase/todo-raptor/hosting/assets/wrong-route-page-e561f915.js
