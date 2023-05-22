@@ -1,1 +1,0 @@
-import{j as e}from"./index-501849c6.js";const r=()=>e("div",{children:"WrongRoutePage"},void 0,!1,{fileName:"C:/Users/jabed/dev/web/todo-raptor/src/app/pages/base/wrong-route/wrong-route-page.tsx",lineNumber:2,columnNumber:10},globalThis);export{r as default};
