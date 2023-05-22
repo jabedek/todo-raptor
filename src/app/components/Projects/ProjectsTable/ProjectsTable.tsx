@@ -23,7 +23,6 @@ const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
   };
 
   useEffect(() => {
-    console.log(projectsData, user);
     if (projectsData) {
       setactiveCollection(projectsData[tab]);
     }

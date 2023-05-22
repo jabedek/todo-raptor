@@ -49,8 +49,6 @@ const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
 
   useEffect(() => {
     if (!!(codeNeeded || emailNeeded)) {
-      console.log(codeNeeded, emailNeeded);
-
       popupCodeForm(!!codeNeeded, !!emailNeeded);
     }
   }, [codeNeeded, emailNeeded]);

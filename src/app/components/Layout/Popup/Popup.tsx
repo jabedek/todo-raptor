@@ -82,8 +82,6 @@ const PopupProvider = ({ children }: any) => {
   const [refreshOnClose, setrefreshOnClose] = useState(false);
 
   const showPopup = (popupElement: JSX.Element, refreshOnClose?: boolean) => {
-    console.log(popupElement);
-
     setpopupElement(popupElement);
     setrefreshOnClose(!!refreshOnClose);
   };

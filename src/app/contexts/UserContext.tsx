@@ -5,7 +5,6 @@ import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 
 import { AuthAPI, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
 import { User } from "@@types";
-import { usePopupContext } from "@@components/Layout";
 import { useLocalStorage } from "@@hooks";
 import { AppCodeForm } from "@@components/Account";
 import { StorageItem } from "../types/enums";
@@ -103,13 +102,9 @@ const UserProvider = ({ children }: any) => {
   };
 
   const checkAccessToAPI = async (code: string = "") => {
-    console.log(code);
-
     const appCode: string = `${code?.length ? code : getItem(StorageItem.CODE)}`;
 
     return AuthAPI.checkAccessToAPI(appCode).then((result) => {
-      console.log(result);
-
       if (result) {
         setItem(StorageItem.CODE, appCode);
         setcanUseAPI(true);

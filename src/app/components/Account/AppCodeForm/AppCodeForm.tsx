@@ -15,8 +15,6 @@ type Props = {
 };
 
 const AppCodeForm: React.FC<Props> = (props) => {
-  console.log("AppCodeForm", props);
-
   const [messageCode, setmessageCode] = useState<ResultDisplay>({ isError: false, text: "" });
   const [messageEmail, setmessageEmail] = useState<ResultDisplay>({ isError: false, text: "" });
   const [code, setcode] = useState("");
@@ -50,7 +48,6 @@ const AppCodeForm: React.FC<Props> = (props) => {
       console.log(code);
 
       (props.submitFn(code) as unknown as Promise<boolean>).then((result) => {
-        console.log(result);
         if (!!result && !props.neededToVerify.emailNeeded) {
           setmessageEmail({ text: "Code is correct.", isError: false });
         } else {
