@@ -87,31 +87,24 @@ const listenToFirebaseAuthState = (cb: CallbackFn) => {
 
 export const CHECK_ACCESS = import.meta.env.VITE_REACT_APP_CHECK_ACCESS === "yes";
 const CODE0 = import.meta.env.VITE_REACT_APP_CODE0;
-const CODE1 = import.meta.env.VITE_REACT_APP_CODE1;
 
 const setCodes = async () => {
-  if (CODE0 && CODE1) {
-    const codes: AppCode[] = [
-      {
-        id: CODE0,
-        isoStart: "2023-05-01T00:00:00.000Z",
-        isoEnd: "2023-05-31T00:00:00.000Z",
-      },
-      {
-        id: CODE1,
-        isoStart: "2023-06-01T00:00:00.000Z",
-        isoEnd: "2023-05-30T00:00:00.000Z",
-      },
-    ];
-
-    Promise.all([
-      setDoc(doc(FirebaseDB, "codes", codes[0].id), codes[0]),
-      setDoc(doc(FirebaseDB, "codes", codes[1].id), codes[1]),
-    ]).then(
-      () => {},
-      (e) => console.log(e)
-    );
-  }
+  // if (CODE0) {
+  //   const codes: AppCode[] = [
+  //     {
+  //       id: CODE0,
+  //       isoStart: "2023-05-01T00:00:00.000Z",
+  //       isoEnd: "2023-06-31T00:00:00.000Z",
+  //     },
+  //   ];
+  //   Promise.all([
+  //     setDoc(doc(FirebaseDB, "codes", codes[0].id), codes[0]),
+  //     setDoc(doc(FirebaseDB, "codes", codes[1].id), codes[1]),
+  //   ]).then(
+  //     () => {},
+  //     (e) => console.log(e)
+  //   );
+  // }
 };
 
 const checkAccessToAPI = async (codeValue = "") => {

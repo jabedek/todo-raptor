@@ -2,16 +2,15 @@ import { useState } from "react";
 
 import "./Layout.scss";
 import { Header, Page, Sidebar } from "@@components/Layout";
-import { RenderObject } from "@@components/common";
-import { useUserValue } from "@@contexts";
 
 type Props = {
   children: React.ReactNode;
 };
 
+const PACKAGE_VERSION = import.meta.env.PACKAGE_VERSION;
+
 const Layout: React.FC<Props> = (props) => {
   const [sidebarOpen, setsidebarOpen] = useState(false);
-  const { user, firebaseAuthUser } = useUserValue();
 
   return (
     <div className="bg-gray-500 text-black h-screen w-screen ">
@@ -25,12 +24,8 @@ const Layout: React.FC<Props> = (props) => {
         <Page>{props.children}</Page>
       </main>
 
-      {/* <RenderObject
-        data={[firebaseAuthUser?.email, user?.authentication, user?.work]}
-        tailwindStyles="absolute bottom-[0]"
-      /> */}
       <footer className="fixed bottom-1 right-3 rounded-md bg-gray-200 opacity-40 px-2 font-app_mono text-sm">
-        {APP_VERSION}
+        {PACKAGE_VERSION}
       </footer>
     </div>
   );

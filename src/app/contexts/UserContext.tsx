@@ -9,6 +9,7 @@ import { usePopupContext } from "@@components/Layout";
 import { useLocalStorage } from "@@hooks";
 import { AppCodeForm } from "@@components/Account";
 import { StorageItem } from "../types/enums";
+import { CHECK_ACCESS } from "@@api/firebase/handlers/authAPI";
 
 type UserContext = {
   firebaseAuthUser: FirebaseAuthUser | undefined | null;
@@ -70,19 +71,23 @@ const UserProvider = ({ children }: any) => {
   }, [firebaseAuthUser]);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (user && firebaseAuthUser && !canUseAPI) {
-        showPopup(
-          <AppCodeForm
-            submitFn={checkAccessToAPI}
-            user={user}
-            emailVerified={!!firebaseAuthUser?.emailVerified}
-          />,
-          true
-        );
-      }
-    }, 3000);
+    let timeout: NodeJS.Timeout | undefined;
+    if (CHECK_ACCESS) {
+      console.log("CHECK_ACCESS", CHECK_ACCESS);
 
+      timeout = setTimeout(() => {
+        if (user && firebaseAuthUser && !canUseAPI) {
+          showPopup(
+            <AppCodeForm
+              submitFn={checkAccessToAPI}
+              user={user}
+              emailVerified={!!firebaseAuthUser?.emailVerified}
+            />,
+            true
+          );
+        }
+      }, 3000);
+    }
     return () => clearTimeout(timeout);
   }, [user, canUseAPI]);
 
