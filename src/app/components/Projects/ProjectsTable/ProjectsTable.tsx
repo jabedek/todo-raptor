@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import "./ProjectsTable.scss";
-import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, User } from "@@types";
-import { ProjectsAPI } from "@@api/firebase";
+import { ProjectWithAssigneesRegistry, User } from "@@types";
 import { Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
 import { ProjectForm, ProjectsTableBody, ProjectsTableHeader } from "@@components/Projects";
@@ -25,8 +24,6 @@ const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
 
   useEffect(() => {
     if (projectsData) {
-      console.log(projectsData);
-
       setactiveCollection(projectsData[tab]);
     }
   }, [projectsData, tab]);

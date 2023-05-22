@@ -42,10 +42,10 @@ const ContactForm: React.FC = () => {
             const newId = `invi_${generateDocumentId()}`;
             const invitation: ContactInvitation = {
               id: newId,
-              sender: { id: senderId, email },
+              sender: { id: senderId, email: senderEmail },
               receiver: {
                 id: receiverId,
-                email,
+                email: receiverEmail,
               },
               status: "pending",
               sentAt: new Date().toISOString(),

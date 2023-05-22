@@ -3,9 +3,6 @@ import { Children, useLayoutEffect, ReactElement, JSXElementConstructor, ReactFr
 type Props = {
   children: React.ReactNode;
   for: string;
-  // widthPx: string;
-  // heightPxHeader: string;
-  // heightPxBody: string;
 };
 
 type ReactDivElement = ReactElement<JSXElementConstructor<HTMLDivElement>>;

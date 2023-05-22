@@ -22,15 +22,11 @@ type Props = {
 };
 
 const Popup: React.FC<Props> = ({ refreshOnClose, popupElement, hidePopup }) => {
-  console.log(popupElement);
-
   const [element, setelement] = useState<JSX.Element>();
   const [hiding, sethiding] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Popup useEffect popupElement", popupElement);
-
     setelement(popupElement);
   }, [popupElement]);
 
@@ -86,7 +82,6 @@ const PopupProvider = ({ children }: any) => {
   const [refreshOnClose, setrefreshOnClose] = useState(false);
 
   const showPopup = (popupElement: JSX.Element, refreshOnClose?: boolean) => {
-    console.log("PopupProvider showPopup", popupElement);
     setpopupElement(popupElement);
     setrefreshOnClose(!!refreshOnClose);
   };

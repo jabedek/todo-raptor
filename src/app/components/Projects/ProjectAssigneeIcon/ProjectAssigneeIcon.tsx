@@ -32,9 +32,13 @@ const ProjectAssigneeIcon: React.FC<Props> = ({ assignee, tailwindStyles }) => {
     <>
       {assignee && (
         <div
-          className={`${assigneeStyles} relative font-app_mono text-[10px] h-[24px] w-[24px]
+          className={`icon-circle ${assigneeStyles} relative font-app_mono text-[10px] h-[25px] w-[25px]
        rounded-full app_flex_center border-2 border-white border-solid ${tailwindStyles}`}>
-          {displayName ? <p>{displayName}</p> : <p className=" tracking-[-1.5px]">...</p>}
+          {displayName ? (
+            <p className="rounded-full h-[21px] w-[21px] text-center leading-[21px]">{displayName}</p>
+          ) : (
+            <p className="rounded-full  tracking-[-1.5px]">...</p>
+          )}
         </div>
       )}
     </>

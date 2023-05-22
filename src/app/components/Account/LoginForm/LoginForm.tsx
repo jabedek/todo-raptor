@@ -6,13 +6,25 @@ import {} from "@@types";
 import { AuthAPI } from "@@api/firebase";
 import { FormWrapper, InputWritten, ResultDisplayer, ResultDisplay } from "@@components/forms";
 import { Button } from "@@components/common";
-import { validate, validateEmailPassword } from "@@components/forms/simple-validation";
+import { getHint, validateEmailPassword, validateInput } from "@@components/forms/simple-validation";
 
 const LoginForm: React.FC = () => {
+  type FormValidity = keyof typeof validity;
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
+  const [validity, setvalidity] = useState({ password: false, confirmPassword: false, email: false });
   const navigate = useNavigate();
+
+  const handleChange = (formPart: FormValidity, validation: "password" | "email", value: string) => {
+    const newState = {
+      ...validity,
+      ...{
+        [formPart]: validateInput(validation, value),
+      },
+    };
+    setvalidity(newState);
+  };
 
   const validateForm = (formEmail: string, formPassword: string) => validateEmailPassword(formEmail, formPassword);
 
@@ -46,7 +58,13 @@ const LoginForm: React.FC = () => {
         required
         type="email"
         name="email"
-        changeFn={(val) => setemail(val)}
+        invalid={!validity.email}
+        changeFn={(val) => {
+          setemail(() => {
+            handleChange("email", "email", val);
+            return val;
+          });
+        }}
         label="Email"
         value={email}
         autoComplete="on"
@@ -56,7 +74,14 @@ const LoginForm: React.FC = () => {
         required
         type="password"
         name="password"
-        changeFn={(val) => setpassword(val)}
+        hint={getHint("password")}
+        invalid={!validity.password}
+        changeFn={(val) => {
+          setpassword(() => {
+            handleChange("password", "password", val);
+            return val;
+          });
+        }}
         label="Password"
         value={password}
         autoComplete="on"

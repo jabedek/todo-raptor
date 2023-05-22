@@ -5,9 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { UsersAPI, AuthAPI } from "@@api/firebase";
 import { FormWrapper, InputWritten, ResultDisplayer, ResultDisplay } from "@@components/forms";
 import { Button } from "@@components/common";
-import { validateEmailPassword } from "@@components/forms/simple-validation";
+import { getHint, validateEmailPassword, validateInput } from "@@components/forms/simple-validation";
 
 const RegisterForm: React.FC = () => {
+  type FormValidity = keyof typeof validity;
   const [password, setpassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
   const [email, setemail] = useState("");
@@ -15,7 +16,18 @@ const RegisterForm: React.FC = () => {
   const [lastname, setlastname] = useState("");
   const [nickname, setnickname] = useState("");
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
+  const [validity, setvalidity] = useState({ password: false, confirmPassword: false, email: false });
   const navigate = useNavigate();
+
+  const handleChange = (formPart: FormValidity, validation: "password" | "email", value: string) => {
+    const newState = {
+      ...validity,
+      ...{
+        [formPart]: validateInput(validation, value),
+      },
+    };
+    setvalidity(newState);
+  };
 
   const validateForm = (formEmail: string, formPassword: string, formConfirmPassword: string) =>
     validateEmailPassword(formEmail, formPassword, formConfirmPassword);
@@ -69,7 +81,15 @@ const RegisterForm: React.FC = () => {
           required
           type="email"
           name="email"
-          changeFn={(val) => setemail(val)}
+          autoComplete="off"
+          hint={getHint("email")}
+          invalid={!validity.email}
+          changeFn={(val) => {
+            setemail(() => {
+              handleChange("email", "email", val);
+              return val;
+            });
+          }}
           label="Email"
           value={email}
           tailwindStyles="min-w-[250px] w-full"
@@ -79,9 +99,15 @@ const RegisterForm: React.FC = () => {
           required
           type="password"
           name="password"
-          changeFn={(val) => setpassword(val)}
+          invalid={!validity.password}
+          changeFn={(val) => {
+            setpassword(() => {
+              handleChange("password", "password", val);
+              return val;
+            });
+          }}
           label="Password"
-          hint={"Validator.passwordHint()"}
+          hint={getHint("password")}
           value={password}
           tailwindStyles="min-w-[250px] w-full"
         />
@@ -90,7 +116,13 @@ const RegisterForm: React.FC = () => {
           required
           type="password"
           name="confirmPassword"
-          changeFn={(val) => setconfirmPassword(val)}
+          invalid={!validity.confirmPassword}
+          changeFn={(val) => {
+            setconfirmPassword(() => {
+              handleChange("confirmPassword", "password", val);
+              return val;
+            });
+          }}
           label="Confirm Password"
           value={confirmPassword}
           tailwindStyles="min-w-[250px] w-full"

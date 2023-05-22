@@ -22,7 +22,7 @@ export const ProjectInvitationsRef = collection(FirebaseDB, "project-invitations
 
 const saveNewInvitation = async (data: ContactInvitation) => {
   setDoc(doc(FirebaseDB, "contacts-invitations", data.id), data).then(
-    () => console.log(),
+    () => {},
     (error) => console.log(error)
   );
 };
@@ -103,7 +103,7 @@ const getCurrentUserPendingContactInvicationsByIds = async () => {
   });
 };
 
-const resolvePendingInvitation = async (invitation: ContactInvitation) => {
+const removePendingInvitation = async (invitation: ContactInvitation) => {
   if (!invitation) {
     return undefined;
   }
@@ -142,12 +142,7 @@ const updateContactsBond = async (userId0: string, userId1: string, variant: "ma
 };
 
 const listenToUserContactsData = async (user: User, cb: CallbackFn) => {
-  if (!user || user.contacts.contactsIds) {
-    return undefined;
-  }
-
-  const ids = [...user.contacts.contactsIds];
-  const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", ids));
+  const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", [...user.contacts.contactsIds]));
 
   const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
     let docs: Contact[] = [];
@@ -163,7 +158,7 @@ const listenToUserContactsData = async (user: User, cb: CallbackFn) => {
 const ContactsAPI = {
   checkIfPendingInvitationExists,
   saveNewInvitation,
-  resolvePendingInvitation,
+  removePendingInvitation,
 
   updateContactsBond,
 

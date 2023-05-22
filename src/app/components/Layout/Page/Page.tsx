@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { usePopupContext } from "@@components/Layout";
-
 type Props = {
   children: React.ReactNode;
 };

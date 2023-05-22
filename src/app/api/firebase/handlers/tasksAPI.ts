@@ -15,9 +15,9 @@ import {
 } from "firebase/firestore";
 import { CallbackFn } from "frotsi";
 import { FirebaseDB, ProjectsAPI, UsersAPI } from "@@api/firebase";
-import { SimpleTask, Project, FullTask, TasksSchedule } from "@@types";
+import { SimpleTask, Project, FullTask, FullProjectAssignee } from "@@types";
 import { getTaskStatusDetails } from "@@components/Tasks/visuals/task-visuals";
-import { SimpleColumn, FullProjectAssignee, Schedule, ScheduleAction } from "src/app/types/Projects";
+import { ScheduleAction, Schedule, SimpleColumn } from "src/app/types/Schedule";
 
 const TasksRef = collection(FirebaseDB, "tasks");
 
@@ -163,8 +163,6 @@ const listenToProjectOtherTasks = async (project: Project, cb: CallbackFn) => {
 
   const queryRef = query(TasksRef, where("id", "in", tasksIds));
   const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-    console.log(querySnapshot);
-
     const tasksBacklog: SimpleTask[] = [];
     querySnapshot.forEach((doc) => {
       const task = doc.data() as SimpleTask;

@@ -1,5 +1,3 @@
-import { Flatten } from "@@types";
-
 type ValidationDetails = {
   lengthMin: number;
   lengthMax: number;
@@ -69,6 +67,11 @@ export const validate = <P extends ValidationParts>(value: string, part: P): Val
   );
 
   return { [part]: { content, length } } as ValidationResultPart<typeof part>;
+};
+
+export const validateInput = (validation: "password" | "email", value: string) => {
+  const validations = validate(value, validation)[validation];
+  return validations.content && validations.length;
 };
 
 export const validateEmailPassword = (formEmail: string, formPassword: string, formConfirmPassword = formPassword) => {

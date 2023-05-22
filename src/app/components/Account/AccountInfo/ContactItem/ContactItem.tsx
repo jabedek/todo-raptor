@@ -34,7 +34,7 @@ const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
         break;
     }
 
-    ContactsAPI.resolvePendingInvitation(updatedInv).then(
+    ContactsAPI.removePendingInvitation(updatedInv).then(
       () => {
         if (variant === "accept") {
           // Update both users' contacts lists
@@ -52,7 +52,7 @@ const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
     <div className="flex items-center text-sm py-2 h-[64px] px-3 w-full border-b border-gray-100 justify-between">
       <div className="flex flex-col font-[400] text-[11px] whitespace-pre min-w-[80px] ">
         <p className="font-app_mono ">{date}</p>
-        <p className={`font-app_primary font-[700] uppercase status-${subject?.status}`}>{subject?.status}</p>
+        <p className={`font-app_primary font-[700] uppercase contact-status-${subject?.status}`}>{subject?.status}</p>
       </div>
       <div className="flex Xflex-col items-center justify-evenly w-[64px] h-fit ">
         {perspectiveOf === "sender" && (

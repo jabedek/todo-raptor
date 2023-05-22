@@ -1,25 +1,22 @@
 import { Draggable, DraggableProvided, DraggableRubric, DraggableStateSnapshot } from "react-beautiful-dnd";
 import { ProjectAssigneeIcon } from "@@components/Projects";
-import { SimpleTask, FullTask } from "@@types";
+import { FullTask } from "@@types";
 import { Icons } from "@@components/Layout";
 import { CallbackFn } from "frotsi";
 import { getShortId } from "@@components/Tasks/task-utils";
-import { useState } from "react";
+import { ProjectBlockade } from "@@components/Projects/ProjectView/ProjectView";
 
 type Props = {
   task: FullTask;
-  draggingDisabled: boolean;
-  projectArchived: boolean;
   index: number;
+  blockadeReason: ProjectBlockade;
   popupTaskForm: CallbackFn;
 };
 
-const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, draggingDisabled, projectArchived }) => {
-  const [shortId, setshortId] = useState(getShortId(task.id));
-
+const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, blockadeReason }) => {
   return (
     <Draggable
-      isDragDisabled={draggingDisabled || projectArchived}
+      isDragDisabled={!!blockadeReason}
       key={task.id}
       draggableId={task.id}
       index={index}>
@@ -28,11 +25,10 @@ const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, draggingDisable
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`task-card transition-all duration-200 ${snapshot.isDragging ? "dragging" : ""} ${
-            draggingDisabled ? "bg-emerald-100 border-emerald-100" : " "
-          } 
+          className={`task-card transition-all duration-200 ${snapshot.isDragging ? "dragging" : ""} 
+          ${blockadeReason ? "bg-emerald-100 border-emerald-100" : " "} ${blockadeReason} 
           ${
-            projectArchived
+            blockadeReason
               ? ""
               : "active:bg-app_light  active:border-app_tertiary  active:select-active-option active:drop-shadow-xl"
           }
@@ -51,9 +47,9 @@ const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, draggingDisable
 
           <div className="flex w-full justify-between  h-[26px]">
             <p className=" w-[96px] text-[9px]  text-gray-500 font-app_mono flex items-end">
-              {shortId} #{task.taskNumber}
+              {getShortId(task.id)} #{task.taskNumber}
             </p>
-            {!projectArchived && (
+            {blockadeReason !== "block block-archived" && (
               <div
                 className="action-wrapper min-h-[26px] min-w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
                 onClick={popupTaskForm}>

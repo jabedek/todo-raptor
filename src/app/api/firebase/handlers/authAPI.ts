@@ -108,9 +108,7 @@ const setCodes = async () => {
       setDoc(doc(FirebaseDB, "codes", codes[0].id), codes[0]),
       setDoc(doc(FirebaseDB, "codes", codes[1].id), codes[1]),
     ]).then(
-      () => {
-        console.log("Success");
-      },
+      () => {},
       (e) => console.log(e)
     );
   }
@@ -122,8 +120,6 @@ const checkAccessToAPI = async (codeValue = "") => {
   }
 
   const emailVerif = !!getCurrentFirebaseAuthUser()?.emailVerified;
-  console.log("emailVerif", emailVerif);
-
   let codeValid = false;
 
   if (!codeValue) {

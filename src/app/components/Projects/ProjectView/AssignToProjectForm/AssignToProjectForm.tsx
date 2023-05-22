@@ -2,18 +2,17 @@ import { useEffect, useState } from "react";
 import { ProjectsAPI } from "@@api/firebase";
 import { Button } from "@@components/common";
 import { FormWrapper, InputSelect, ResultDisplay, ResultDisplayer, SelectOption } from "@@components/forms";
-import { IdEmailPair, Project, User } from "@@types";
-import { ProjectsVisuals } from "@@components/Projects";
-
+import { IdEmailPair, ProjectWithAssigneesRegistry, User } from "@@types";
+import { PROJECT_ROLES_OPTIONS, ProjectRoleShortName } from "@@components/Projects/visuals/project-visuals";
 type Props = {
   user: User | undefined;
-  project: Project | undefined;
+  project: ProjectWithAssigneesRegistry | undefined;
 };
 
 const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
   const [assignee, setassignee] = useState<IdEmailPair>();
   const [assigneesOptions, setassigneesOptions] = useState<SelectOption<IdEmailPair>[]>([]);
-  const [role, setrole] = useState<ProjectsVisuals.ProjectRoleShortName>();
+  const [role, setrole] = useState<ProjectRoleShortName>();
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
 
   useEffect(() => {
@@ -41,7 +40,7 @@ const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
   return (
     <FormWrapper
       title="Add Project Assignee"
-      tailwindStyles="w-[500px] ">
+      tailwindStyles="w-[500px] min-h-[400px] ">
       <div className="w-full flex justify-between">
         <InputSelect
           required
@@ -64,7 +63,7 @@ const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
           label="Assignee Role"
           value={role}
           disabled={!assignee}
-          options={ProjectsVisuals.PROJECT_ROLES_OPTIONS}
+          options={PROJECT_ROLES_OPTIONS.filter((o) => !["manager", "product_owner"].includes(o.value))}
         />
       </div>
 

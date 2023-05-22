@@ -1,5 +1,4 @@
-import { CallbackFn } from "frotsi";
-import { Project, ProjectWithAssigneesRegistry, User } from "@@types";
+import { ProjectWithAssigneesRegistry, User } from "@@types";
 import ProjectsTableItem from "../ProjectsTableItem/ProjectsTableItem";
 
 type Props = {

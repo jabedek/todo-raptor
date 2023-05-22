@@ -23,24 +23,69 @@ $body-width: 680px;
   min-width: 900px;
 }
 
-.project-archived {
-  .task-card {
-    background-color: rgb(190, 190, 190);
-    div,
-    p {
-      color: rgb(250, 250, 250);
+.block {
+  $task-bg-color: rgb(190, 190, 190);
+  $colum-bg-color: rgb(170, 170, 170);
+  $color: rgb(250, 250, 250);
 
-      text-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
-      background-color: rgb(190, 190, 190);
+  &.block-archived {
+    $task-bg-color: rgb(190, 190, 190);
+    $colum-bg-color: rgb(170, 170, 170);
+    $color: rgb(250, 250, 250);
+
+    .task-card {
+      background-color: $task-bg-color;
+      div,
+      p {
+        color: $color;
+        text-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
+        background-color: $task-bg-color;
+      }
+    }
+    .columns-content {
+      > div {
+        background-color: $colum-bg-color;
+      }
     }
   }
 
-  .columns-headers {
+  &.block-completed {
+    $task-bg-color: rgba(180, 210, 180);
+    $colum-bg-color: rgb(160, 180, 160);
+
+    .task-card {
+      background-color: $task-bg-color;
+      div,
+      p {
+        color: $color;
+        text-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
+        background-color: $task-bg-color;
+      }
+    }
+    .columns-content {
+      > div {
+        background-color: $colum-bg-color;
+      }
+    }
   }
 
-  .columns-content {
-    > div {
-      background-color: rgb(170, 170, 170);
+  &.block-cancelled {
+    $task-bg-color: rgba(210, 180, 180);
+    $colum-bg-color: rgb(180, 160, 160);
+
+    .task-card {
+      background-color: $task-bg-color;
+      div,
+      p {
+        color: $color;
+        text-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
+        background-color: $task-bg-color;
+      }
+    }
+    .columns-content {
+      > div {
+        background-color: $colum-bg-color;
+      }
     }
   }
 }

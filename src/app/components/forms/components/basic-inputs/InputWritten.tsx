@@ -9,6 +9,7 @@ type Props = InputProps & {
   focus?: boolean;
   hint?: string;
   autoComplete?: string;
+  invalid?: boolean;
 };
 
 const InputWritten: React.FC<Props> = (props) => {
@@ -31,6 +32,7 @@ const InputWritten: React.FC<Props> = (props) => {
       className={`app_flex_center  relative mb-8 app_input_top h-fit min-h-[40px] min-w-[150px] w-[fit-content] ${props.tailwindStyles}`}
       onFocus={() => setfocus(true)}
       onBlur={() => setfocus(false)}>
+      {/* {props.invalid ? "invalid" : "valid"} */}
       {props.type !== "textarea" && (
         <input
           tabIndex={0}
@@ -43,7 +45,7 @@ const InputWritten: React.FC<Props> = (props) => {
           onChange={(e) => handleChange(e)}
           minLength={props.inputTypeSpecs?.minLength}
           maxLength={props.inputTypeSpecs?.maxLength}
-          className={`app_input peer bg-transparent w-full`}
+          className={`app_input peer bg-transparent w-full ${props.invalid && "app_input_invalid"}`}
           placeholder=" "
           required={props.required}
           pattern={props.pattern}

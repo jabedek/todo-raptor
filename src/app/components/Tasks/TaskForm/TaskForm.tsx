@@ -12,21 +12,19 @@ import {
   SelectOption,
   ConfirmDialog,
 } from "@@components/forms";
-import { Project, SimpleProjectAssignee, SimpleTask } from "@@types";
+import { Project, ProjectWithAssigneesRegistry, SimpleProjectAssignee, SimpleTask } from "@@types";
 import { Button } from "@@components/common";
 import { TasksAPI } from "@@api/firebase";
-import { TasksVisuals } from "..";
 import {
   TaskStatusShortName,
   TASK_STATUSES_OPTIONS,
   TaskListType,
   TASK_LISTS_OPTIONS,
   getStatusGroup,
-  StatusGroupName,
 } from "../visuals/task-visuals";
-import { SimpleColumn, ProjectWithAssigneesRegistry, ScheduleAction } from "src/app/types/Projects";
 import { usePopupContext } from "@@components/Layout";
 import { getShortId } from "../task-utils";
+import { ScheduleAction } from "src/app/types/Schedule";
 
 type Props = {
   project: ProjectWithAssigneesRegistry | undefined;
@@ -52,13 +50,13 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
   useEffect(() => {
     if (task && taskList) {
       const status = TASK_STATUSES_OPTIONS.find(({ value }) => value === task.status) || TASK_STATUSES_OPTIONS[0];
+      setstatus(status.value);
 
       setformMode("edit");
       setid(task.id);
       settitle(task.title);
       setdescription(task.description);
       settags(task.tags.map((value) => ({ value, temporaryId: generateInputId("task-tags", "tag") })));
-      setstatus(status.value);
       setnewList(taskList);
     } else {
       setformMode("new");
@@ -109,15 +107,12 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
         scheduleColumn = getStatusGroup(newTask.status);
       }
       newProject.tasksCounter = (project?.tasksCounter || 0) + 1;
-      console.log("handleSubmitNewTask", newTask);
 
       saveTask(newTask, newProject, assigneeId, { oldColumn: "", column: scheduleColumn, action: "add-to-schedule" });
     }
   };
 
   const handleSubmitEditedTask = () => {
-    console.log("handleSubmitEditedTask", project);
-
     if (project && task) {
       const assigneeId = assignee?.id || "";
       const taskNumber = (project?.tasksCounter || 0) + 1;
@@ -135,7 +130,6 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       };
 
       const { assigneesRegistry, ...newProject } = project;
-      console.log(newList, taskList);
 
       let scheduleAction: ScheduleAction = {
         oldColumn: getStatusGroup(task?.status),
@@ -145,8 +139,6 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
 
       if (status !== task?.status) {
       }
-
-      console.log(newProject.tasksLists);
 
       let listChanged = taskList !== newList;
 
@@ -277,6 +269,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
           value={status}
           options={TASK_STATUSES_OPTIONS}
         />
+
         <InputSelect
           required
           name="task-list"

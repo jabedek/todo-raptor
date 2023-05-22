@@ -14,6 +14,10 @@
   .app_input_disabled {
     @apply bg-gray-100 border-b-gray-100 text-gray-400;
   }
+
+  .app_input_invalid {
+    @apply text-red-700 focus:border-b-red-500;
+  }
 }
 
 @layer components {

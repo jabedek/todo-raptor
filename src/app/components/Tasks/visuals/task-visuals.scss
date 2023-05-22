@@ -1,17 +1,16 @@
 $task-statuses: (
-  "new": "#6e92cf",
-  "progress": "#0060ff",
-  "review": "#00c9c2",
-  "tests": "#d3a900",
-  "done": "#049900",
-  "blocked": "#ff0000",
-  "cancelled": "#8d8b8b",
+  "new": #6e92cf,
+  "progress": #0060ff,
+  "review": #00c9c2,
+  "tests": #d3a900,
+  "done": #049900,
+  "blocked": #ff0000,
+  "cancelled": #8d8b8b,
 );
 
 @mixin task-status($color) {
   padding-left: 12px;
   position: relative;
-  text-shadow: 0.1px 0.1px 1px rgba(0, 0, 0, 0.25);
   &::before {
     content: "";
     position: absolute;
@@ -22,13 +21,13 @@ $task-statuses: (
     left: -6px;
     top: 3px;
     border-radius: 1px;
-    background-color: #{$color};
+    background-color: $color;
     box-shadow: 0.8px 0.8px 3px rgba(0, 0, 0, 0.8);
   }
 }
 
 @each $status, $color in $task-statuses {
-  .status-#{$status} {
+  .task-status-#{$status} {
     @include task-status($color);
   }
 }

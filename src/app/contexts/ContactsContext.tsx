@@ -19,11 +19,11 @@ let UNSUB_CONTACTS: Unsubscribe | undefined = undefined;
 const ContactsProvider = ({ children }: any) => {
   const [contacts, setcontacts] = useState<Contact[]>([]);
 
-  const { user, canUseAPI } = useUserValue();
+  const { user } = useUserValue();
 
   useEffect(() => {
     unsubListener();
-    if (user && canUseAPI) {
+    if (user) {
       ContactsAPI.listenToUserContactsData(user, (data: Contact[], unsubFn) => {
         setcontacts(data);
         UNSUB_CONTACTS = unsubFn;
@@ -33,7 +33,7 @@ const ContactsProvider = ({ children }: any) => {
     }
 
     return () => unsubListener();
-  }, [user]);
+  }, [user?.contacts.contactsIds]);
 
   const unsubListener = () => {
     if (UNSUB_CONTACTS) {

@@ -2,8 +2,8 @@ import { SelectOption } from "@@components/forms";
 
 /* ### Projects ### */
 const ProjectRoleShortNames = [
-  "manager",
-  "product_owner",
+  "manager", // only 1 but can be changed
+  "product_owner", // only 1 and can not be changed
   "vice_manager",
   "team_leader",
   "analyst",
@@ -75,5 +75,34 @@ export const getProjectRoleDetails = (value: ProjectRoleShortName | undefined): 
   if (!value) {
     return undefined;
   }
+
+  if (value.includes(customRolePrefix)) {
+    value = "CUSTOM_ROLE";
+  }
+
   return PROJECT_ROLES[ProjectRoleShortNames.findIndex((s: ProjectRoleShortName) => s === value)];
 };
+
+const projectStatuses = ["active", "completed", "cancelled"] as const;
+export type ProjectStatusName = (typeof projectStatuses)[number];
+type ProjectStatusStyleClasses = [`project-status-${ProjectStatusName}`, `project-status-bg-${ProjectStatusName}`];
+
+export type ProjectStatusClass = ProjectStatusStyleClasses[number];
+
+export type ProjectStatus = {
+  shortName: ProjectStatusName;
+  styleClasses: ProjectStatusStyleClasses;
+};
+export const PROJECT_STATUSES: ProjectStatus[] = projectStatuses.map((shortName) => ({
+  shortName,
+  styleClasses: [`project-status-${shortName}`, `project-status-bg-${shortName}`],
+}));
+
+export const PROJECT_STATUSES_OPTIONS: SelectOption<ProjectStatusName>[] = PROJECT_STATUSES.map((status: ProjectStatus) => ({
+  value: status.shortName,
+  label: status.shortName.toUpperCase(),
+  iconClass: status.styleClasses[0],
+}));
+
+export const getProjectStatusDetails = (value: ProjectStatusName): ProjectStatus =>
+  PROJECT_STATUSES[projectStatuses.findIndex((s: ProjectStatusName) => s === value)];

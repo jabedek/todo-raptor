@@ -83,7 +83,7 @@ const InputSelect: React.FC<Props> = (props) => {
   return (
     <div
       ref={refEl}
-      className={`app_flex_center  relative my-5 app_input_top h-[40px] min-w-[150px] w-[fit-content] ${
+      className={`app_flex_center  relative mb-8  app_input_top h-[40px] min-w-[150px] w-[fit-content] ${
         props.disabled && "app_input_disabled"
       } ${props.tailwindStyles}`}
       onClick={handleClick}>
@@ -113,7 +113,12 @@ const InputSelect: React.FC<Props> = (props) => {
                   ? "bg-app_tertiary text-white font-[500] select-active-option"
                   : "text-gray-600 hover:bg-app_tertiary_light hover:overflow-hidden"
               }`}>
-              <span className={`flex items-center align-middle justify-between  ${iconClass}`}>{label}</span>
+              <span
+                className={` ${
+                  value === currentOption?.value ? "" : ""
+                }flex items-center align-middle justify-between  ${iconClass}`}>
+                {label}
+              </span>
             </div>
           ))}
         </div>

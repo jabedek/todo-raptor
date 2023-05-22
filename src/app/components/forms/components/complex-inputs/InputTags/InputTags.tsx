@@ -112,7 +112,7 @@ const InputTags: React.FC<Props> = (props) => {
       id={inputId}
       ref={ref}
       tabIndex={0}
-      className={`${inputId} app_input_tags_wrapper   relative flex flex-wrap items-center content-start  justify-start mt-8 mb-6  min-h-[130px] min-w-[300px]  w-full border-[1px] border-solid border-gray-300
+      className={`${inputId} app_input_tags_wrapper   relative flex flex-wrap items-center content-start  justify-start my-5  min-h-[130px] min-w-[300px]  w-full border-[1px] border-solid border-gray-300
       ${props.label && props.label.length > 0 && "app_input_top"}
       ${!!props?.disabled && "bg-slate-300"}`}>
       {values.length > 0 &&

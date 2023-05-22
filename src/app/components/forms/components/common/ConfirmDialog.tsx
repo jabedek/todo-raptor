@@ -2,7 +2,6 @@ import { CallbackFn } from "frotsi";
 import FormWrapper from "./FormWrapper";
 import { Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
-import InputSelect from "../basic-inputs/InputSelect";
 import { useState } from "react";
 import InputCheckbox from "../basic-inputs/InputCheckbox";
 

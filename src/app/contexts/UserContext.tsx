@@ -4,26 +4,26 @@ import { useNavigate } from "react-router-dom";
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 
 import { AuthAPI, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
-import { StorageItem, User } from "@@types";
+import { User } from "@@types";
 import { usePopupContext } from "@@components/Layout";
-// import { useProjectsValue } from "@@contexts";
 import { useLocalStorage } from "@@hooks";
 import { AppCodeForm } from "@@components/Account";
+import { StorageItem } from "../types/enums";
 
 type UserContext = {
   firebaseAuthUser: FirebaseAuthUser | undefined | null;
   user: User | undefined;
   logout: () => void;
-  canUseAPI: boolean;
-  checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => void;
+  canUseAPI: boolean | undefined;
+  checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => Promise<any>;
 };
 
 export const UserContext = createContext<UserContext>({
   firebaseAuthUser: undefined,
   user: undefined,
   logout: () => {},
-  canUseAPI: false,
-  checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => {},
+  canUseAPI: undefined,
+  checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => new Promise(() => {}),
 });
 
 let UNSUB_AUTH: Unsubscribe | undefined = undefined;
@@ -32,7 +32,7 @@ let UNSUB_USER: Unsubscribe | undefined = undefined;
 const UserProvider = ({ children }: any) => {
   const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser | undefined | null>();
   const [user, setuser] = useState<User | undefined>(undefined);
-  const [canUseAPI, setcanUseAPI] = useState(false);
+  const [canUseAPI, setcanUseAPI] = useState<boolean | undefined>();
   const navigate = useNavigate();
   // const { clearProjects } = useProjectsValue();
   const { setItem, getItem, removeItem } = useLocalStorage();
@@ -55,15 +55,11 @@ const UserProvider = ({ children }: any) => {
   }, []);
 
   useEffect(() => {
-    console.log("listenToUserData");
-
     unsubListener("userData");
     checkAccessToAPI();
 
     if (firebaseAuthUser) {
       UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: User, unsub1: Unsubscribe) => {
-        console.log("listenToUserData", data);
-
         UNSUB_USER = unsub1;
         putUser(data);
         checkAccessToAPI();
@@ -108,37 +104,28 @@ const UserProvider = ({ children }: any) => {
     setfirebaseAuthUser(undefined);
   };
 
-  const checkAccessToAPI = (code: string = "", callback?: CallbackFn) => {
+  const checkAccessToAPI = async (code: string = "") => {
     const appCode: string = `${code?.length ? code : getItem(StorageItem.CODE)}`;
 
-    AuthAPI.checkAccessToAPI(appCode)
-      .then((result) => {
-        if (callback) {
-          callback(result);
+    return AuthAPI.checkAccessToAPI(appCode).then((result) => {
+      const { codeValid, emailVerif } = result;
+      if (codeValid) {
+        setItem(StorageItem.CODE, appCode);
+        if (emailVerif) {
+          setcanUseAPI(true);
         }
-        const { codeValid, emailVerif } = result;
-        if (codeValid) {
-          setItem(StorageItem.CODE, appCode);
-          if (emailVerif) {
-            setcanUseAPI(true);
-          }
-        } else {
-          removeItem(StorageItem.CODE);
-          setcanUseAPI(false);
-        }
-      })
-      .catch((e) => {
-        if (callback) {
-          callback(e);
-        }
-      });
+      } else {
+        removeItem(StorageItem.CODE);
+        setcanUseAPI(false);
+      }
+      return codeValid;
+    });
   };
 
   const logout = () => {
     AuthAPI.logoutInFirebase().then(
       () => {
         clear();
-        // clearProjects();
         navigate("/login");
       },
       (error: Error) => {

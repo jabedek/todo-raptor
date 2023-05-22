@@ -108,7 +108,7 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user }) => {
             />
 
             {/* Actions */}
-            <div className="flex justify-between gap-2 min-w-[60px] ">
+            <div className="flex justify-between gap-2 min-w-[26px] ">
               <div
                 className="action-wrapper h-[26px] w-[26px] app_flex_center rounded-[3px] bg-white hover:bg-slate-100 group transition-all transition-200 cursor-pointer "
                 onClick={() => navigate(`/projects/${project.id}`)}>

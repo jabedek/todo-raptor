@@ -1,27 +1,42 @@
-import { useEffect, useState, useLayoutEffect } from "react";
+import { useEffect, useState } from "react";
 import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
-import { ProjectWithAssigneesRegistry, SimpleTask, FullTask, ScheduleColumns } from "@@types";
+import { ProjectWithAssigneesRegistry, SimpleTask, FullTask } from "@@types";
 import { TaskCard } from "@@components/Projects";
-import { STATUS_GROUP_NAMES, StatusGroupName, getTaskStatusDetails } from "@@components/Tasks/visuals/task-visuals";
+import { STATUS_GROUP_NAMES, getTaskStatusDetails } from "@@components/Tasks/visuals/task-visuals";
 import { ProjectsAPI, TasksAPI } from "@@api/firebase";
-import { FullColumn, FullProjectAssignee, Project, Schedule, SimpleColumn } from "src/app/types/Projects";
+import { FullProjectAssignee } from "src/app/types/Projects";
 import { Unsubscribe } from "firebase/auth";
 import { transformColumnTo } from "@@components/Projects/projects-utils";
 import { FullTasksRegistry } from "src/app/types/Tasks";
+import { ProjectBlockade } from "../../ProjectView";
+import { Schedule, SimpleColumn, FullColumn, ScheduleColumns } from "src/app/types/Schedule";
 
 type Props = {
   project: ProjectWithAssigneesRegistry | undefined;
   popupTaskForm: (task?: SimpleTask) => void;
+  blockadeReason: ProjectBlockade;
 };
 
 let UNSUB_TASKS_SCHEDULE: Unsubscribe | undefined = undefined;
 
-const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm }) => {
+const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, blockadeReason }) => {
   const [draggingDisabledId, setdraggingDisabledId] = useState<string>();
   const [simpleSchedule, setsimpleSchedule] = useState<Schedule<SimpleColumn>>();
   const [fullTasks, setfullTasks] = useState<FullTasksRegistry>();
   const [assignees, setassignees] = useState<Record<string, FullProjectAssignee>>({});
+  const [blockade, setblockade] = useState<ProjectBlockade>();
+
+  useEffect(() => {
+    let reason: ProjectBlockade;
+    if (draggingDisabledId) {
+      reason = "block block-dragging";
+    }
+
+    reason = blockadeReason;
+
+    setblockade(reason);
+  }, [blockadeReason, draggingDisabledId]);
 
   useEffect(() => {
     if (project) {
@@ -78,7 +93,6 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm }) => {
         fullTasks[draggableId].statusDetails = getTaskStatusDetails(destColumn.statuses[0]);
 
         const { assigneeDetails, ...simpleTask } = fullTasks[draggableId];
-        // console.log(taskDetails.statusDetails.shortName, "==>", simpleTask.statusDetails.shortName);
 
         let updatedColumns: ScheduleColumns<SimpleColumn> = { ...simpleSchedule.columns };
         if (source.droppableId !== destination.droppableId) {
@@ -158,11 +172,10 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm }) => {
                         return (
                           taskDetails && (
                             <TaskCard
-                              draggingDisabled={taskDetails.id === draggingDisabledId}
                               key={index}
                               task={taskDetails}
                               index={index}
-                              projectArchived={!!project?.archived}
+                              blockadeReason={blockade}
                               popupTaskForm={() => popupTaskForm(taskDetails)}
                             />
                           )

@@ -6,7 +6,7 @@ const taskStatusFullNames = ["New", "In progress", "Blocked", "In review", "In t
 
 export type TaskStatusShortName = (typeof taskStatusShortNames)[number];
 type TaskStatusFullName = (typeof taskStatusFullNames)[number];
-type TaskStatusStyleClasses = [`status-${TaskStatusShortName}`];
+type TaskStatusStyleClasses = [`task-status-${TaskStatusShortName}`];
 
 export type TaskStatus = {
   shortName: TaskStatusShortName;
@@ -16,7 +16,7 @@ export type TaskStatus = {
 export const TASK_STATUSES: TaskStatus[] = taskStatusFullNames.map((fullName, i) => ({
   shortName: taskStatusShortNames[i],
   fullName,
-  styleClasses: [`status-${taskStatusShortNames[i]}`],
+  styleClasses: [`task-status-${taskStatusShortNames[i]}`],
 }));
 
 export const TASK_STATUSES_OPTIONS: SelectOption<TaskStatusShortName>[] = TASK_STATUSES.map((status: TaskStatus) => ({

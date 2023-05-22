@@ -18,7 +18,6 @@ const ProjectsDashboardPage: React.FC = () => {
     if (user && canUseAPI) {
       ProjectsAPI.listenProjectsWithAssigneesData([...user.work.projectsIds], false, (data: ProjectsFullData, unsubFn) => {
         UNSUB_PROJECTS = unsubFn;
-        console.log(data);
         setprojectsData(data);
       });
     } else {

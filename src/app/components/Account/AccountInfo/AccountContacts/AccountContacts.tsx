@@ -44,7 +44,7 @@ const AccountContacts: React.FC<Props> = ({ user, contacts }) => {
         }
       });
     }, 200);
-  }, [user, popupElement]);
+  }, [user, popupElement, contacts]);
 
   return (
     <>

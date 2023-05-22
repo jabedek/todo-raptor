@@ -12,6 +12,8 @@ import {
   onSnapshot,
   updateDoc,
   deleteDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { FirebaseDB } from "@@api/firebase/firebase-config";
 import {
@@ -23,10 +25,11 @@ import {
   User,
   ProjectWithAssigneesRegistry,
   FullTask,
+  SimpleProjectAssignee,
 } from "@@types";
 import { UsersAPI } from "./usersAPI";
-import { FullColumn, Schedule, ScheduleColumns, SimpleColumn, SimpleProjectAssignee } from "src/app/types/Projects";
 import { TasksAPI } from "./tasksAPI";
+import { Schedule, SimpleColumn, FullColumn } from "src/app/types/Schedule";
 
 export const ProjectsRef = collection(FirebaseDB, "projects");
 export const ProjectsSchedulesColumnsRef = collection(FirebaseDB, "schedules");
@@ -186,10 +189,9 @@ const deleteScheduleWithTasks = (scheduleId: string) => {
       });
 
       tasks = [...new Set(tasks)];
-      console.log(tasks);
 
       Promise.all([...tasks.map((task) => TasksAPI.deleteTask(task, schedule.projectId))]).then(() =>
-        deleteDoc(doc(FirebaseDB, "schedules", scheduleId)).then(() => console.log("deleted schedule"))
+        deleteDoc(doc(FirebaseDB, "schedules", scheduleId)).then(() => {})
       );
     }
   });
@@ -207,7 +209,7 @@ const deleteProjectTasks = (scheduleId: string, project: Project) => {
       tasks = [...new Set(tasks)];
 
       Promise.all([...tasks.map((task) => TasksAPI.deleteTask(task, schedule.projectId))]).then(() =>
-        deleteDoc(doc(FirebaseDB, "schedules", scheduleId)).then(() => console.log("deleted schedule"))
+        deleteDoc(doc(FirebaseDB, "schedules", scheduleId)).then(() => {})
       );
     }
   });
@@ -310,13 +312,24 @@ const updateProject = async (project: Project) => updateDoc(doc(FirebaseDB, "pro
 
 const updateSchedule = async (schedule: Schedule<SimpleColumn>) => updateDoc(doc(FirebaseDB, "schedules", schedule.id), schedule);
 
-const userAsAssigneeBond = async (assignee: FullProjectAssignee, project: Project, variant: "make" | "break") => {
+const userAsAssigneeBond = async (
+  assignee: SimpleProjectAssignee,
+  project: ProjectWithAssigneesRegistry,
+  variant: "make" | "break"
+) => {
+  const { assigneesRegistry, ...simpleProject } = project;
   if (variant === "make") {
-    project.assignees.push(assignee);
+    simpleProject.assignees.push(assignee);
   } else {
-    project.assignees = project.assignees.filter((assignee) => assignee.id !== assignee.id);
+    simpleProject.assignees = simpleProject.assignees.filter((a) => a.id !== assignee.id);
   }
-  updateProject(project);
+
+  Promise.all([
+    UsersAPI.updateUserFieldsById(assignee.id, [
+      { fieldPath: "work.projectsIds", value: variant === "make" ? arrayUnion(project.id) : arrayRemove(project.id) },
+    ]),
+    updateProject(simpleProject),
+  ]);
 };
 
 const ProjectsAPI = {
