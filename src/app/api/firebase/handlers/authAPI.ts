@@ -109,18 +109,16 @@ const setCodes = async () => {
 
 const checkAccessToAPI = async (codeValue = "") => {
   if (!CHECK_ACCESS) {
-    return { codeValid: true, emailVerif: true };
+    return true;
   }
-
-  const emailVerif = !!getCurrentFirebaseAuthUser()?.emailVerified;
-  let codeValid = false;
 
   if (!codeValue) {
-    codeValid = false;
+    return false;
   }
 
-  const docSnap = await getDoc(doc(FirebaseDB, "codes", codeValue));
+  let codeValid = false;
 
+  const docSnap = await getDoc(doc(FirebaseDB, "codes", codeValue));
   if (!docSnap.exists()) {
     codeValid = false;
   }
@@ -129,11 +127,10 @@ const checkAccessToAPI = async (codeValue = "") => {
   if (data) {
     const { isoEnd, isoStart } = docSnap.data() as AppCode;
     const today = new Date(new Date().toISOString());
-
-    codeValid = new Date(isoEnd) >= today && today >= new Date(isoStart);
+    codeValid = today <= new Date(isoEnd) && today >= new Date(isoStart);
   }
 
-  return { codeValid, emailVerif };
+  return codeValid;
 };
 
 const AuthAPI = {

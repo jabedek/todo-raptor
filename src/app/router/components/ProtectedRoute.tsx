@@ -3,15 +3,27 @@ import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { LoadingSpinner } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
 import { UserContext, useUserValue } from "src/app/contexts/UserContext";
+import { AppCodeForm } from "@@components/Account";
 
 type Props = { children: React.ReactNode; path: string; logPath?: string };
 
 const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
-  const { firebaseAuthUser, user, canUseAPI, checkAccessToAPI } = useUserValue();
+  const { firebaseAuthUser, user, canUseAPI, checkAccessToAPI, codeNeeded, emailNeeded } = useUserValue();
   const [canRoute, setcanRoute] = useState<"checking" | boolean>("checking");
   const navigate = useNavigate();
-  const { hidePopup } = usePopupContext();
+  const { showPopup, hidePopup } = usePopupContext();
   const fallbackPath = "/login";
+
+  const popupCodeForm = (codeNeeded: boolean, emailNeeded: boolean) =>
+    showPopup(
+      <AppCodeForm
+        submitFn={checkAccessToAPI}
+        user={user}
+        emailVerified={!!firebaseAuthUser?.emailVerified}
+        neededToVerify={{ codeNeeded, emailNeeded }}
+      />,
+      true
+    );
 
   useLayoutEffect(() => {
     let timer: NodeJS.Timeout | undefined;
@@ -36,20 +48,12 @@ const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
   }, [firebaseAuthUser, user, canUseAPI]);
 
   useEffect(() => {
-    if (canUseAPI !== undefined) {
-      if (!canUseAPI) {
-        checkAccessToAPI("")
-          .then((res) => {
-            if (!!res) {
-              setcanRoute(true);
-            }
-          })
-          .catch(() => {
-            setcanRoute(false);
-          });
-      }
+    if (!!(codeNeeded || emailNeeded)) {
+      console.log(codeNeeded, emailNeeded);
+
+      popupCodeForm(!!codeNeeded, !!emailNeeded);
     }
-  }, [canUseAPI]);
+  }, [codeNeeded, emailNeeded]);
 
   return (
     <>

@@ -16,6 +16,8 @@ type UserContext = {
   user: User | undefined;
   logout: () => void;
   canUseAPI: boolean | undefined;
+  codeNeeded: boolean | undefined;
+  emailNeeded: boolean | undefined;
   checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => Promise<any>;
 };
 
@@ -24,6 +26,8 @@ export const UserContext = createContext<UserContext>({
   user: undefined,
   logout: () => {},
   canUseAPI: undefined,
+  codeNeeded: undefined,
+  emailNeeded: undefined,
   checkAccessToAPI: (codeValue: string, callback?: CallbackFn) => new Promise(() => {}),
 });
 
@@ -34,10 +38,10 @@ const UserProvider = ({ children }: any) => {
   const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser | undefined | null>();
   const [user, setuser] = useState<User | undefined>(undefined);
   const [canUseAPI, setcanUseAPI] = useState<boolean | undefined>();
+  const [codeNeeded, setcodeNeeded] = useState<boolean | undefined>();
+  const [emailNeeded, setemailNeeded] = useState<boolean | undefined>();
   const navigate = useNavigate();
-  // const { clearProjects } = useProjectsValue();
   const { setItem, getItem, removeItem } = useLocalStorage();
-  const { showPopup } = usePopupContext();
 
   useEffect(() => {
     setfirebaseAuthUser(AuthAPI.getCurrentFirebaseAuthUser());
@@ -72,24 +76,13 @@ const UserProvider = ({ children }: any) => {
 
   useEffect(() => {
     let timeout: NodeJS.Timeout | undefined;
-    if (CHECK_ACCESS) {
-      console.log("CHECK_ACCESS", CHECK_ACCESS);
+    timeout = setTimeout(() => {
+      setcodeNeeded(!!(CHECK_ACCESS && user && firebaseAuthUser && !canUseAPI));
+      setemailNeeded(!!(CHECK_ACCESS && user && !firebaseAuthUser?.emailVerified));
+    }, 1500);
 
-      timeout = setTimeout(() => {
-        if (user && firebaseAuthUser && !canUseAPI) {
-          showPopup(
-            <AppCodeForm
-              submitFn={checkAccessToAPI}
-              user={user}
-              emailVerified={!!firebaseAuthUser?.emailVerified}
-            />,
-            true
-          );
-        }
-      }, 3000);
-    }
     return () => clearTimeout(timeout);
-  }, [user, canUseAPI]);
+  }, [user, firebaseAuthUser, canUseAPI]);
 
   const unsubListener = (name: "auth" | "userData" | "all") => {
     if (["auth", "all"].includes(name) && UNSUB_AUTH) {
@@ -110,20 +103,21 @@ const UserProvider = ({ children }: any) => {
   };
 
   const checkAccessToAPI = async (code: string = "") => {
+    console.log(code);
+
     const appCode: string = `${code?.length ? code : getItem(StorageItem.CODE)}`;
 
     return AuthAPI.checkAccessToAPI(appCode).then((result) => {
-      const { codeValid, emailVerif } = result;
-      if (codeValid) {
+      console.log(result);
+
+      if (result) {
         setItem(StorageItem.CODE, appCode);
-        if (emailVerif) {
-          setcanUseAPI(true);
-        }
+        setcanUseAPI(true);
       } else {
         removeItem(StorageItem.CODE);
         setcanUseAPI(false);
       }
-      return codeValid;
+      return result;
     });
   };
 
@@ -140,7 +134,7 @@ const UserProvider = ({ children }: any) => {
     );
   };
   return (
-    <UserContext.Provider value={{ firebaseAuthUser, user, logout, canUseAPI, checkAccessToAPI }}>
+    <UserContext.Provider value={{ firebaseAuthUser, user, logout, canUseAPI, checkAccessToAPI, codeNeeded, emailNeeded }}>
       {children}
     </UserContext.Provider>
   );
