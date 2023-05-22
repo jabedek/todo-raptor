@@ -198,12 +198,14 @@ const ProjectView: React.FC<Props> = (props) => {
             {/* Side - Right */}
             <SidePanel for="project-view">
               <div className="h-full project-border border border-l-[1px] app_flex_center">
-                <Button
-                  label="Add assignee"
-                  clickFn={popupAssignToProjectForm}
-                  disabled={!!project?.archived}
-                  formStyle="primary"
-                />
+                {!project?.archived && (
+                  <Button
+                    label="Add assignee"
+                    clickFn={popupAssignToProjectForm}
+                    disabled={!!project?.archived}
+                    formStyle="primary"
+                  />
+                )}
               </div>
               <div className="h-full project-border border border-y-0 ">
                 {project &&
