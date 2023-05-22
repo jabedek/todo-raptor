@@ -25,10 +25,10 @@ const Layout: React.FC<Props> = (props) => {
         <Page>{props.children}</Page>
       </main>
 
-      <RenderObject
+      {/* <RenderObject
         data={[firebaseAuthUser?.email, user?.authentication, user?.work]}
         tailwindStyles="absolute bottom-[0]"
-      />
+      /> */}
       <footer className="fixed bottom-1 right-3 rounded-md bg-gray-200 opacity-40 px-2 font-app_mono text-sm">
         {APP_VERSION}
       </footer>
