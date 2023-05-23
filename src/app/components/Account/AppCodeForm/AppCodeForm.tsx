@@ -6,10 +6,10 @@ import { User } from "@@types";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
 import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
-import { CheckProvidedCodeFn, useApiAccessValue } from "src/app/contexts/ApiAccessContext";
+import { CheckProvidedCodeFn, LackingValidations, useApiAccessValue } from "src/app/contexts/ApiAccessContext";
 
 type Props = {
-  user: User;
+  user: User | undefined;
   neededToVerify: { mustProvideCode: boolean; mustVerifyEmail: boolean };
   checkCode: CallbackFn<Promise<any>>;
 };
@@ -19,12 +19,12 @@ const AppCodeForm: React.FC<Props> = (props) => {
   const [messageEmail, setmessageEmail] = useState<ResultDisplay>({ isError: false, text: "" });
   const [code, setcode] = useState("");
 
-  const { hidePopup } = usePopupContext();
-
   const sendEmail = () => {
-    AuthAPI.sendVerificationEmail((result: Error | void) => {
-      sendEmailEffect(result);
-    }, props.user?.authentication.verifEmailsAmount);
+    if (props.user) {
+      AuthAPI.sendVerificationEmail((result: Error | void) => {
+        sendEmailEffect(result);
+      }, props.user?.authentication.verifEmailsAmount);
+    }
   };
 
   const sendEmailEffect = (result: Error | void) => {
@@ -46,10 +46,13 @@ const AppCodeForm: React.FC<Props> = (props) => {
 
   const submit = async () => {
     if (code) {
-      props.checkCode(props.user.authentication.email, code).then((result) => {
-        if (!!result) {
+      setmessageCode({ text: "", isError: false });
+      const email = props.user?.authentication.email || "";
+      props.checkCode(email, code).then((result: LackingValidations) => {
+        if (!!result.validAppCode) {
           let message = "Code is correct. ";
-          if (props.neededToVerify.mustVerifyEmail === false) {
+          setcode("");
+          if (result.verifiedEmail) {
             message += "You can close this window.";
           }
           setmessageCode({ text: message, isError: false });
@@ -63,33 +66,34 @@ const AppCodeForm: React.FC<Props> = (props) => {
   return (
     <FormWrapper
       title=""
-      tailwindStyles="w-[500px] h-[200px]">
-      <div className=" flex flex-col font-app_primary ">
-        <p className="text-[16px] font-bold w-full text-center mb-2">To use this app fully:</p>
-        {props.neededToVerify.mustVerifyEmail && (
-          <div className="flex flex-col mt-8 mb-4">
-            <p className="text-[13px] ">
-              <span className="font-app_mono"> - Verify your email address in your mailbox (then refresh this page).</span>
+      tailwindStyles="w-[500px] min-h-[500px] ">
+      <div className=" flex flex-col items-center gap-12 w-full justify-between font-app_primary px-1 py-3">
+        <p className="py-1 text-[17px] font-app_primary uppercase font-bold">To use this app fully:</p>
+        {props.user && props.neededToVerify.mustVerifyEmail && (
+          <div className="flex-col app_flex_center h-fit w-[90%] bg-gray-100 py-5 rounded-[4px]">
+            <p className="app_flex_center  text-center text-[15px] w-full  h-fit font-bold whitespace-pre-line ">
+              {`Verify your email address in your mailbox \n(then refresh this page)`}
             </p>
-            <div className="w-auto app_flex_center mt-3">
+            <div className="h-[120px] flex-col w-auto app_flex_center">
+              <ResultDisplayer
+                message={messageEmail}
+                tailwindStyles=" whitespace-break-spaces"
+              />
               <Button
                 clickFn={() => sendEmail()}
                 formStyle="primary"
                 label="Resend email"
               />
             </div>
-            <ResultDisplayer message={messageEmail} />
           </div>
         )}
 
         {props.neededToVerify.mustProvideCode && (
-          <>
-            <div className="flex flex-col mt-2 mb-4">
-              <p className="text-[13px] ">
-                <span className="font-app_mono"> - Provide a code below - it should be given to you from the developer. </span>
-              </p>
-            </div>
-            <div className="w-auto app_flex_center">
+          <div className="flex-col app_flex_center h-fit w-[90%]  bg-gray-100 py-5 rounded-[4px]">
+            <p className="app_flex_center  text-center text-[15px] w-full  h-fit font-bold whitespace-pre-line ">
+              {`Provide a code below. \nIt should be given to you from a developer`}
+            </p>
+            <div className="h-[200px] flex-col w-auto app_flex_center">
               <InputWritten
                 changeFn={(val) => setcode(val)}
                 name="code"
@@ -97,21 +101,21 @@ const AppCodeForm: React.FC<Props> = (props) => {
                 focus={true}
                 type="text"
               />
+              <ResultDisplayer
+                message={messageCode}
+                tailwindStyles=" whitespace-break-spaces"
+              />
+
+              <Button
+                clickFn={submit}
+                label="Submit"
+                formStyle="primary"
+                disabled={code.length != 19}
+              />
             </div>
-            <ResultDisplayer
-              message={messageCode}
-              tailwindStyles=" whitespace-break-spaces"
-            />
-          </>
+          </div>
         )}
       </div>
-
-      <Button
-        clickFn={submit}
-        label="Submit"
-        formStyle="primary"
-        disabled={code.length != 19}
-      />
     </FormWrapper>
   );
 };

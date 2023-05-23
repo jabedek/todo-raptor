@@ -142,6 +142,9 @@ const updateContactsBond = async (userId0: string, userId1: string, variant: "ma
 };
 
 const listenToUserContactsData = async (user: User, cb: CallbackFn) => {
+  if (!user.contacts.contactsIds.length) {
+    cb([], () => {});
+  }
   const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", [...user.contacts.contactsIds]));
 
   const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {

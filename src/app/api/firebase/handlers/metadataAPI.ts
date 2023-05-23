@@ -30,18 +30,23 @@ const checkDataValidity = async (check: ApiAccessCheck): Promise<boolean> => {
   return result;
 };
 
-const getFullCodeValidity = async (values: { emailValue: string; codeValue: string }) => {
+const getFullCodeValidity = async (values: { emailValue: string; codeValue: string | undefined }) => {
   const { emailValue, codeValue } = values;
-  const noCodeNeeded = await checkDataValidity({ value: emailValue, which: "no-code-emails" });
+
+  const validity = {
+    validAppCode: false,
+    verifiedEmail: false,
+  };
+
+  const noCodeNeeded = emailValue?.length ? await checkDataValidity({ value: emailValue, which: "no-code-emails" }) : false;
   if (noCodeNeeded) {
-    return true;
+    validity.validAppCode = true;
+    validity.verifiedEmail = true;
+  } else {
+    validity.validAppCode = codeValue?.length ? await checkDataValidity({ value: codeValue, which: "codes" }) : false;
+    validity.verifiedEmail = !!(await AuthAPI.getCurrentFirebaseAuthUser()?.emailVerified);
   }
-
-  if (!codeValue?.length) {
-    return false;
-  }
-
-  return await checkDataValidity({ value: codeValue, which: "codes" });
+  return validity;
 };
 
 const MetadataAPI = {

@@ -17,7 +17,6 @@ const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
   const fallbackPath = "/login";
 
   const popupCodeForm = (hasProvided: LackingValidations) =>
-    user &&
     showPopup(
       <AppCodeForm
         user={user}

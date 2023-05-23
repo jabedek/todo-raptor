@@ -1,4 +1,4 @@
-import { AuthAPI, MetadataAPI } from "@@api/firebase";
+import { AppAPICode, AuthAPI, MetadataAPI } from "@@api/firebase";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useUserValue } from "./UserContext";
 import { useLocalStorage } from "../hooks/useLocalStorage";
@@ -8,8 +8,8 @@ import { User as FirebaseAuthUser } from "firebase/auth";
 
 /**
  * * `canAccessAPI` - only true if both `mustProvideCode` and `mustVerifyEmail` are true
- * * `mustProvideCode` - checks if logged user has provided valid code (with exceptions - `no code emails` - but they still need to be verified)
- * * `mustVerifyEmail` - checks if logged user has verified his email after registration
+ * * `mustProvideCode` - checks if logged user has provided valid code (with exceptions - `no code emails`)
+ * * `mustVerifyEmail` - checks if logged user has verified his email after registration (with exceptions - `no code emails`)
  * */
 type ApiAccessContext = {
   canAccessAPI: boolean | undefined;
@@ -42,7 +42,7 @@ const APIAccessProvider = ({ children }: any) => {
   const [hasProvided, sethasProvided] = useState<LackingValidations>({ ...initValidations });
   const [shouldPingUser, setshouldPingUser] = useState(false);
   const { user, firebaseAuthUser } = useUserValue();
-  const { getItem } = useLocalStorage();
+  const { getItem, setItem } = useLocalStorage();
 
   useEffect(() => {
     if (user && firebaseAuthUser) {
@@ -50,7 +50,7 @@ const APIAccessProvider = ({ children }: any) => {
         checkWhatToProvide(firebaseAuthUser);
       }
     }
-  }, [user?.authentication.email, user?.authentication.verifEmailsAmount, firebaseAuthUser?.emailVerified]);
+  }, [user?.authentication.email, user?.authentication.verifEmailsAmount, firebaseAuthUser]);
 
   useEffect(() => {
     if (hasProvided.validAppCode !== undefined && hasProvided.verifiedEmail !== undefined) {
@@ -64,36 +64,37 @@ const APIAccessProvider = ({ children }: any) => {
     const email = firebaseAuthUser.email;
 
     if (email) {
-      const newState: LackingValidations = { ...hasProvided, verifiedEmail: firebaseAuthUser.emailVerified };
-      let codeValid = await MetadataAPI.checkDataValidity({ value: email, which: "no-code-emails" });
+      const isNoCodeEmail = await MetadataAPI.checkDataValidity({ value: email, which: "no-code-emails" });
 
-      if (!codeValid) {
-        const code = getItem(StorageItem.CODE);
-        if (code?.length) {
-          codeValid = await MetadataAPI.getFullCodeValidity({ emailValue: email, codeValue: code });
+      if (isNoCodeEmail) {
+        sethasProvided({ validAppCode: true, verifiedEmail: true });
+      } else {
+        const code = getItem(StorageItem.CODE) || "";
+        const newState = await MetadataAPI.getFullCodeValidity({ emailValue: email, codeValue: code });
+        sethasProvided({
+          ...newState,
+        });
+
+        if (newState.validAppCode) {
+          setItemLocalStorage(code);
         }
       }
-
-      newState.validAppCode = codeValid;
-      sethasProvided(newState);
     }
   };
 
   const checkProvidedCode = async (email: string, code: string) => {
-    const { validAppCode, verifiedEmail } = await check(email, code);
-    sethasProvided({ validAppCode, verifiedEmail });
-    return validAppCode && verifiedEmail;
+    const newState = await MetadataAPI.getFullCodeValidity({ emailValue: email, codeValue: code });
+    console.log(newState);
+
+    if (newState.validAppCode) {
+      setItemLocalStorage(code);
+    }
+
+    sethasProvided(newState);
+    return newState;
   };
 
-  const check = async (email: string, code: string): Promise<LackingValidations> => {
-    const validAppCode = await MetadataAPI.getFullCodeValidity({ emailValue: email, codeValue: code });
-    const verifiedEmail = await AuthAPI.getCurrentFirebaseAuthUser()?.emailVerified;
-
-    return {
-      validAppCode,
-      verifiedEmail,
-    };
-  };
+  const setItemLocalStorage = (code: string) => setItem(StorageItem.CODE, code);
 
   return (
     <ApiAccessContext.Provider value={{ canAccessAPI, shouldPingUser, checkProvidedCode, hasProvided }}>
