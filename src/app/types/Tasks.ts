@@ -1,12 +1,6 @@
-import { TasksVisuals } from "@@components/Tasks";
-import {
-  TaskStatusShortName,
-  TaskListType,
-  StatusGroupName,
-  TaskStatus,
-  StatusGroup,
-} from "@@components/Tasks/visuals/task-visuals";
-import { Flatten, FullProjectAssignee } from "@@types";
+import { TaskStatusShortName, TaskStatus } from "@@components/Tasks/visuals/task-visuals";
+import { FullProjectAssignee } from "@@types";
+import { Flatten } from "frotsi";
 
 export type SimpleTask = {
   id: string;

@@ -1,11 +1,11 @@
-import { Flatten } from "./common";
+import { DeepFlatten } from "frotsi/dist/types";
 
-export type User = {
-  authentication: Flatten<AuthenticationDetails>;
-  contacts: Flatten<ContactsDetails>;
-  personal: Flatten<PersonalDetails>;
-  work: Flatten<WorkDetails>;
-};
+export type User = DeepFlatten<{
+  authentication: AuthenticationDetails;
+  contacts: ContactsDetails;
+  personal: PersonalDetails;
+  work: WorkDetails;
+}>;
 
 export type AuthenticationDetails = {
   id: string;

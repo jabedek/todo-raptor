@@ -1,8 +1,7 @@
-import { generateInputId } from "frotsi";
+import { generateInputId, Flatten } from "frotsi";
 import { useState, useEffect, useRef } from "react";
 
 import { InputProps, InputWritten, SelectOption } from "@@components/forms";
-import { Flatten } from "@@types";
 
 type CheckboxOption = Flatten<
   SelectOption<any> & {
@@ -22,17 +21,8 @@ type Props = Flatten<
 const InputCheckbox: React.FC<Props> = (props) => {
   const [focus, setfocus] = useState(false);
   const [values, setvalues] = useState<CheckboxOption[]>([]);
-  // const [values, setvalues] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    // const newValues: Record<string, any> = {};
-    // props.options.forEach((option) => {
-    //   const key = `${option.value}`;
-    //   newValues[key] = option.checked;
-    // });
-
-    // setvalues(newValues);
-
     setvalues(props.options);
 
     const checkedValueIndex = props.options.findIndex((v, i) => v.value === true);

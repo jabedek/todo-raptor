@@ -11,7 +11,7 @@ import {
 } from "./Projects";
 import { ContactInvitation, Contact } from "./Contacts";
 import { User, AuthenticationDetails, ContactsDetails, PersonalDetails, WorkDetails, UserFieldUpdate } from "./Users";
-import { IdEmailPair, Flatten } from "./common";
+import { IdEmailPair } from "./common";
 export type {
   SimpleTask,
   FullTask,
@@ -36,5 +36,4 @@ export type {
   WorkDetails,
   UserFieldUpdate,
   IdEmailPair,
-  Flatten,
 };

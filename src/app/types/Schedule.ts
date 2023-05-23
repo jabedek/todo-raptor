@@ -1,18 +1,18 @@
 import { StatusGroupName, TaskStatusShortName } from "@@components/Tasks/visuals/task-visuals";
 import { SimpleTask, FullTask } from "./Tasks";
-import { Flatten } from "./common";
+import { Flatten } from "frotsi";
 
-export type Schedule<S extends ScheduleColumnType> = Flatten<{
+export type Schedule<S extends ScheduleColumnType> = {
   id: string;
   projectId: string;
   columns: ScheduleColumns<S>;
-}>;
+};
 
-export type SimpleColumn = Flatten<{
+export type SimpleColumn = {
   id: StatusGroupName;
   statuses: TaskStatusShortName[];
   tasksIdsOrdered: string[];
-}>;
+};
 
 export type ScheduleColumnType = SimpleColumn | FullColumn<TaskType>;
 type TaskType = SimpleTask | FullTask;

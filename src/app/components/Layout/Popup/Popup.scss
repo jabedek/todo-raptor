@@ -6,16 +6,20 @@
   inset: 0;
   overflow-y: scroll;
 
+  backdrop-filter: blur(1px);
+
   &.in-transition {
     transition: all 200ms ease-in-out;
     background-color: rgba(0, 0, 0, 0.2);
     z-index: 1000;
+    backdrop-filter: blur(1px);
   }
 
   &.out-transition {
     transition: all 200ms ease-in-out 400ms;
     background-color: rgba(0, 0, 0, 0);
     z-index: -1000;
+    backdrop-filter: blur(0px);
   }
 }
 
@@ -29,13 +33,16 @@ $paddings: 5px;
   // transform: translate(-50%, -50%);
   transform: translate(-50%, 0);
   border-radius: 14px;
-  backdrop-filter: blur(16px);
   background-color: rgba(255, 255, 255, 0.1);
   box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: center;
   align-content: center;
   align-items: center;
+
+  &::before {
+    backdrop-filter: blur(16px);
+  }
 
   &__content {
     position: relative;

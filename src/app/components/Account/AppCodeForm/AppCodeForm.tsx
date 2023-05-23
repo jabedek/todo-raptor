@@ -50,7 +50,7 @@ const AppCodeForm: React.FC<Props> = (props) => {
       const email = props.user?.authentication.email || "";
       props.checkCode(email, code).then((result: LackingValidations) => {
         if (!!result.validAppCode) {
-          let message = "Code is correct. ";
+          let message = "Code is correct and has been validated. ";
           setcode("");
           if (result.verifiedEmail) {
             message += "You can close this window.";

@@ -54,7 +54,7 @@ const FormClearX: React.FC<Props> = ({ clickFn, relatedItemId, sizeVariant }) =>
   return (
     <>
       <div
-        className="transition-all duration-200 hover:rotate-180 cursor-pointer relative bg-white  text-red-700  hover:text-red-500 rounded-full app_flex_center text-center"
+        className="transition-all duration-200 hover:rotate-180 cursor-pointer relative bg-white  text-black  hover:text-red-500 rounded-full app_flex_center text-center"
         style={styles}
         onClick={handleClick}>
         <Icons.MdClear className="absolute rounded-full" />

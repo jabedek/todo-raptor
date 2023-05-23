@@ -1,6 +1,6 @@
 {
   "name": "todo-raptor",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "type": "module",
   "repository": {
     "url": "https://github.com/jabedek/todo-raptor"
@@ -23,7 +23,7 @@
     "@types/firebase": "^3.2.1",
     "@types/react-beautiful-dnd": "^13.1.4",
     "firebase": "^9.19.1",
-    "frotsi": "^1.4.8",
+    "frotsi": "^1.4.14",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",

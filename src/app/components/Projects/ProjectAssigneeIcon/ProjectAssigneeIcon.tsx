@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import "./ProjectAssigneeIcon.scss";
 import { getUserDisplayName } from "../projects-utils";
-import { Flatten, FullProjectAssignee } from "@@types";
+import { FullProjectAssignee } from "@@types";
+import { Flatten } from "frotsi";
 
 type Props = {
   assignee: Flatten<Partial<FullProjectAssignee>> | "..." | undefined;

@@ -39,7 +39,6 @@ const authenticateInFirebase = (email: string, password: string, cb: CallbackFn)
     }
   );
 };
-
 const sendVerificationEmail = (cb: CallbackFn, verifEmailsAmount: number) => {
   const firebaseUser = getCurrentFirebaseAuthUser();
   if (firebaseUser) {
