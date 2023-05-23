@@ -4,34 +4,35 @@ import { LoadingSpinner } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
 import { UserContext, useUserValue } from "src/app/contexts/UserContext";
 import { AppCodeForm } from "@@components/Account";
+import { LackingValidations, useApiAccessValue } from "src/app/contexts/ApiAccessContext";
 
 type Props = { children: React.ReactNode; path: string; logPath?: string };
 
 const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
-  const { firebaseAuthUser, user, canUseAPI, checkAccessToAPI, codeNeeded, emailNeeded } = useUserValue();
+  const { firebaseAuthUser, user } = useUserValue();
+  const { shouldPingUser, hasProvided, canAccessAPI, checkProvidedCode } = useApiAccessValue();
   const [canRoute, setcanRoute] = useState<"checking" | boolean>("checking");
   const navigate = useNavigate();
   const { showPopup, hidePopup } = usePopupContext();
   const fallbackPath = "/login";
 
-  const popupCodeForm = (codeNeeded: boolean, emailNeeded: boolean) =>
+  const popupCodeForm = (hasProvided: LackingValidations) =>
+    user &&
     showPopup(
       <AppCodeForm
-        submitFn={checkAccessToAPI}
         user={user}
-        emailVerified={!!firebaseAuthUser?.emailVerified}
-        neededToVerify={{ codeNeeded, emailNeeded }}
-      />,
-      true
+        checkCode={(email: string, code: string) => checkProvidedCode(email, code)}
+        neededToVerify={{ mustProvideCode: !hasProvided.validAppCode, mustVerifyEmail: !hasProvided.verifiedEmail }}
+      />
     );
 
   useLayoutEffect(() => {
     let timer: NodeJS.Timeout | undefined;
-    const isValid = !!(user || firebaseAuthUser);
+    const isValid = !!(user || firebaseAuthUser) && !!canAccessAPI;
 
     if (!isValid) {
       timer = setTimeout(() => {
-        setcanRoute(!!(user || firebaseAuthUser));
+        setcanRoute(!!(user || firebaseAuthUser) && !!canAccessAPI);
         if (!canRoute) {
           hidePopup();
           navigate(fallbackPath);
@@ -45,13 +46,13 @@ const ProtectedRoute: React.FC<Props> = ({ children, path, logPath }) => {
     }
 
     return () => clearTimeout(timer);
-  }, [firebaseAuthUser, user, canUseAPI]);
+  }, [firebaseAuthUser, user, canAccessAPI]);
 
   useEffect(() => {
-    if (!!(codeNeeded || emailNeeded)) {
-      popupCodeForm(!!codeNeeded, !!emailNeeded);
+    if (shouldPingUser) {
+      popupCodeForm(hasProvided);
     }
-  }, [codeNeeded, emailNeeded]);
+  }, [shouldPingUser]);
 
   return (
     <>

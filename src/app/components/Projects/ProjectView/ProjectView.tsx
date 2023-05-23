@@ -15,6 +15,7 @@ import ProjectSchedule from "./tabs/ProjectSchedule/ProjectSchedule";
 import ProjectBacklog from "./tabs/ProjectBacklog/ProjectBacklog";
 import { TaskListType } from "@@components/Tasks/visuals/task-visuals";
 import { enrichTasksWithAssignees, getShortId } from "@@components/Tasks/task-utils";
+import { useApiAccessValue } from "src/app/contexts/ApiAccessContext";
 
 export type ProjectBlockade =
   | "block block-archived"
@@ -34,7 +35,8 @@ const ProjectView: React.FC<Props> = (props) => {
   const [tab, settab] = useState<TaskListType>("schedule");
   const [tasksBacklog, settasksBacklog] = useState<FullTask[]>([]);
   const [project, setproject] = useState<ProjectWithAssigneesRegistry>();
-  const { user, canUseAPI } = useUserValue();
+  const { user } = useUserValue();
+  const { canAccessAPI } = useApiAccessValue();
   const { showPopup } = usePopupContext();
   const navigate = useNavigate();
   const [currentUserCanEdit, setcurrentUserCanEdit] = useState(false);
@@ -73,7 +75,7 @@ const ProjectView: React.FC<Props> = (props) => {
   useEffect(() => {
     unsubListener("project");
     if (props.projectData !== undefined) {
-      if (user && canUseAPI) {
+      if (user && canAccessAPI) {
         const projectData = props.projectData;
         ProjectsAPI.listenProjectsWithAssigneesData([projectData.id], true, (data: ProjectsFullData, unsubProject) => {
           UNSUB_PROJECT = unsubProject;

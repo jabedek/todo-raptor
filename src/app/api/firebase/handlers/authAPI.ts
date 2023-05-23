@@ -10,8 +10,7 @@ import {
   signOut,
 } from "firebase/auth";
 
-import { AppCode, FirebaseApp, FirebaseAuth, FirebaseDB, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { FirebaseApp, FirebaseAuth, FirebaseDB, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
 
 const getCurrentFirebaseAuthUser = () => getAuth(FirebaseApp).currentUser;
 
@@ -66,7 +65,6 @@ const sendVerificationEmail = (cb: CallbackFn, verifEmailsAmount: number) => {
 
 const logoutInFirebase = () => signOut(FirebaseAuth);
 
-// Listener - Firebase Authentication
 const listenToAuthState = (cb: CallbackFn) => {
   const unsub: Unsubscribe = getAuth(FirebaseApp).onAuthStateChanged(async (auth: FirebaseAuthUser | null) =>
     cb(<FirebaseUserStateChange>{ auth, cause: "auth" }, unsub)
@@ -82,55 +80,6 @@ const listenToIdTokenState = (cb: CallbackFn) => {
 const listenToFirebaseAuthState = (cb: CallbackFn) => {
   listenToAuthState(cb);
   listenToIdTokenState(cb);
-  // setCodes();
-};
-
-export const CHECK_ACCESS = import.meta.env.VITE_REACT_APP_CHECK_ACCESS === "yes";
-const CODE0 = import.meta.env.VITE_REACT_APP_CODE0;
-
-const setCodes = async () => {
-  // if (CODE0) {
-  //   const codes: AppCode[] = [
-  //     {
-  //       id: CODE0,
-  //       isoStart: "2023-05-01T00:00:00.000Z",
-  //       isoEnd: "2023-06-31T00:00:00.000Z",
-  //     },
-  //   ];
-  //   Promise.all([
-  //     setDoc(doc(FirebaseDB, "codes", codes[0].id), codes[0]),
-  //     setDoc(doc(FirebaseDB, "codes", codes[1].id), codes[1]),
-  //   ]).then(
-  //     () => {},
-  //     (e) => console.log(e)
-  //   );
-  // }
-};
-
-const checkAccessToAPI = async (codeValue = "") => {
-  if (!CHECK_ACCESS) {
-    return true;
-  }
-
-  if (!codeValue) {
-    return false;
-  }
-
-  let codeValid = false;
-
-  const docSnap = await getDoc(doc(FirebaseDB, "codes", codeValue));
-  if (!docSnap.exists()) {
-    codeValid = false;
-  }
-
-  const data = docSnap.data();
-  if (data) {
-    const { isoEnd, isoStart } = docSnap.data() as AppCode;
-    const today = new Date(new Date().toISOString());
-    codeValid = today <= new Date(isoEnd) && today >= new Date(isoStart);
-  }
-
-  return codeValid;
 };
 
 const AuthAPI = {
@@ -143,9 +92,6 @@ const AuthAPI = {
   logoutInFirebase,
 
   listenToFirebaseAuthState,
-  //
-  setCodes,
-  checkAccessToAPI,
 };
 
 export { AuthAPI };
