@@ -66,11 +66,11 @@ const AppCodeForm: React.FC<Props> = (props) => {
   return (
     <FormWrapper
       title=""
-      tailwindStyles="w-[500px] min-h-[500px] ">
+      tailwindStyles="w-[500px] min-h-fit ">
       <div className=" flex flex-col items-center gap-12 w-full justify-between font-app_primary px-1 py-3">
         <p className="py-1 text-[17px] font-app_primary uppercase font-bold">To use this app fully:</p>
         {props.user && props.neededToVerify.mustVerifyEmail && (
-          <div className="flex-col app_flex_center h-fit w-[90%] bg-gray-100 py-5 rounded-[4px]">
+          <div className="flex-col app_flex_center h-[230px] w-[90%] px-2 bg-gray-100 py-2 rounded-[4px]">
             <p className="app_flex_center  text-center text-[15px] w-full  h-fit font-bold whitespace-pre-line ">
               {`Verify your email address in your mailbox \n(then refresh this page)`}
             </p>
@@ -89,7 +89,7 @@ const AppCodeForm: React.FC<Props> = (props) => {
         )}
 
         {props.neededToVerify.mustProvideCode && (
-          <div className="flex-col app_flex_center h-fit w-[90%]  bg-gray-100 py-5 rounded-[4px]">
+          <div className="flex-col app_flex_center h-[310px] w-[90%] px-2  bg-gray-100 py-2 rounded-[4px]">
             <p className="app_flex_center  text-center text-[15px] w-full  h-fit font-bold whitespace-pre-line ">
               {`Provide a code below. \nIt should be given to you from a developer`}
             </p>
