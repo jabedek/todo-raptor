@@ -11,6 +11,7 @@ import { transformColumnTo } from "@@components/Projects/projects-utils";
 import { FullTasksRegistry } from "src/app/types/Tasks";
 import { ProjectBlockade } from "../../ProjectView";
 import { Schedule, SimpleColumn, FullColumn, ScheduleColumns } from "src/app/types/Schedule";
+window["__react-beautiful-dnd-disable-dev-warnings"] = true;
 
 type Props = {
   project: ProjectWithAssigneesRegistry | undefined;
