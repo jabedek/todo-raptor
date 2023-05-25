@@ -1,6 +1,6 @@
 import { Icons } from "@@components/Layout";
 import { CallbackFn } from "frotsi";
-import { useEffect, useState, CSSProperties } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 
 type Props = {
   clickFn: CallbackFn;
@@ -10,7 +10,7 @@ type Props = {
 
 const FormClearX: React.FC<Props> = ({ clickFn, relatedItemId, sizeVariant }) => {
   const [styles, setstyles] = useState<CSSProperties>();
-  const handleClick = (e: React.MouseEvent) => (relatedItemId ? clickFn(e, relatedItemId) : clickFn(e));
+  const handleClick = (e: React.MouseEvent): void => (relatedItemId ? clickFn(e, relatedItemId) : clickFn(e));
 
   useEffect(() => {
     let height = "";

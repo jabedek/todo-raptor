@@ -4,6 +4,7 @@ $body-width: 680px;
 
 .side-panel {
   width: $side-width;
+  height: 100%;
 
   &--projects-table {
     .side-top {
@@ -11,20 +12,21 @@ $body-width: 680px;
     }
 
     .side-bottom {
-      height: 540px;
+      height: calc(100% - $header-height);
     }
   }
 }
 
 .projects-table-wrapper {
   min-width: 900px;
+  height: 800px;
 }
 
 .projects-table {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: auto;
+  height: 100%;
   overflow: hidden;
 
   &__main {

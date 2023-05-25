@@ -1,22 +1,25 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { InputWritten } from "@@components/forms";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
-import { UserVerification, AccountContacts } from "@@components/Account";
+import { AccountContacts, UserVerification } from "@@components/Account";
 import { useContactsValue, useUserValue } from "@@contexts";
 import { User } from "@@types";
 import { UsersAPI } from "@@api/firebase";
+import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 const AccountInfo: React.FC = () => {
   const { user, firebaseAuthUser } = useUserValue();
   const { contacts } = useContactsValue();
   const { showPopup } = usePopupContext();
-  const [name, setname] = useState(user?.personal?.names?.name);
-  const [lastname, setlastname] = useState(user?.personal?.names?.lastname);
-  const [nickname, setnickname] = useState(user?.personal?.names?.nickname);
+  const [name, setname] = useState(user?.personal?.names?.name || "");
+  const [lastname, setlastname] = useState(user?.personal?.names?.lastname || "");
+  const [nickname, setnickname] = useState(user?.personal?.names?.nickname || "");
   const [userChanged, setuserChanged] = useState(false);
-  const popupVerification = () => showPopup(<UserVerification firebaseUser={firebaseAuthUser} />);
+  const popupVerification = useCallback(() => {
+    return showPopup(<UserVerification firebaseUser={firebaseAuthUser} />);
+  }, [firebaseAuthUser]);
 
   useEffect(() => {
     if (user) {
@@ -30,7 +33,7 @@ const AccountInfo: React.FC = () => {
     }
   }, [lastname, nickname, name]);
 
-  const update = () => {
+  const update = (): void => {
     if (user) {
       const updatedUser: User = { ...user };
       if (updatedUser.personal && userChanged) {
@@ -38,7 +41,9 @@ const AccountInfo: React.FC = () => {
         updatedUser.personal.names.lastname = lastname ?? updatedUser.personal.names.lastname;
         updatedUser.personal.names.nickname = nickname ?? updatedUser.personal.names.nickname;
 
-        UsersAPI.updateUserFull(updatedUser).then(() => setuserChanged(false));
+        UsersAPI.updateUserFull(updatedUser)
+          .then(() => setuserChanged(false))
+          .catch((e) => console.error(e));
       }
     }
   };
@@ -50,7 +55,7 @@ const AccountInfo: React.FC = () => {
           <div className="relative flex flex-col p-2  min-w-[270px] max-w-[500px] w-full h-full">
             <p className="flex items-center justify-between h-[30px] mb-2">Personal details</p>
             <InputWritten
-              changeFn={(e) => setname(e)}
+              changeFn={(event: WrittenChangeEvent, val: string) => setname(val)}
               name="user-name"
               value={name}
               label="Name"
@@ -58,7 +63,7 @@ const AccountInfo: React.FC = () => {
               tailwindStyles="min-w-[250px] w-full"
             />
             <InputWritten
-              changeFn={(e) => setlastname(e)}
+              changeFn={(event: WrittenChangeEvent, val: string) => setlastname(val)}
               name="user-lastname"
               value={lastname}
               label="Last Name"
@@ -66,7 +71,7 @@ const AccountInfo: React.FC = () => {
               tailwindStyles="min-w-[250px] w-full"
             />
             <InputWritten
-              changeFn={(e) => setnickname(e)}
+              changeFn={(event: WrittenChangeEvent, val: string) => setnickname(val)}
               name="user-nickname"
               value={nickname}
               label="Display Name"

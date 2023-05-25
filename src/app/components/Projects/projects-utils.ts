@@ -1,9 +1,9 @@
 import { STATUS_GROUP_NAMES, TASK_STATUSES_GROUPS } from "@@components/Tasks/visuals/task-visuals";
-import { SimpleTask, FullTask } from "@@types";
-import { ScheduleColumnType, SimpleColumn, FullColumn, ScheduleColumns } from "src/app/types/Schedule";
+import { FullTask, SimpleTask } from "@@types";
+import { FullColumn, ScheduleColumns, ScheduleColumnType, SimpleColumn } from "src/app/types/Schedule";
 import { PersonalDetails } from "src/app/types/Users";
 
-export const getUserDisplayName = (user: { email: string } & Partial<Pick<PersonalDetails, "names">>) => {
+export const getUserDisplayName = (user: { email: string } & Partial<Pick<PersonalDetails, "names">>): string => {
   let display = "";
   const { email } = user;
 

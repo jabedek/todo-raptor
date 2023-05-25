@@ -1,7 +1,7 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { generateDocumentId, generateInputId } from "frotsi";
 
-import { Project, SimpleProjectAssignee, UserFieldUpdate, User } from "@@types";
+import { Project, SimpleAssignee, User, UserFieldUpdate } from "@@types";
 import { ProjectsAPI, UsersAPI } from "@@api/firebase";
 import { useUserValue } from "@@contexts";
 import {
@@ -11,6 +11,7 @@ import {
   InputTags,
   InputWritten,
   ResultDisplay,
+  ResultDisplayer,
   SelectOption,
   TagItem,
 } from "@@components/forms";
@@ -27,13 +28,14 @@ import {
 } from "../visuals/project-visuals";
 import { getShortId } from "@@components/Tasks/task-utils";
 import { Schedule, SimpleColumn } from "src/app/types/Schedule";
+import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 type Props = {
   project?: ProjectWithAssigneesRegistry | undefined;
 };
 
 const ProjectForm: React.FC<Props> = ({ project }) => {
-  type Option = SelectOption<SimpleProjectAssignee>;
+  type Option = SelectOption<SimpleAssignee>;
   const { user } = useUserValue();
   const [projectTitle, setprojectTitle] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
@@ -41,7 +43,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
   const [status, setstatus] = useState<ProjectStatusName>(PROJECT_STATUSES_OPTIONS[0].value);
   const [id, setid] = useState("");
 
-  const [projectManager, setprojectManager] = useState<SimpleProjectAssignee>();
+  const [projectManager, setprojectManager] = useState<SimpleAssignee>();
   const [projectManagerOptions, setprojectManagerOptions] = useState<Option[]>([]);
 
   const [message, setmessage] = useState<ResultDisplay>();
@@ -66,7 +68,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
   useEffect(() => {
     if (project) {
       const { names, roleDetails, ...simpleManager } = project.assigneesRegistry[project.managerId];
-      const manager: SimpleProjectAssignee = simpleManager;
+      const manager: SimpleAssignee = simpleManager;
       setformMode("edit");
       setprojectTitle(project.title);
       setprojectManager(manager);
@@ -82,7 +84,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
 
   useLayoutEffect(() => {
     if (user) {
-      const options: SelectOption<SimpleProjectAssignee>[] = getAssigneesOptions(user, project);
+      const options: SelectOption<SimpleAssignee>[] = getAssigneesOptions(user, project);
       setprojectManagerOptions(options);
 
       if (formMode === "new") {
@@ -95,7 +97,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     }
   }, [formMode, user]);
 
-  const getAssigneesOptions = (user: User, project?: ProjectWithAssigneesRegistry) => {
+  const getAssigneesOptions = (user: User, project?: ProjectWithAssigneesRegistry): Option[] => {
     let options: Option[] = [];
 
     if (!project) {
@@ -119,7 +121,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     return options;
   };
 
-  const popupConfirmDialog = (fullProject: ProjectWithAssigneesRegistry, action: "delete" | "archive") => {
+  const popupConfirmDialog = (fullProject: ProjectWithAssigneesRegistry, action: "delete" | "archive"): void => {
     const { assigneesRegistry, ...project } = fullProject;
     const whatAction = action === "delete" ? "delete project and archive related tasks" : "archive project and related tasks";
     const extraAction =
@@ -127,7 +129,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
 
     showPopup(
       <ConfirmDialog
-        submitFn={(deleteTasks) => (action === "delete" ? deleteProject(project, deleteTasks) : archiveProject(project))}
+        submitFn={(deleteTasks: boolean) => (action === "delete" ? deleteProject(project, deleteTasks) : archiveProject(project))}
         whatAction={whatAction}
         irreversible={true}
         extraActionCheck={extraAction}
@@ -136,7 +138,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     );
   };
 
-  const deleteProject = (data: Project, deleteTasks: boolean) => {
+  const deleteProject = (data: Project, deleteTasks: boolean): void => {
     if (data) {
       ProjectsAPI.deleteProjectCompletely(data, deleteTasks)
         .then(() => setmessage({ text: "Project and tasks have been deleted. Users data updated.", isError: false }))
@@ -150,7 +152,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     }
   };
 
-  const archiveProject = (data: Project) => {
+  const archiveProject = (data: Project): void => {
     if (data) {
       ProjectsAPI.archiveProjectCompletely(data)
         .then(() => setmessage({ text: "Project and tasks have been archived. Users data updated.", isError: false }))
@@ -164,7 +166,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     }
   };
 
-  const handleSubmitNewProject = async () => {
+  const handleSubmitNewProject = (): void => {
     const userId = user?.authentication.id;
     if (userId && projectManager) {
       const scheduleId = `sche_${generateDocumentId()}`;
@@ -197,7 +199,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     }
   };
 
-  const handleSubmitEditProject = async () => {
+  const handleSubmitEditProject = (): void => {
     if (project && projectManager) {
       const newProject: Project = {
         id: project.id,
@@ -224,7 +226,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     }
   };
 
-  const updateProject = async (updatedProject: Project) => {
+  const updateProject = (updatedProject: Project): void => {
     if (userNewRole && project) {
       const newCurrentUser = updatedProject.assignees.find((a) => a.id === project.managerId);
       const newManager = updatedProject.assignees.find((a) => a.id === updatedProject.managerId);
@@ -244,7 +246,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     );
   };
 
-  const saveNewProject = async (newProject: Project, newSchedule: Schedule<SimpleColumn>, user: User) => {
+  const saveNewProject = (newProject: Project, newSchedule: Schedule<SimpleColumn>, user: User): void => {
     const fieldsToUpdate: UserFieldUpdate[] = [
       {
         fieldPath: "work.projectsIds",
@@ -252,20 +254,21 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
       },
     ];
 
-    ProjectsAPI.saveNewProject(newProject, newSchedule).then(() => {
-      clear();
+    ProjectsAPI.saveNewProject(newProject, newSchedule)
+      .then(() => {
+        clear();
 
-      UsersAPI.updateUserFieldsById(user.authentication.id, fieldsToUpdate).then(
-        () => {
-          clear();
-          hidePopup();
-        },
-        () => {}
-      );
-    });
+        UsersAPI.updateUserFieldsById(user.authentication.id, fieldsToUpdate)
+          .then(() => {
+            clear();
+            hidePopup();
+          })
+          .catch((e) => console.error(e));
+      })
+      .catch((e) => console.error(e));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     if (formMode === "new") {
       handleSubmitNewProject();
     } else {
@@ -273,7 +276,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     }
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setid(`proj_${generateDocumentId()}`);
     setprojectManager(undefined);
     setprojectTitle("");
@@ -281,7 +284,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
     setprojectTags([]);
   };
 
-  const clear = () => {
+  const clear = (): void => {
     setprojectTitle("");
     setProjectDescription("");
     setprojectTags([]);
@@ -297,7 +300,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
         required
         type="text"
         name="project-title"
-        changeFn={(val) => setprojectTitle(val)}
+        changeFn={(event: WrittenChangeEvent, val: string) => setprojectTitle(val)}
         label="Project Title"
         value={projectTitle}
         autoComplete="on"
@@ -308,7 +311,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
         required
         name="project-status"
         selectWidth="w-[460px]"
-        changeFn={(value) => setstatus(value)}
+        changeFn={(value: ProjectStatusName) => setstatus(value)}
         label="Status"
         value={status}
         options={formMode === "edit" ? PROJECT_STATUSES_OPTIONS : [PROJECT_STATUSES_OPTIONS[0]]}
@@ -318,7 +321,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
         required
         type="text"
         name="project-name"
-        changeFn={(val) => setProjectDescription(val)}
+        changeFn={(event: WrittenChangeEvent, val: string) => setProjectDescription(val)}
         label="Project Description"
         value={projectDescription}
         autoComplete="on"
@@ -329,7 +332,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
         required
         name="manager"
         selectWidth="w-[460px]"
-        changeFn={(val) => setprojectManager(val)}
+        changeFn={(val: SimpleAssignee) => setprojectManager(val)}
         label="Assign manager"
         value={projectManager}
         options={projectManagerOptions}
@@ -341,7 +344,7 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
             required={userWillLoseEditingRole}
             name="new-role"
             selectWidth="w-[460px]"
-            changeFn={(val) => setuserNewRole(val)}
+            changeFn={(val: ProjectRoleShortName) => setuserNewRole(val)}
             label="New Role"
             value={userNewRole}
             options={PROJECT_ROLES_OPTIONS.filter((o) => !["manager", "product_owner"].includes(o.value))}
@@ -358,6 +361,8 @@ const ProjectForm: React.FC<Props> = ({ project }) => {
         values={projectTags}
         disabled={projectTags.length === 5}
       />
+
+      <ResultDisplayer message={message} />
 
       <div className="flex w-full justify-center gap-3 items-center">
         <Button

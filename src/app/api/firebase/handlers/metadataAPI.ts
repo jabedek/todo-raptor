@@ -1,8 +1,9 @@
-import { getDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { FirebaseDB } from "../firebase-config";
-import { AppAPICode, AppAPICodes, AppAPINoCodeEmail, AppAPINoCodeEmails } from "../types";
+import { AppAPICode, AppAPINoCodeEmail } from "../types";
 import { isCodeValid, isNoCodeEmailValid } from "../utils";
 import { AuthAPI } from "./authAPI";
+import { LackingValidations } from "src/app/contexts/ApiAccessContext";
 
 export const CHECK_ACCESS = import.meta.env.VITE_REACT_APP_CHECK_ACCESS === "yes";
 
@@ -30,7 +31,10 @@ const checkDataValidity = async (check: ApiAccessCheck): Promise<boolean> => {
   return result;
 };
 
-const getFullCodeValidity = async (values: { emailValue: string; codeValue: string | undefined }) => {
+const getFullCodeValidity = async (values: {
+  emailValue: string;
+  codeValue: string | undefined;
+}): Promise<LackingValidations> => {
   const { emailValue, codeValue } = values;
 
   const validity = {

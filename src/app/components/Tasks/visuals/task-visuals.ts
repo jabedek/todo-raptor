@@ -38,13 +38,13 @@ export const TASK_STATUSES_GROUPS: Record<StatusGroupName, StatusGroup> = {
   d_done: { name: "d_done", statuses: ["done", "cancelled"] },
 };
 
-export const checkIfStatusInGroup = (status: TaskStatusShortName, group: StatusGroupName) =>
+export const checkIfStatusInGroup = (status: TaskStatusShortName, group: StatusGroupName): boolean =>
   TASK_STATUSES_GROUPS[group].statuses.includes(status);
 
 export const getStatusGroup = (status: TaskStatusShortName): StatusGroupName => {
   let group: StatusGroupName = "a_new";
 
-  Object.values(TASK_STATUSES_GROUPS).forEach((val, i) => {
+  Object.values(TASK_STATUSES_GROUPS).forEach((val) => {
     if (val.statuses.includes(status)) {
       group = val.name;
     }

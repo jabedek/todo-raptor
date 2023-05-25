@@ -1,4 +1,4 @@
-import { CallbackFn, generateInputId } from "frotsi";
+import { generateInputId } from "frotsi";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import "./InputTags.scss";
@@ -6,10 +6,10 @@ import { FormClearX, InputProps, TagItem } from "@@components/forms";
 import { getTagWidth } from "./helpers";
 import InputTag from "./InputTag/InputTag";
 
-type Props = Omit<InputProps, "value"> & {
+type Props = Omit<InputProps, "changeFn" | "value"> & {
   values: TagItem[];
   hint?: string;
-  changeFn: CallbackFn;
+  changeFn: (val: TagItem[]) => void;
 };
 
 const InputTags: React.FC<Props> = (props) => {
@@ -36,7 +36,7 @@ const InputTags: React.FC<Props> = (props) => {
   }, [newTag?.value]);
 
   useLayoutEffect(() => {
-    const handleEvent = (e: MouseEvent) => {
+    const handleEvent = (e: MouseEvent): void => {
       const thisElement = (e.target as HTMLElement).id === inputId;
       if (thisElement) {
         if (!newTag?.temporaryId && !disabled) {
@@ -49,20 +49,20 @@ const InputTags: React.FC<Props> = (props) => {
     return () => ref.current?.removeEventListener("click", handleEvent);
   }, [ref.current]);
 
-  const handleClick = () => {
+  const handleClick = (): void => {
     if (!disabled) {
       const tagId = generateInputId(props.name, "tag");
       setnewTag({ temporaryId: tagId, value: "" });
     }
   };
 
-  const handleChange = (val: string) => {
+  const handleChange = (val: string): void => {
     if (newTag?.temporaryId) {
       setnewTag({ ...newTag, value: val });
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (): void => {
     const newValues: TagItem[] = [...values].filter((v: TagItem) => v.value && v.temporaryId);
     if (newTag?.temporaryId && newTag.value) {
       newValues.push({ ...newTag });
@@ -76,7 +76,7 @@ const InputTags: React.FC<Props> = (props) => {
     }, 50);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     switch (e.key) {
       case ",":
       case "Enter":
@@ -93,16 +93,16 @@ const InputTags: React.FC<Props> = (props) => {
     }
   };
 
-  const onDelete = (_: React.MouseEvent, index: string) => {
+  const onDelete = (_: React.MouseEvent, index: string): void => {
     updateValues([...values].filter((v) => v.temporaryId !== index));
   };
 
-  const reset = (_: React.MouseEvent) => {
+  const reset = (): void => {
     setnewTag(undefined);
     updateValues([]);
   };
 
-  const updateValues = (values: TagItem[]) => {
+  const updateValues = (values: TagItem[]): void => {
     setvalues(values);
     props.changeFn(values);
   };

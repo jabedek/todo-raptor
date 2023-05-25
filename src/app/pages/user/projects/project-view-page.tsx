@@ -8,10 +8,12 @@ const ProjectViewPage: React.FC = () => {
   const routeData = useLoaderData() as { projectData: Project | undefined; projectId: string };
 
   return (
-    <ProjectView
-      projectData={routeData.projectData}
-      projectId={routeData.projectId}
-    />
+    <div className="app_flex_center flex-col">
+      <ProjectView
+        projectData={routeData.projectData}
+        projectId={routeData.projectId}
+      />
+    </div>
   );
 };
 

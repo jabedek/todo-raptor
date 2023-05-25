@@ -1,4 +1,4 @@
-import { Children, useLayoutEffect, ReactElement, JSXElementConstructor, ReactFragment, useState } from "react";
+import { Children, JSXElementConstructor, ReactElement, ReactFragment, useLayoutEffect, useState } from "react";
 
 type Props = {
   children: React.ReactNode;
@@ -37,7 +37,7 @@ const SidePanel: React.FC<Props> = (props) => {
     }
   }, [props]);
 
-  const handleError = (child: { which: "d0" | "d1" | "both"; type: string }) => {
+  const handleError = (child: { which: "d0" | "d1" | "both"; type: string }): void => {
     switch (child.which) {
       case "d0":
         setdivTop(undefined);

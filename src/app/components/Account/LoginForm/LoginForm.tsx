@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserCredential } from "firebase/auth";
 
-import {} from "@@types";
 import { AuthAPI } from "@@api/firebase";
-import { FormWrapper, InputWritten, ResultDisplayer, ResultDisplay } from "@@components/forms";
+import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
 import { Button } from "@@components/common";
 import { getHint, validateEmailPassword, validateInput } from "@@components/forms/simple-validation";
+import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 const LoginForm: React.FC = () => {
   type FormValidity = keyof typeof validity;
@@ -16,7 +16,7 @@ const LoginForm: React.FC = () => {
   const [validity, setvalidity] = useState({ password: false, confirmPassword: false, email: false });
   const navigate = useNavigate();
 
-  const handleChange = (formPart: FormValidity, validation: "password" | "email", value: string) => {
+  const handleChange = (formPart: FormValidity, validation: "password" | "email", value: string): void => {
     const newState = {
       ...validity,
       ...{
@@ -26,24 +26,22 @@ const LoginForm: React.FC = () => {
     setvalidity(newState);
   };
 
-  const validateForm = (formEmail: string, formPassword: string) => validateEmailPassword(formEmail, formPassword);
-
-  const handleSubmit = async () => {
-    const { isValid, message } = validateForm(email, password);
+  const handleSubmit = (): void => {
+    const { isValid, message } = validateEmailPassword(email, password);
 
     setmessage({ text: message, isError: !isValid });
-    if (!!isValid) {
+    if (isValid) {
       AuthAPI.authenticateInFirebase(email, password, (result: UserCredential | Error) => {
         if (!(result instanceof Error)) {
           setTimeout(() => navigate("/account", { relative: "route" }), 200);
         } else {
           setmessage({ text: `Something went wrong while authenticating user: ${result.message}`, isError: true });
         }
-      });
+      }).catch((e) => console.error(e));
     }
   };
 
-  const reset = () => {
+  const reset = (): void => {
     setemail("");
     setpassword("");
     setmessage(undefined);
@@ -59,7 +57,7 @@ const LoginForm: React.FC = () => {
         type="email"
         name="email"
         invalid={!validity.email}
-        changeFn={(val) => {
+        changeFn={(event: WrittenChangeEvent, val: string) => {
           setemail(() => {
             handleChange("email", "email", val);
             return val;
@@ -76,7 +74,7 @@ const LoginForm: React.FC = () => {
         name="password"
         hint={getHint("password")}
         invalid={!validity.password}
-        changeFn={(val) => {
+        changeFn={(event: WrittenChangeEvent, val: string) => {
           setpassword(() => {
             handleChange("password", "password", val);
             return val;

@@ -14,9 +14,11 @@ type Props = {
 };
 
 const ConfirmDialog: React.FC<Props> = ({ submitFn, whatAction, extraActionCheck, closeOnSuccess, irreversible }) => {
+  type Option = { value: string; label: string; checked: boolean };
+
   const { hidePopup } = usePopupContext();
   const [checked, setchecked] = useState(false);
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     submitFn(checked);
     if (closeOnSuccess) {
       hidePopup();
@@ -35,7 +37,7 @@ const ConfirmDialog: React.FC<Props> = ({ submitFn, whatAction, extraActionCheck
           <p className="w-full uppercase text-[12px] ">{extraActionCheck}</p>
           <InputCheckbox
             label={"Check"}
-            changeFn={(val) => setchecked(val[0].checked)}
+            changeFn={(val: Option[]) => setchecked(val[0].checked)}
             name="extra-action"
             options={[{ value: "opt-in", label: "opt-in", checked }]}
             tailwindStyles=""

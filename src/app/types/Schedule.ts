@@ -1,5 +1,5 @@
 import { StatusGroupName, TaskStatusShortName } from "@@components/Tasks/visuals/task-visuals";
-import { SimpleTask, FullTask } from "./Tasks";
+import { FullTask, SimpleTask } from "./Tasks";
 import { Flatten } from "frotsi";
 
 export type Schedule<S extends ScheduleColumnType> = {

@@ -1,7 +1,7 @@
 import { Icons } from "@@components/Layout";
 import { getUserDisplayName } from "@@components/Projects";
 import { getShortId } from "@@components/Tasks/task-utils";
-import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, SimpleTask, FullTask } from "@@types";
+import { FullTask, ProjectWithAssigneesRegistry, SimpleTask } from "@@types";
 import { useEffect, useState } from "react";
 import { FullTasksRegistry } from "src/app/types/Tasks";
 
@@ -14,7 +14,7 @@ type Props = {
 const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm }) => {
   const [fullTasksRegistry, setfullTasksRegistry] = useState<FullTasksRegistry>();
   useEffect(() => {
-    let registry: FullTasksRegistry = {};
+    const registry: FullTasksRegistry = {};
     tasks.forEach((t) => {
       registry[t.id] = { ...t };
     });
@@ -22,7 +22,7 @@ const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm }) => {
     setfullTasksRegistry(registry);
   }, [project, tasks]);
 
-  const popup = (task: FullTask) => {
+  const popup = (task: FullTask): void => {
     const { assigneeDetails, statusDetails, ...simpleTask } = task;
     popupTaskForm(simpleTask);
   };

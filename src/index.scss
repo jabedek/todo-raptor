@@ -1,12 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@100;200;300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&display=swap");
-@import "./assets/styles/scss-globals.scss";
-@import "./assets/styles/tailwind-globals.scss";
-@import "./assets/styles/scrollbar.scss";
+// @import url("https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@100;200;300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&display=swap");
+
+@import "./fonts/fonts.scss";
+
+@import "./app/global-styles/scss-globals.scss";
+@import "./app/global-styles/tailwind-globals.scss";
+@import "./app/global-styles/scrollbar.scss";
+
 @import "./app/components/forms/components/basic-inputs/basic-inputs.scss";
 @import "./app/components/Projects/projects-styles.scss";
-
 @import "./app/components/Projects/visuals/project-visuals.scss";
 @import "./app/components/Tasks/visuals/task-visuals.scss";
+
 @import-normalize;
 
 * {

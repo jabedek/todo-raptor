@@ -4,12 +4,13 @@ import { useState } from "react";
 import { FormWrapper, InputWritten } from "@@components/forms";
 import { Project } from "@@types";
 import { Button } from "@@components/common";
+import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 type Props = { project: Project; deleteFn: CallbackFn };
 
 const DeleteProjectForm: React.FC<Props> = (props) => {
   const [title, settitle] = useState("");
-  const handleClick = () => props.deleteFn();
+  const handleClick = (): void => props.deleteFn();
 
   return (
     <FormWrapper
@@ -21,7 +22,7 @@ const DeleteProjectForm: React.FC<Props> = (props) => {
       <InputWritten
         value={title}
         type="text"
-        changeFn={(e) => settitle(e)}
+        changeFn={(event: WrittenChangeEvent, val: string) => settitle(val)}
         name="project-title"
         label="Please enter title of the project"
         tailwindStyles="min-w-[250px] w-full"

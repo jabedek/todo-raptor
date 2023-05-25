@@ -1,5 +1,5 @@
 import { CallbackFn } from "frotsi";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { FormClearX, TagItem } from "@@components/forms";
 import { getTagWidth } from "../helpers";

@@ -2,29 +2,30 @@ import React, { useEffect, useState } from "react";
 import { generateDocumentId, generateInputId } from "frotsi";
 
 import {
+  ConfirmDialog,
   FormWrapper,
   InputSelect,
-  InputWritten,
   InputTags,
+  InputWritten,
   ResultDisplay,
   ResultDisplayer,
-  TagItem,
   SelectOption,
-  ConfirmDialog,
+  TagItem,
 } from "@@components/forms";
-import { Project, ProjectWithAssigneesRegistry, SimpleProjectAssignee, SimpleTask } from "@@types";
+import { Project, ProjectWithAssigneesRegistry, SimpleAssignee, SimpleTask } from "@@types";
 import { Button } from "@@components/common";
 import { TasksAPI } from "@@api/firebase";
 import {
-  TaskStatusShortName,
+  getStatusGroup,
+  TASK_LISTS_OPTIONS,
   TASK_STATUSES_OPTIONS,
   TaskListType,
-  TASK_LISTS_OPTIONS,
-  getStatusGroup,
+  TaskStatusShortName,
 } from "../visuals/task-visuals";
 import { usePopupContext } from "@@components/Layout";
 import { getShortId } from "../task-utils";
 import { ScheduleAction } from "src/app/types/Schedule";
+import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 type Props = {
   project: ProjectWithAssigneesRegistry | undefined;
@@ -33,12 +34,12 @@ type Props = {
 };
 
 const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
-  type Option = SelectOption<SimpleProjectAssignee>;
+  type Option = SelectOption<SimpleAssignee>;
   const [id, setid] = useState("");
   const [title, settitle] = useState("");
   const [description, setdescription] = useState("");
   const [tags, settags] = useState<TagItem[]>([]);
-  const [assignee, setassignee] = useState<SimpleProjectAssignee>();
+  const [assignee, setassignee] = useState<SimpleAssignee>();
   const [status, setstatus] = useState<TaskStatusShortName>(TASK_STATUSES_OPTIONS[0].value);
   const [newList, setnewList] = useState<TaskListType>("backlog");
 
@@ -65,7 +66,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
   }, [project, task, taskList]);
 
   useEffect(() => {
-    let options: Option[] = (project?.assignees || []).map((assignee) => {
+    const options: Option[] = (project?.assignees || []).map((assignee) => {
       const assigneeEmail = `${assignee.email}`;
       return { label: assigneeEmail, value: { ...assignee, email: assigneeEmail } };
     });
@@ -78,7 +79,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
     setassigneesOptions(options);
   }, [formMode]);
 
-  const handleSubmitNewTask = () => {
+  const handleSubmitNewTask = (): void => {
     if (project) {
       const assigneeId = assignee?.id || "";
       const taskNumber = (project?.tasksCounter || 0) + 1;
@@ -112,7 +113,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
     }
   };
 
-  const handleSubmitEditedTask = () => {
+  const handleSubmitEditedTask = (): void => {
     if (project && task) {
       const assigneeId = assignee?.id || "";
       const taskNumber = (project?.tasksCounter || 0) + 1;
@@ -131,16 +132,13 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
 
       const { assigneesRegistry, ...newProject } = project;
 
-      let scheduleAction: ScheduleAction = {
+      const scheduleAction: ScheduleAction = {
         oldColumn: getStatusGroup(task?.status),
         column: getStatusGroup(newTask.status),
         action: "add-to-schedule",
       };
 
-      if (status !== task?.status) {
-      }
-
-      let listChanged = taskList !== newList;
+      const listChanged = taskList !== newList;
       if (listChanged) {
         if (newList !== "schedule") {
           newProject.tasksLists[newList] = [...newProject.tasksLists[newList], id];
@@ -159,7 +157,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     if (formMode === "new") {
       handleSubmitNewTask();
     } else {
@@ -167,7 +165,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
     }
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setid(`task_${generateDocumentId()}`);
     settitle("");
     setdescription("");
@@ -177,12 +175,12 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
     setnewList("backlog");
   };
 
-  const saveTask = async (
+  const saveTask = (
     task: SimpleTask,
     project: Project | null | undefined,
     assigneeId: string | undefined,
     schedule: ScheduleAction
-  ) => {
+  ): void => {
     if (!project || !task) {
       return undefined;
     }
@@ -200,7 +198,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       });
   };
 
-  const popupConfirmDialog = (data: { taskId: string; projectId: string; assigneeId?: string }) =>
+  const popupConfirmDialog = (data: { taskId: string; projectId: string; assigneeId?: string }): void =>
     showPopup(
       <ConfirmDialog
         submitFn={() => deleteTask(data.taskId, data.projectId)}
@@ -209,9 +207,9 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       />
     );
 
-  const deleteTask = async (taskId: string, projectId: string) =>
+  const deleteTask = (taskId: string, projectId: string): void => {
     TasksAPI.deleteTask(taskId, projectId)
-      .then(() => {
+      ?.then(() => {
         setmessage({ text: "Task has been deleted.", isError: false });
         setid(`task_${generateDocumentId()}`);
       })
@@ -219,6 +217,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
         console.error(e);
         setmessage({ isError: true, text: "Error during deleting task. See console." });
       });
+  };
 
   return (
     <FormWrapper
@@ -230,7 +229,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
         required
         type="text"
         name="task-title"
-        changeFn={(val) => settitle(val)}
+        changeFn={(event: WrittenChangeEvent, val: string) => settitle(val)}
         label="Title"
         value={title}
         tailwindStyles="min-w-[250px] w-full"
@@ -239,7 +238,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       <InputSelect
         name="assignee"
         selectWidth="w-[460px]"
-        changeFn={(val) => setassignee(val)}
+        changeFn={(val: SimpleAssignee) => setassignee(val)}
         label="Assign assignee"
         value={assignee}
         options={assigneesOptions}
@@ -249,7 +248,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
         required
         type="textarea"
         name="task-description"
-        changeFn={(val) => setdescription(val)}
+        changeFn={(event: WrittenChangeEvent, val: string) => setdescription(val)}
         label="Description"
         value={description}
         tailwindStyles="min-w-[250px] w-full mt-3"
@@ -260,7 +259,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
           required
           name="task-status"
           selectWidth="w-[200px]"
-          changeFn={(value) => setstatus(value)}
+          changeFn={(value) => setstatus(value as TaskStatusShortName)}
           label="Status"
           value={status}
           options={TASK_STATUSES_OPTIONS}
@@ -270,7 +269,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
           required
           name="task-list"
           selectWidth="w-[200px]"
-          changeFn={(value) => setnewList(value)}
+          changeFn={(value) => setnewList(value as "backlog" | "schedule")}
           label="List"
           value={newList}
           options={TASK_LISTS_OPTIONS}
@@ -280,7 +279,7 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
       <InputTags
         required
         name="task-tags"
-        changeFn={(val) => settags(val)}
+        changeFn={(val: TagItem[]) => settags(val)}
         label="Tags"
         hint="Tags could be used to describe task. They can describe main problems, technologies, etc."
         values={tags}

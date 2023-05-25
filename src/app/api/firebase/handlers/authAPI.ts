@@ -1,20 +1,20 @@
 import { CallbackFn } from "frotsi";
 import {
-  User as FirebaseAuthUser,
-  Unsubscribe,
-  UserCredential,
   createUserWithEmailAndPassword,
+  User as FirebaseAuthUser,
   getAuth,
   sendEmailVerification,
   signInWithEmailAndPassword,
   signOut,
+  Unsubscribe,
+  UserCredential,
 } from "firebase/auth";
 
-import { FirebaseApp, FirebaseAuth, FirebaseDB, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
+import { FirebaseApp, FirebaseAuth, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
 
-const getCurrentFirebaseAuthUser = () => getAuth(FirebaseApp).currentUser;
+const getCurrentFirebaseAuthUser = (): FirebaseAuthUser | null => getAuth(FirebaseApp).currentUser;
 
-const registerAuthUserInFirebase = (email: string, password: string, cb: CallbackFn) => {
+const registerAuthUserInFirebase = async (email: string, password: string, cb: CallbackFn): Promise<void> => {
   createUserWithEmailAndPassword(FirebaseAuth, email, password).then(
     (auth: UserCredential) => {
       cb(auth);
@@ -27,7 +27,7 @@ const registerAuthUserInFirebase = (email: string, password: string, cb: Callbac
   );
 };
 
-const authenticateInFirebase = (email: string, password: string, cb: CallbackFn) => {
+const authenticateInFirebase = async (email: string, password: string, cb: CallbackFn): Promise<void> => {
   signInWithEmailAndPassword(FirebaseAuth, email, password).then(
     (auth: UserCredential) => {
       cb(auth);
@@ -39,7 +39,7 @@ const authenticateInFirebase = (email: string, password: string, cb: CallbackFn)
     }
   );
 };
-const sendVerificationEmail = (cb: CallbackFn, verifEmailsAmount: number) => {
+const sendVerificationEmail = async (cb: CallbackFn, verifEmailsAmount: number): Promise<void> => {
   const firebaseUser = getCurrentFirebaseAuthUser();
   if (firebaseUser) {
     sendEmailVerification(firebaseUser).then(
@@ -62,21 +62,21 @@ const sendVerificationEmail = (cb: CallbackFn, verifEmailsAmount: number) => {
   }
 };
 
-const logoutInFirebase = () => signOut(FirebaseAuth);
+const logoutInFirebase = async (): Promise<void> => signOut(FirebaseAuth);
 
-const listenToAuthState = (cb: CallbackFn) => {
+const listenToAuthState = (cb: CallbackFn): void => {
   const unsub: Unsubscribe = getAuth(FirebaseApp).onAuthStateChanged(async (auth: FirebaseAuthUser | null) =>
     cb(<FirebaseUserStateChange>{ auth, cause: "auth" }, unsub)
   );
 };
 
-const listenToIdTokenState = (cb: CallbackFn) => {
+const listenToIdTokenState = (cb: CallbackFn): void => {
   const unsub: Unsubscribe = getAuth(FirebaseApp).onIdTokenChanged(async (auth: FirebaseAuthUser | null) =>
     cb(<FirebaseUserStateChange>{ auth, cause: "idToken" }, unsub)
   );
 };
 
-const listenToFirebaseAuthState = (cb: CallbackFn) => {
+const listenToFirebaseAuthState = (cb: CallbackFn): void => {
   listenToAuthState(cb);
   listenToIdTokenState(cb);
 };

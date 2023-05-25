@@ -1,6 +1,6 @@
 import { AppAPICode, AppAPINoCodeEmail } from "./types";
 
-export const isCodeValid = (data: AppAPICode) => {
+export const isCodeValid = (data: AppAPICode): boolean => {
   if (!data) {
     return false;
   }
@@ -10,7 +10,7 @@ export const isCodeValid = (data: AppAPICode) => {
   return !!(today <= new Date(isoEnd) && today >= new Date(isoStart));
 };
 
-export const isNoCodeEmailValid = (data: AppAPINoCodeEmail) => {
+export const isNoCodeEmailValid = (data: AppAPINoCodeEmail): boolean => {
   if (!data) {
     return false;
   }
@@ -20,3 +20,14 @@ export const isNoCodeEmailValid = (data: AppAPINoCodeEmail) => {
 
   return !!(today <= new Date(noCheckUntil));
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function handlePromiseError(name: string, e?: unknown): unknown {
+  console.error(`Error regarding [${name}]. `, e);
+
+  if (e) {
+    return e as unknown;
+  } else {
+    return "";
+  }
+}

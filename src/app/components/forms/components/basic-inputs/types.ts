@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CallbackFn } from "frotsi";
 
 export type InputDateTimeType = "date" | "month" | "time" | "week";
@@ -17,7 +18,8 @@ export type InputSpecifics = {
   [key: string]: any;
 };
 
-export type SelectOption<T> = {
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+export type SelectOption<T extends unknown = void> = {
   value: T;
   label: string;
   iconClass?: string;
@@ -26,10 +28,10 @@ export type SelectOption<T> = {
 };
 
 // BASIC
-export type InputProps = {
-  value: any;
+export type InputProps<T extends any = any> = {
+  value: T;
   name: string;
-  changeFn: CallbackFn<any>;
+  changeFn: CallbackFn<T>;
   /** Could return errors or smth. */
   changeSideEffectFn?: SideEffectCallback;
   required?: boolean;
@@ -37,3 +39,7 @@ export type InputProps = {
   label?: string;
   tailwindStyles?: string;
 };
+
+export type InputChangeEvent = React.ChangeEvent<HTMLInputElement>;
+export type TextareaChangeEvent = React.ChangeEvent<TextareaChangeEvent>;
+export type WrittenChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;

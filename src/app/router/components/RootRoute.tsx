@@ -3,7 +3,7 @@ import { Layout } from "@@components/Layout";
 import { APIAccessProvider, UserProvider } from "src/app/contexts";
 import { PopupProvider } from "@@components/Layout";
 
-function RootRoute() {
+function RootRoute(): JSX.Element {
   return (
     <UserProvider>
       <PopupProvider>

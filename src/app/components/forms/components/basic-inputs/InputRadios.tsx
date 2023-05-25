@@ -1,7 +1,7 @@
-import { generateInputId } from "frotsi";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
 import { InputProps, InputWritten, SelectOption } from "@@components/forms";
+import { InputChangeEvent, WrittenChangeEvent } from "./types";
 
 type RadioOption<T> = SelectOption<T> & {
   default?: boolean;
@@ -9,23 +9,21 @@ type RadioOption<T> = SelectOption<T> & {
 };
 
 type Props = Omit<InputProps, "value"> & {
-  options: RadioOption<any>[];
+  options: RadioOption<unknown>[];
   orientation?: "horizontal" | "vertical";
 };
 
 const InputRadios: React.FC<Props> = (props) => {
-  const [focus, setfocus] = useState(false);
   const [valueWritten, setValueWritten] = useState("");
   const [selectedWrite, setSelectedWrite] = useState(false);
   const [checkedID, setCheckedID] = useState("");
-  const inputId = useRef(generateInputId(props.name, "radio")).current;
 
   useEffect(() => {
-    const checkedValueIndex = props.options.findIndex((v, i) => v.default === true);
+    const checkedValueIndex = props.options.findIndex((v) => v.default === true);
     if (checkedValueIndex > -1) {
       const checkedOption = props.options[checkedValueIndex];
       props.changeFn(checkedOption?.value);
-      const id = `${checkedValueIndex}-${checkedOption?.value}`;
+      const id = `${checkedValueIndex}-${checkedOption?.value as string}`;
       setCheckedID(id);
       if (checkedOption.customWrite) {
         setSelectedWrite(true);
@@ -33,7 +31,7 @@ const InputRadios: React.FC<Props> = (props) => {
     }
   }, [props.options[0].label, props.options[0].value]);
 
-  const updateValueRadio = (e: React.ChangeEvent<HTMLInputElement>, option: RadioOption<any>) => {
+  const updateValueRadio = (e: React.ChangeEvent<HTMLInputElement>, option: RadioOption<unknown>): void => {
     const val = e.currentTarget.value;
     const id = e.currentTarget.id;
     if (!option.notselectable) {
@@ -50,7 +48,7 @@ const InputRadios: React.FC<Props> = (props) => {
     }
   };
 
-  const updateValueWritten = (e: React.FormEvent<HTMLInputElement>, prefix = "") => {
+  const updateValueWritten = (e: WrittenChangeEvent, prefix = ""): void => {
     const value = e.currentTarget.value;
     setValueWritten(value);
     props.changeFn(prefix + value);
@@ -66,12 +64,10 @@ const InputRadios: React.FC<Props> = (props) => {
           </>
         )}
       </h1>
-      <div
-        className={` w-full ${props.orientation === "horizontal" ? "flex gap-5" : ""}`}
-        onFocus={() => setfocus(true)}
-        onBlur={() => setfocus(false)}>
+      <div className={` w-full ${props.orientation === "horizontal" ? "flex gap-5" : ""}`}>
         {props.options?.map((o, i) => {
-          const optionId = `${i}-${o.value}`;
+          const value = "" + o.value;
+          const optionId = `${i}-${value}`;
 
           return (
             <div
@@ -83,11 +79,11 @@ const InputRadios: React.FC<Props> = (props) => {
                 type="radio"
                 name={props.name}
                 checked={checkedID === optionId}
-                value={o.value || "[not defined]"}
-                onChange={(e) => updateValueRadio(e, o)}
+                value={value || "[not defined]"}
+                onChange={(e: InputChangeEvent) => updateValueRadio(e, o)}
                 className={`app_input_radio peer`}
                 required={props.required}
-                disabled={props.disabled || o.notselectable || (!o.customWrite && !o.value)}
+                disabled={props.disabled || o.notselectable || (!o.customWrite && !value)}
               />
 
               <label
@@ -106,7 +102,7 @@ const InputRadios: React.FC<Props> = (props) => {
                     value={valueWritten}
                     tailwindStyles="w-full"
                     label=""
-                    changeFn={(e) => updateValueWritten(e, o.prefix)}
+                    changeFn={(e: WrittenChangeEvent) => updateValueWritten(e, o.prefix)}
                   />
                 </div>
               )}

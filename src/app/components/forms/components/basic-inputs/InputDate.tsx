@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { generateInputId } from "frotsi";
-import { InputProps, InputSpecifics, InputDateTimeType } from "@@components/forms";
+import { InputDateTimeType, InputProps, InputSpecifics } from "@@components/forms";
 
 type Props = InputProps & {
   type: InputDateTimeType;
@@ -9,19 +9,15 @@ type Props = InputProps & {
 };
 
 const InputDate: React.FC<Props> = (props) => {
-  const [focus, setfocus] = useState(false);
   const inputId = useRef(generateInputId(props.name, props.type || "date")).current;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.currentTarget.value; // YYYY-MM-DD
     props.changeFn(value);
   };
 
   return (
-    <div
-      className={`${inputId} sticky mt-4 my-1 w-full ${props.label && props.label.length > 0 && "app_input_top"}`}
-      onFocus={() => setfocus(true)}
-      onBlur={() => setfocus(false)}>
+    <div className={`${inputId} sticky mt-4 my-1 w-full ${props.label && props.label.length > 0 && "app_input_top"}`}>
       <input
         tabIndex={0}
         autoFocus={!!props.focus}

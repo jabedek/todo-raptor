@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import "./ProjectAssigneeIcon.scss";
+import { useEffect, useState } from "react";
+import "./AssigneeIcon.scss";
 import { getUserDisplayName } from "../projects-utils";
-import { FullProjectAssignee } from "@@types";
+import { FullAssignee } from "@@types";
 import { Flatten } from "frotsi";
 
 type Props = {
-  assignee: Flatten<Partial<FullProjectAssignee>> | "..." | undefined;
+  assignee: Flatten<Partial<FullAssignee>> | "..." | undefined;
   tailwindStyles?: string;
 };
 
-const ProjectAssigneeIcon: React.FC<Props> = ({ assignee, tailwindStyles }) => {
+const AssigneeIcon: React.FC<Props> = ({ assignee, tailwindStyles }) => {
   const [displayName, setdisplayName] = useState<string>();
   const [assigneeStyles, setassigneeStyles] = useState("");
 
@@ -46,4 +46,4 @@ const ProjectAssigneeIcon: React.FC<Props> = ({ assignee, tailwindStyles }) => {
   );
 };
 
-export default ProjectAssigneeIcon;
+export default AssigneeIcon;

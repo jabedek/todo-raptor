@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { UserCredential } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
-import { UsersAPI, AuthAPI } from "@@api/firebase";
-import { FormWrapper, InputWritten, ResultDisplayer, ResultDisplay } from "@@components/forms";
+import { AuthAPI, UsersAPI } from "@@api/firebase";
+import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
 import { Button } from "@@components/common";
 import { getHint, validateEmailPassword, validateInput } from "@@components/forms/simple-validation";
+import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 const RegisterForm: React.FC = () => {
   type FormValidity = keyof typeof validity;
@@ -19,7 +20,7 @@ const RegisterForm: React.FC = () => {
   const [validity, setvalidity] = useState({ password: false, confirmPassword: false, email: false });
   const navigate = useNavigate();
 
-  const handleChange = (formPart: FormValidity, validation: "password" | "email", value: string) => {
+  const handleChange = (formPart: FormValidity, validation: "password" | "email", value: string): void => {
     const newState = {
       ...validity,
       ...{
@@ -29,14 +30,11 @@ const RegisterForm: React.FC = () => {
     setvalidity(newState);
   };
 
-  const validateForm = (formEmail: string, formPassword: string, formConfirmPassword: string) =>
-    validateEmailPassword(formEmail, formPassword, formConfirmPassword);
-
-  const handleSubmit = async () => {
-    const { isValid, message } = validateForm(email, password, confirmPassword);
+  const handleSubmit = (): void => {
+    const { isValid, message } = validateEmailPassword(email, password, confirmPassword);
 
     setmessage({ text: message, isError: !isValid });
-    if (!!isValid) {
+    if (isValid) {
       AuthAPI.registerAuthUserInFirebase(email, password, (result: UserCredential | Error) => {
         if (!(result instanceof Error)) {
           let displayName = "";
@@ -53,18 +51,18 @@ const RegisterForm: React.FC = () => {
           UsersAPI.saveNewUserInDB(result.user, names).then(
             () => {
               setTimeout(() => navigate("/account", { relative: "route" }), 200);
-              AuthAPI.sendVerificationEmail((res: Error | void) => {}, 0);
+              AuthAPI.sendVerificationEmail((res: Error | void) => {}, 0).catch((e) => console.error(e));
             },
             () => {}
           );
         } else {
           setmessage({ text: `Something went wrong while creating user: ${result.message}`, isError: true });
         }
-      });
+      }).catch((e) => console.error(e));
     }
   };
 
-  const reset = () => {
+  const reset = (): void => {
     setemail("");
     setpassword("");
     setconfirmPassword("");
@@ -84,7 +82,7 @@ const RegisterForm: React.FC = () => {
           autoComplete="off"
           hint={getHint("email")}
           invalid={!validity.email}
-          changeFn={(val) => {
+          changeFn={(event: WrittenChangeEvent, val: string) => {
             setemail(() => {
               handleChange("email", "email", val);
               return val;
@@ -100,7 +98,7 @@ const RegisterForm: React.FC = () => {
           type="password"
           name="password"
           invalid={!validity.password}
-          changeFn={(val) => {
+          changeFn={(event: WrittenChangeEvent, val: string) => {
             setpassword(() => {
               handleChange("password", "password", val);
               return val;
@@ -117,7 +115,7 @@ const RegisterForm: React.FC = () => {
           type="password"
           name="confirmPassword"
           invalid={!validity.confirmPassword}
-          changeFn={(val) => {
+          changeFn={(event: WrittenChangeEvent, val: string) => {
             setconfirmPassword(() => {
               handleChange("confirmPassword", "password", val);
               return val;
@@ -129,7 +127,7 @@ const RegisterForm: React.FC = () => {
         />
 
         <InputWritten
-          changeFn={(e) => setname(e)}
+          changeFn={(event: WrittenChangeEvent, val: string) => setname(val)}
           name="user-name"
           value={name}
           tailwindStyles="min-w-[250px] w-full"
@@ -138,7 +136,7 @@ const RegisterForm: React.FC = () => {
         />
 
         <InputWritten
-          changeFn={(e) => setlastname(e)}
+          changeFn={(event: WrittenChangeEvent, val: string) => setlastname(val)}
           name="user-lastname"
           value={lastname}
           tailwindStyles="min-w-[250px] w-full"
@@ -147,7 +145,7 @@ const RegisterForm: React.FC = () => {
         />
 
         <InputWritten
-          changeFn={(e) => setnickname(e)}
+          changeFn={(event: WrittenChangeEvent, val: string) => setnickname(val)}
           name="user-nickname"
           value={nickname}
           tailwindStyles="min-w-[250px] w-full"

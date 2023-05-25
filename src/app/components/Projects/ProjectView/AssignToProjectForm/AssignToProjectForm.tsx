@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ProjectsAPI } from "@@api/firebase";
 import { Button } from "@@components/common";
 import { FormWrapper, InputSelect, ResultDisplay, ResultDisplayer, SelectOption } from "@@components/forms";
-import { IdEmailPair, ProjectWithAssigneesRegistry, User } from "@@types";
+import { Contact, IdEmailPair, ProjectWithAssigneesRegistry, User } from "@@types";
 import { PROJECT_ROLES_OPTIONS, ProjectRoleShortName } from "@@components/Projects/visuals/project-visuals";
 type Props = {
   user: User | undefined;
@@ -17,19 +17,21 @@ const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
 
   useEffect(() => {
     if (user && project) {
-      ProjectsAPI.getAvailableContactsForAssigneeship(user, project).then((assignees) => {
-        if (assignees) {
-          const options: SelectOption<IdEmailPair>[] = assignees.map((assignee) => ({
-            value: assignee,
-            label: assignee.email,
-          }));
-          setassigneesOptions(options);
-        }
-      });
+      ProjectsAPI.getAvailableContactsForAssigneeship(user, project)
+        .then((assignees) => {
+          if (assignees) {
+            const options: SelectOption<Contact>[] = assignees.map((assignee) => ({
+              value: assignee,
+              label: assignee.email,
+            }));
+            setassigneesOptions(options);
+          }
+        })
+        .catch((e) => console.error(e));
     }
   }, [user, project]);
 
-  const submit = () => {
+  const submit = (): void => {
     if (assignee && role && project) {
       ProjectsAPI.userAsAssigneeBond({ ...assignee, role }, project, "make")
         .then(() => setmessage({ isError: false, text: "User has been added to project team." }))
@@ -46,7 +48,7 @@ const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
           required
           name="mode"
           selectWidth="w-[460px]"
-          changeFn={(val) => setassignee(val)}
+          changeFn={(val: Contact) => setassignee(val)}
           label="Select assignee from your contacts"
           value={assignee}
           options={assigneesOptions}
@@ -59,7 +61,7 @@ const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {
           name="mode"
           selectWidth="w-[200px]"
           tailwindStyles="w-[400px]"
-          changeFn={(val) => setrole(val)}
+          changeFn={(val: ProjectRoleShortName) => setrole(val)}
           label="Assignee Role"
           value={role}
           disabled={!assignee}

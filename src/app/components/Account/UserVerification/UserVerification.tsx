@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User as FirebaseAuthUser } from "firebase/auth";
 
 import { ResultDisplay, ResultDisplayer } from "@@components/forms";
@@ -24,7 +24,7 @@ const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
   useEffect(() => {
     if (wait) {
       let timeleft = wait;
-      let timer = setInterval(function () {
+      const timer = setInterval(function () {
         timeleft--;
         setwait(timeleft);
         if (timeleft <= 0) {
@@ -35,7 +35,7 @@ const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
     }
   }, [wait]);
 
-  const determineResendingVerification = (resendRequest?: boolean) => {
+  const determineResendingVerification = (resendRequest?: boolean): void => {
     if (firebaseUser && firebaseUser.emailVerified === false && !wait && verifEmailsAmount.current !== undefined) {
       switch (verifEmailsAmount.current) {
         case 0: {
@@ -67,15 +67,15 @@ const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
     }
   };
 
-  const sendEmail = (successMessage: ResultDisplay) => {
+  const sendEmail = (successMessage: ResultDisplay): void => {
     if (verifEmailsAmount.current !== undefined && firebaseUser) {
       AuthAPI.sendVerificationEmail((result: Error | void) => {
         sendEmailEffect(result, successMessage);
-      }, verifEmailsAmount.current);
+      }, verifEmailsAmount.current).catch((e) => console.error(e));
     }
   };
 
-  const sendEmailEffect = (result: Error | void, successMessage: ResultDisplay) => {
+  const sendEmailEffect = (result: Error | void, successMessage: ResultDisplay): void => {
     if (!(result instanceof Error)) {
       if (user && user.authentication && verifEmailsAmount.current !== undefined) {
         setmessage(successMessage);
@@ -88,7 +88,7 @@ const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
     }
   };
 
-  const resend = async () => determineResendingVerification(true);
+  const resend = (): void => determineResendingVerification(true);
 
   return (
     <div className="  rounded-md shadow-lg  flex flex-col bg-white py-3 px-5 w-[630px] h-[136px]  border-4 border-red-700  ">

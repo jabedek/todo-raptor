@@ -1,10 +1,10 @@
-import { generateInputId, Flatten } from "frotsi";
-import { useState, useEffect, useRef } from "react";
+import { Flatten } from "frotsi";
+import { useEffect, useState } from "react";
 
-import { InputProps, InputWritten, SelectOption } from "@@components/forms";
+import { InputProps, SelectOption } from "@@components/forms";
 
 type CheckboxOption = Flatten<
-  SelectOption<any> & {
+  SelectOption<unknown> & {
     default?: boolean;
     notselectable?: boolean;
     checked: boolean;
@@ -19,13 +19,12 @@ type Props = Flatten<
 >;
 
 const InputCheckbox: React.FC<Props> = (props) => {
-  const [focus, setfocus] = useState(false);
   const [values, setvalues] = useState<CheckboxOption[]>([]);
 
   useEffect(() => {
     setvalues(props.options);
 
-    const checkedValueIndex = props.options.findIndex((v, i) => v.value === true);
+    const checkedValueIndex = props.options.findIndex((v) => v.value === true);
 
     if (checkedValueIndex > -1) {
       const checkedOption = props.options[checkedValueIndex];
@@ -33,7 +32,7 @@ const InputCheckbox: React.FC<Props> = (props) => {
     }
   }, [props]);
 
-  const updateValue = (option: CheckboxOption) => {
+  const updateValue = (option: CheckboxOption): void => {
     const newOptions = [...values];
     newOptions.forEach((op) => {
       if (op.value === option.value) {
@@ -55,12 +54,10 @@ const InputCheckbox: React.FC<Props> = (props) => {
           </>
         )}
       </h1>
-      <div
-        className={` w-full ${props.orientation === "horizontal" ? "flex gap-5" : ""}`}
-        onFocus={() => setfocus(true)}
-        onBlur={() => setfocus(false)}>
+      <div className={` w-full ${props.orientation === "horizontal" ? "flex gap-5" : ""}`}>
         {values?.map((o, i) => {
-          const optionId = `${i}-${o.value}`;
+          const value = "" + o.value;
+          const optionId = `${i}-${value}`;
 
           return (
             <div
@@ -72,11 +69,11 @@ const InputCheckbox: React.FC<Props> = (props) => {
                 type="checkbox"
                 name={props.name}
                 checked={o.checked}
-                value={o.value || "[not defined]"}
+                value={value || "[not defined]"}
                 onChange={() => updateValue(o)}
                 className={`app_input_checkbox peer`}
                 required={props.required}
-                disabled={props.disabled || o.notselectable || (!o.customWrite && !o.value)}
+                disabled={props.disabled || o.notselectable || (!o.customWrite && !value)}
               />
 
               <label

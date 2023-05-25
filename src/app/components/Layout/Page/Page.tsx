@@ -3,7 +3,7 @@ type Props = {
 };
 
 const Page: React.FC<Props> = ({ children }) => {
-  return <div className="app_layout_padding w-full h-[220vh] mt-[40px]">{children}</div>;
+  return <div className="app_layout_padding w-full min-h-[100vh] h-fit mt-[40px]">{children}</div>;
 };
 
 export default Page;

@@ -1,5 +1,5 @@
 import { Draggable, DraggableProvided, DraggableRubric, DraggableStateSnapshot } from "react-beautiful-dnd";
-import { ProjectAssigneeIcon } from "@@components/Projects";
+import { AssigneeIcon } from "@@components/Projects";
 import { FullTask } from "@@types";
 import { Icons } from "@@components/Layout";
 import { CallbackFn } from "frotsi";
@@ -38,7 +38,7 @@ const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, blockadeReason 
             <p>{task.statusDetails.fullName}</p>
 
             <div className={`flex items-center align-center h-full  min-w-[30px]  pl-2 `}>
-              <ProjectAssigneeIcon assignee={task.assigneeDetails} />
+              <AssigneeIcon assignee={task.assigneeDetails} />
             </div>
           </div>
           <div className={` w-full flex h-[18px]  my-2 text-[12px] align-center items-center justify-between font-extrabold `}>

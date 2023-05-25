@@ -1,16 +1,16 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 import { AuthAPI, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
 import { User } from "@@types";
 
-type UserContext = {
+type UserContextType = {
   firebaseAuthUser: FirebaseAuthUser | undefined | null;
   user: User | undefined;
   logout: () => void;
 };
 
-export const UserContext = createContext<UserContext>({
+export const UserContext = createContext<UserContextType>({
   firebaseAuthUser: undefined,
   user: undefined,
   logout: () => {},
@@ -19,7 +19,7 @@ export const UserContext = createContext<UserContext>({
 let UNSUB_AUTH: Unsubscribe | undefined = undefined;
 let UNSUB_USER: Unsubscribe | undefined = undefined;
 
-const UserProvider = ({ children }: any) => {
+const UserProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser | undefined | null>();
   const [user, setuser] = useState<User | undefined>(undefined);
 
@@ -29,7 +29,7 @@ const UserProvider = ({ children }: any) => {
     setfirebaseAuthUser(AuthAPI.getCurrentFirebaseAuthUser());
     unsubListener("all");
 
-    AuthAPI.listenToFirebaseAuthState(async (change: FirebaseUserStateChange, unsub0: Unsubscribe) => {
+    AuthAPI.listenToFirebaseAuthState(async (change: FirebaseUserStateChange, unsub0: Unsubscribe | undefined) => {
       const firebaseAuthUser: FirebaseAuthUser = change.auth;
       UNSUB_AUTH = unsub0;
       setfirebaseAuthUser(firebaseAuthUser);
@@ -45,16 +45,18 @@ const UserProvider = ({ children }: any) => {
     unsubListener("userData");
 
     if (firebaseAuthUser) {
-      UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: User, unsub1: Unsubscribe) => {
-        UNSUB_USER = unsub1;
-        putUser(data);
-      });
+      UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: User | undefined, unsub1: Unsubscribe | undefined) => {
+        if (data && unsub1) {
+          UNSUB_USER = unsub1;
+          putUser(data);
+        }
+      }).catch((e) => console.error(e));
     }
 
     return () => unsubListener("userData");
   }, [firebaseAuthUser]);
 
-  const unsubListener = (name: "auth" | "userData" | "all") => {
+  const unsubListener = (name: "auth" | "userData" | "all"): void => {
     if (["auth", "all"].includes(name) && UNSUB_AUTH) {
       UNSUB_AUTH();
       UNSUB_AUTH = undefined;
@@ -65,14 +67,14 @@ const UserProvider = ({ children }: any) => {
     }
   };
 
-  const putUser = (user: User) => setuser(user);
+  const putUser = (user: User): void => setuser(user);
 
-  const clear = () => {
+  const clear = (): void => {
     setuser(undefined);
     setfirebaseAuthUser(undefined);
   };
 
-  const logout = () => {
+  const logout = (): void => {
     AuthAPI.logoutInFirebase().then(
       () => {
         clear();
@@ -87,7 +89,7 @@ const UserProvider = ({ children }: any) => {
   return <UserContext.Provider value={{ firebaseAuthUser, user, logout }}>{children}</UserContext.Provider>;
 };
 
-function useUserValue() {
+function useUserValue(): UserContextType {
   return useContext(UserContext);
 }
 

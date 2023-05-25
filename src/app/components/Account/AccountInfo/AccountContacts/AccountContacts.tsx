@@ -13,10 +13,10 @@ const AccountContacts: React.FC<Props> = ({ user, contacts }) => {
   const [invitesReceived, setinvitesReceived] = useState<ContactInvitation[]>([]);
 
   const { showPopup, popupElement } = usePopupContext();
-  const popupInvitation = () => showPopup(<ContactForm />);
-  const deleteContact = (contact: Contact) => {
+  const popupInvitation = (): void => showPopup(<ContactForm />);
+  const deleteContact = (contact: Contact): void => {
     if (contact.id && user?.authentication.id) {
-      ContactsAPI.updateContactsBond(contact.id, user?.authentication.id, "break").fireAndForget();
+      ContactsAPI.updateContactsBond(contact.id, user?.authentication.id, "break").fireAndForget(true);
     }
   };
 
@@ -24,25 +24,27 @@ const AccountContacts: React.FC<Props> = ({ user, contacts }) => {
     setTimeout(() => {
       const currentUserId = user?.authentication?.id;
 
-      ContactsAPI.getCurrentUserPendingContactInvicationsByIds().then((invitations) => {
-        if (invitations) {
-          const sent: ContactInvitation[] = [];
-          const received: ContactInvitation[] = [];
+      ContactsAPI.getUserPendingInvitations()
+        .then((invitations) => {
+          if (invitations) {
+            const sent: ContactInvitation[] = [];
+            const received: ContactInvitation[] = [];
 
-          invitations.forEach((invite) => {
-            if (currentUserId === invite.receiver.id) {
-              received.push(invite);
-            }
+            invitations.forEach((invite) => {
+              if (currentUserId === invite.receiver.id) {
+                received.push(invite);
+              }
 
-            if (currentUserId === invite.sender.id) {
-              sent.push(invite);
-            }
-          });
+              if (currentUserId === invite.sender.id) {
+                sent.push(invite);
+              }
+            });
 
-          setinvitesSent(sent);
-          setinvitesReceived(received);
-        }
-      });
+            setinvitesSent(sent);
+            setinvitesReceived(received);
+          }
+        })
+        .fireAndForget();
     }, 200);
   }, [user, popupElement, contacts]);
 

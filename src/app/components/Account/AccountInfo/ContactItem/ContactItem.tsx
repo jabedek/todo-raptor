@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
-
+import { memo, useEffect, useState } from "react";
 import "./ContactItem.scss";
 import { ContactInvitation } from "@@types";
-import { DateFormatter, DateFormats } from "@@utils/date-formatter";
+import { DateFormats, DateFormatter } from "@@utils/date-formatter";
 import { ContactsAPI } from "@@api/firebase";
 import { Icons } from "@@components/Layout";
 
@@ -22,8 +21,8 @@ const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
     setSubject({ status: invitation.status, message });
   }, [invitation, perspectiveOf]);
 
-  const handleSubmit = (variant: "accept" | "reject") => {
-    let updatedInv: ContactInvitation = { ...invitation };
+  const handleSubmit = (variant: "accept" | "reject"): void => {
+    const updatedInv: ContactInvitation = { ...invitation };
 
     switch (variant) {
       case "accept":
@@ -37,7 +36,6 @@ const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
     ContactsAPI.removePendingInvitation(updatedInv).then(
       () => {
         if (variant === "accept") {
-          // Update both users' contacts lists
           ContactsAPI.updateContactsBond(invitation.receiver.id, invitation.sender.id, "make").then(
             () => {},
             (er) => console.error("Error while updating users' contacts. " + er)
@@ -71,4 +69,8 @@ const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
   );
 };
 
-export default ContactItem;
+export default memo(ContactItem, (oldProps, newProps) => {
+  const { id: oldId, status: oldStatus } = oldProps.invitation;
+  const { id: newId, status: newStatus } = newProps.invitation;
+  return oldId === newId && oldStatus === newStatus;
+});

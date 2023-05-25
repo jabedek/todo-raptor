@@ -16,9 +16,9 @@ interface Props {
 const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
   const [tab, settab] = useState<"active" | "archived">("active");
   const [activeCollection, setactiveCollection] = useState<ProjectWithAssigneesRegistry[]>([]);
-  const { showPopup, hidePopup } = usePopupContext();
+  const { showPopup } = usePopupContext();
 
-  const popupProject = () => {
+  const popupProject = (): void => {
     showPopup(<ProjectForm />);
   };
 
@@ -35,7 +35,7 @@ const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
           {/* Main */}
           <div className="projects-table__main flex flex-col justify-between">
             <ProjectsTableHeader
-              setTabFn={(tab) => settab(tab)}
+              setTabFn={(tab: "active" | "archived") => settab(tab)}
               tab={tab}
             />
 

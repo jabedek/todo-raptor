@@ -3,15 +3,15 @@ import { useState } from "react";
 
 import { AuthAPI } from "@@api/firebase";
 import { User } from "@@types";
-import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
 import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
-import { CheckProvidedCodeFn, LackingValidations, useApiAccessValue } from "src/app/contexts/ApiAccessContext";
+import { LackingValidations } from "src/app/contexts/ApiAccessContext";
+import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 type Props = {
   user: User | undefined;
   neededToVerify: { mustProvideCode: boolean; mustVerifyEmail: boolean };
-  checkCode: CallbackFn<Promise<any>>;
+  checkCode: CallbackFn<Promise<LackingValidations>>;
 };
 
 const AppCodeForm: React.FC<Props> = (props) => {
@@ -19,15 +19,15 @@ const AppCodeForm: React.FC<Props> = (props) => {
   const [messageEmail, setmessageEmail] = useState<ResultDisplay>({ isError: false, text: "" });
   const [code, setcode] = useState("");
 
-  const sendEmail = () => {
+  const sendEmail = (): void => {
     if (props.user) {
       AuthAPI.sendVerificationEmail((result: Error | void) => {
         sendEmailEffect(result);
-      }, props.user?.authentication.verifEmailsAmount);
+      }, props.user?.authentication.verifEmailsAmount).catch((e) => console.error(e));
     }
   };
 
-  const sendEmailEffect = (result: Error | void) => {
+  const sendEmailEffect = (result: Error | void): void => {
     if (!(result instanceof Error)) {
       if (props.user?.authentication.verifEmailsAmount) {
         let message = "Email has been re-send. Check your email now and verify it (then refresh the page). ";
@@ -44,22 +44,25 @@ const AppCodeForm: React.FC<Props> = (props) => {
     }
   };
 
-  const submit = async () => {
+  const submit = (): void => {
     if (code) {
       setmessageCode({ text: "", isError: false });
       const email = props.user?.authentication.email || "";
-      props.checkCode(email, code).then((result: LackingValidations) => {
-        if (!!result.validAppCode) {
-          let message = "Code is correct and has been validated. ";
-          setcode("");
-          if (result.verifiedEmail) {
-            message += "You can close this window.";
+      props
+        .checkCode(email, code)
+        .then((result: LackingValidations) => {
+          if (result.validAppCode) {
+            let message = "Code is correct and has been validated. ";
+            setcode("");
+            if (result.verifiedEmail) {
+              message += "You can close this window.";
+            }
+            setmessageCode({ text: message, isError: false });
+          } else {
+            setmessageCode({ text: "Code is false.", isError: true });
           }
-          setmessageCode({ text: message, isError: false });
-        } else {
-          setmessageCode({ text: "Code is false.", isError: true });
-        }
-      });
+        })
+        .catch((e) => console.error(e));
     }
   };
 
@@ -95,7 +98,7 @@ const AppCodeForm: React.FC<Props> = (props) => {
             </p>
             <div className="h-[200px] flex-col w-auto app_flex_center">
               <InputWritten
-                changeFn={(val) => setcode(val)}
+                changeFn={(event: WrittenChangeEvent, val: string) => setcode(val)}
                 name="code"
                 value={code}
                 focus={true}

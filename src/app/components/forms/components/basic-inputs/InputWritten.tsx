@@ -1,8 +1,9 @@
 import { InputProps, InputSpecifics, InputWrittenType } from "@@components/forms";
 import { generateInputId } from "frotsi";
 import { useRef, useState } from "react";
+import { WrittenChangeEvent } from "./types";
 
-type Props = InputProps & {
+type Props = Omit<InputProps, "changeFn" | "value"> & {
   type: InputWrittenType;
   inputTypeSpecs?: InputSpecifics;
   pattern?: string;
@@ -10,18 +11,19 @@ type Props = InputProps & {
   hint?: string;
   autoComplete?: string;
   invalid?: boolean;
+  value: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  changeFn: (event: WrittenChangeEvent, val: string) => void;
 };
 
 const InputWritten: React.FC<Props> = (props) => {
   const [focus, setfocus] = useState(false);
   const inputId = useRef(generateInputId(props.name, props.type)).current;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: WrittenChangeEvent): void => {
     e.preventDefault();
-
     const newValue = e.target.value;
-    props.changeFn(newValue);
-
+    props.changeFn(e, newValue);
     if (props.changeSideEffectFn) {
       props.changeSideEffectFn(inputId, e);
     }
@@ -45,7 +47,7 @@ const InputWritten: React.FC<Props> = (props) => {
           onChange={(e) => handleChange(e)}
           minLength={props.inputTypeSpecs?.minLength}
           maxLength={props.inputTypeSpecs?.maxLength}
-          className={`app_input peer bg-transparent w-full ${props.invalid && "app_input_invalid"}`}
+          className={`app_input peer bg-transparent w-full ${props.invalid ? "app_input_invalid" : ""}`}
           placeholder=" "
           required={props.required}
           pattern={props.pattern}

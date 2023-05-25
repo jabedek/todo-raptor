@@ -1,9 +1,20 @@
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
-import { setDoc, doc, getDoc, updateDoc, collection, getDocs, query, where, onSnapshot, arrayRemove } from "firebase/firestore";
+import {
+  UpdateData,
+  arrayRemove,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { FirebaseDB } from "@@api/firebase/firebase-config";
-
 import { User, UserFieldUpdate } from "@@types";
-import { CallbackFn } from "frotsi";
+import { ListenerCb } from "../types";
 
 export const UsersRef = collection(FirebaseDB, "users");
 
@@ -14,7 +25,7 @@ const saveNewUserInDB = async (
     lastname: string;
     nickname: string;
   }
-) => {
+): Promise<void> => {
   const appUser: User = {
     authentication: {
       id: user.uid,
@@ -42,18 +53,17 @@ const saveNewUserInDB = async (
   );
 };
 
-const getUserDetailsById = async (id: string | null | undefined) => {
+const getUserDetailsById = async (id: string | null | undefined): Promise<User | undefined> => {
   if (!id) {
     return undefined;
   }
 
   const docRef = doc(FirebaseDB, "users", id);
   const docSnap = await getDoc(docRef);
-
   return docSnap.exists() ? (docSnap.data() as User) : undefined;
 };
 
-const getUserDetailsByEmail = async (email: string) => {
+const getUserDetailsByEmail = async (email: string): Promise<User | undefined> => {
   if (!email) {
     return undefined;
   }
@@ -61,60 +71,49 @@ const getUserDetailsByEmail = async (email: string) => {
   const queryRef = query(UsersRef, where("authentication.email", "==", email));
   const querySnapshot = await getDocs(queryRef);
   const docs: User[] = [];
-  querySnapshot.forEach((doc) => {
-    docs.push(<User>doc.data());
-  });
-
+  querySnapshot.forEach((doc) => docs.push(doc.data() as User));
   return docs[0];
 };
 
-const updateUserFull = async (user: User) => {
+const updateUserFull = async (user: User): Promise<void> => {
   if (!user || !user.authentication.id) {
     return undefined;
   }
 
-  updateDoc(doc(FirebaseDB, "users", user.authentication.id), user);
+  updateDoc(doc(FirebaseDB, "users", user.authentication.id), user).catch((e) => console.error(e));
 };
 
-const removeUserTask = async (userId: string, taskId: string) =>
+const removeUserTask = async (userId: string, taskId: string): Promise<void> =>
   updateDoc(doc(FirebaseDB, "users", userId), { "work.tasksIds": arrayRemove(taskId) });
 
-const removeUserProject = async (userId: string, projectId: string) =>
+const removeUserProject = async (userId: string, projectId: string): Promise<void> =>
   updateDoc(doc(FirebaseDB, "users", userId), { "work.projectsIds": arrayRemove(projectId) });
 
-const updateUserFieldsById = async (id: string | null | undefined, fields: UserFieldUpdate[]) => {
-  if (!(id && fields)) {
-    return undefined;
+const updateUserFieldsById = async (id: string | null | undefined, fields: UserFieldUpdate[]): Promise<void> => {
+  if (id && fields.length) {
+    const updateFields: UpdateData<User> = {};
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    fields.forEach(({ fieldPath, value }) => (updateFields[fieldPath] = value));
+    updateDoc(doc(FirebaseDB, "users", id), updateFields).catch((e) => console.error(e));
   }
-
-  const updateFields: any = {};
-  fields.forEach(({ fieldPath, value }) => (updateFields[fieldPath] = value));
-  updateDoc(doc(FirebaseDB, "users", id), updateFields);
 };
 
-const getUsersById = async (usersIds: string[]) => {
+const getUsersById = async (usersIds: string[]): Promise<User[]> => {
   if (!usersIds.length) {
-    return undefined;
+    return [];
   }
 
   const queryRef = query(UsersRef, where("authentication.id", "in", [...usersIds]));
-
   const querySnapshot = await getDocs(queryRef);
   const docs: User[] = [];
-  querySnapshot.forEach((doc) => {
-    docs.push(<User>doc.data());
-  });
-
+  querySnapshot.forEach((doc) => docs.push(doc.data() as User));
   return docs;
 };
 
 // Firebase Cloud - User Data
-const listenToUserData = (id: string | undefined | null, cb: CallbackFn) => {
+const listenToUserData = async (id: string | undefined | null, cb: ListenerCb<User>): Promise<void> => {
   if (id) {
-    const unsub: Unsubscribe = onSnapshot(doc(FirebaseDB, "users", id), (doc) => {
-      const data = doc.data();
-      cb(data, unsub);
-    });
+    const unsub: Unsubscribe = onSnapshot(doc(FirebaseDB, "users", id), (doc) => cb(doc.data() as User, unsub));
   }
 };
 

@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DroppableProvided, DroppableStateSnapshot, DropResult } from "react-beautiful-dnd";
 
-import { ProjectWithAssigneesRegistry, SimpleTask, FullTask } from "@@types";
+import { FullTask, ProjectWithAssigneesRegistry, SimpleTask } from "@@types";
 import { TaskCard } from "@@components/Projects";
-import { STATUS_GROUP_NAMES, getTaskStatusDetails } from "@@components/Tasks/visuals/task-visuals";
+import { getTaskStatusDetails, STATUS_GROUP_NAMES } from "@@components/Tasks/visuals/task-visuals";
 import { ProjectsAPI, TasksAPI } from "@@api/firebase";
-import { FullProjectAssignee } from "src/app/types/Projects";
+import { FullAssignee } from "src/app/types/Projects";
 import { Unsubscribe } from "firebase/auth";
-import { transformColumnTo } from "@@components/Projects/projects-utils";
+import { getScheduleColumnsEmpty, transformColumnTo } from "@@components/Projects/projects-utils";
 import { FullTasksRegistry } from "src/app/types/Tasks";
 import { ProjectBlockade } from "../../ProjectView";
-import { Schedule, SimpleColumn, FullColumn, ScheduleColumns } from "src/app/types/Schedule";
+import { FullColumn, Schedule, ScheduleColumns, SimpleColumn } from "src/app/types/Schedule";
 window["__react-beautiful-dnd-disable-dev-warnings"] = true;
 
 type Props = {
@@ -22,10 +22,11 @@ type Props = {
 let UNSUB_TASKS_SCHEDULE: Unsubscribe | undefined = undefined;
 
 const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, blockadeReason }) => {
+  const emptyColumns = getScheduleColumnsEmpty("full");
   const [draggingDisabledId, setdraggingDisabledId] = useState<string>();
   const [simpleSchedule, setsimpleSchedule] = useState<Schedule<SimpleColumn>>();
   const [fullTasks, setfullTasks] = useState<FullTasksRegistry>();
-  const [assignees, setassignees] = useState<Record<string, FullProjectAssignee>>({});
+  const [assignees, setassignees] = useState<Record<string, FullAssignee>>({});
   const [blockade, setblockade] = useState<ProjectBlockade>();
 
   useEffect(() => {
@@ -33,54 +34,52 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, blockadeReas
     if (draggingDisabledId) {
       reason = "block block-dragging";
     }
-
     reason = blockadeReason;
-
     setblockade(reason);
   }, [blockadeReason, draggingDisabledId]);
 
   useEffect(() => {
-    if (project) {
-      ProjectsAPI.getProjectFullAssignees(project).then((fullAssignees: Record<string, FullProjectAssignee>) => {
-        if (fullAssignees) {
-          setassignees(fullAssignees);
-          unsubListener("tasks_schedule");
-
-          ProjectsAPI.listenScheduleColumns(
-            project,
-            async (simpleSchedule: Schedule<SimpleColumn> | undefined, unsubSchedule) => {
-              UNSUB_TASKS_SCHEDULE = unsubSchedule;
-
-              setsimpleSchedule(simpleSchedule);
-            }
-          );
-        }
-      });
+    if (project && project.assignees) {
+      ProjectsAPI.getProjectFullAssignees(project)
+        .then((fullAssignees: Record<string, FullAssignee>) => {
+          if (fullAssignees) {
+            setassignees(fullAssignees);
+            unsubListener("tasks_schedule");
+            ProjectsAPI.listenScheduleColumns(
+              project,
+              async (data: Schedule<SimpleColumn> | undefined, unsubSchedule: Unsubscribe | undefined) => {
+                if (data && unsubSchedule) {
+                  UNSUB_TASKS_SCHEDULE = unsubSchedule;
+                  setsimpleSchedule(data);
+                }
+              }
+            ).catch((e) => console.error(e));
+          }
+        })
+        .catch((e) => console.error(e));
     }
   }, [project]);
 
   useEffect(() => {
     if (simpleSchedule && assignees) {
-      ProjectsAPI.getScheduleColumnsTasks(simpleSchedule, assignees).then((fullSchedule: Schedule<FullColumn<FullTask>>) => {
-        const columnsTasks: FullTasksRegistry = {};
-
-        Object.values(fullSchedule.columns).forEach((column) => {
-          column.tasks.forEach((task) => (columnsTasks[task.id] = task));
-        });
-
-        setfullTasks(columnsTasks);
-      });
+      ProjectsAPI.getScheduleColumnsTasks(simpleSchedule, assignees)
+        .then((fullSchedule: Schedule<FullColumn<FullTask>>) => {
+          const columnsTasks: FullTasksRegistry = {};
+          Object.values(fullSchedule.columns).forEach((column) => column.tasks.forEach((task) => (columnsTasks[task.id] = task)));
+          setfullTasks(columnsTasks);
+        })
+        .catch((e) => console.error(e));
     }
-  }, [simpleSchedule?.columns]);
+  }, [simpleSchedule]);
 
-  const unsubListener = (name: "tasks_schedule") => {
+  const unsubListener = (name: "tasks_schedule"): void => {
     if (["tasks_schedule", "all"].includes(name) && UNSUB_TASKS_SCHEDULE) {
       UNSUB_TASKS_SCHEDULE();
       UNSUB_TASKS_SCHEDULE = undefined;
     }
   };
 
-  const onDragEnd = (result: DropResult, simpleSchedule: Schedule<SimpleColumn> | undefined) => {
+  const onDragEnd = (result: DropResult, simpleSchedule: Schedule<SimpleColumn> | undefined): void => {
     if (project && simpleSchedule && fullTasks) {
       if (!result.destination) return;
       const { source, destination, draggableId } = result;
@@ -95,7 +94,7 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, blockadeReas
 
         const { assigneeDetails, ...simpleTask } = fullTasks[draggableId];
 
-        let updatedColumns: ScheduleColumns<SimpleColumn> = { ...simpleSchedule.columns };
+        const updatedColumns: ScheduleColumns<SimpleColumn> = { ...simpleSchedule.columns };
         if (source.droppableId !== destination.droppableId) {
           const sourceItems = [...sourceColumn.tasksIdsOrdered];
           const destItems = [...destColumn.tasksIdsOrdered];
@@ -115,7 +114,7 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, blockadeReas
     }
   };
 
-  const handleChange = (schedule: Schedule<SimpleColumn>, taskToUpdate: SimpleTask) => {
+  const handleChange = (schedule: Schedule<SimpleColumn>, taskToUpdate: SimpleTask): void => {
     const { id, projectId, columns } = schedule;
 
     const scheduleToUpdate: Schedule<SimpleColumn> = {
@@ -129,68 +128,71 @@ const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, blockadeReas
       },
     };
 
-    // setsimpleSchedule(scheduleToUpdate);
-
-    TasksAPI.updateTask(taskToUpdate).then(() => {
-      ProjectsAPI.updateSchedule(scheduleToUpdate)
-        .then(() => {})
-        .finally(() => {
-          setdraggingDisabledId(undefined);
-        });
-    });
+    TasksAPI.updateTask(taskToUpdate)
+      .then(() => {
+        ProjectsAPI.updateSchedule(scheduleToUpdate)
+          .then(() => {})
+          .finally(() => {
+            setdraggingDisabledId(undefined);
+          });
+      })
+      .catch((e) => console.error(e));
   };
 
   return (
     <>
-      {fullTasks && simpleSchedule && (
-        <DragDropContext onDragEnd={(result: DropResult) => onDragEnd(result, simpleSchedule)}>
-          <div className="columns-headers flex flex-col h-[458px]">
-            <div className="flex w-full h-[45px]">
-              {STATUS_GROUP_NAMES.map((name) => simpleSchedule.columns[name]).map((column, index) => (
-                <div
-                  className="flex flex-col w-[25%] h-[45px] border-l border-solid border-l-neutral-200 "
-                  key={index}>
-                  <div className="text-center text-[11px] p-1 font-bold uppercase app_flex_center bg-[#CACACA] min-h-[45px]">
-                    {column.statuses.join(" / ")}
-                  </div>
-                </div>
-              ))}
+      <div className="columns-headers flex flex-col h-full">
+        <div className="flex w-full h-[45px]">
+          {STATUS_GROUP_NAMES.map((name) => emptyColumns[name]).map((column, index) => (
+            <div
+              className="flex flex-col w-[25%] h-[45px] border-l border-r border-x border-solid border-r-neutral-200 border-l-[#CACACA]"
+              key={index}>
+              <div className="text-center text-[11px] p-1 font-bold uppercase app_flex_center bg-[#CACACA] min-h-[45px]">
+                {column.statuses.join(" / ")}
+              </div>
             </div>
-            <div className="columns-content flex w-full min-h-[455px] max-h-[455px] ">
-              {STATUS_GROUP_NAMES.map((name) => simpleSchedule.columns[name]).map((column, index) => (
-                <Droppable
-                  isDropDisabled={!!draggingDisabledId}
-                  key={column.id}
-                  droppableId={column.id}>
-                  {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-                    <div
-                      className="flex flex-col w-[25%] h-full overflow-x-hidden overflow-y-scroll bg-neutral-200  border-l border-solid border-l-neutral-200 "
-                      key={index}
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}>
-                      {column.tasksIdsOrdered.map((item, index) => {
-                        const taskDetails = fullTasks[item];
-                        return (
-                          taskDetails && (
-                            <TaskCard
-                              key={index}
-                              task={taskDetails}
-                              index={index}
-                              blockadeReason={blockade}
-                              popupTaskForm={() => popupTaskForm(taskDetails)}
-                            />
-                          )
-                        );
-                      })}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              ))}
-            </div>
-          </div>
-        </DragDropContext>
-      )}
+          ))}
+        </div>
+        <div className="columns-content flex w-full min-h-[calc(100%-45px)] max-h-[455px] ">
+          {
+            <DragDropContext onDragEnd={(result: DropResult) => onDragEnd(result, simpleSchedule)}>
+              {STATUS_GROUP_NAMES.map((name) => (simpleSchedule ? simpleSchedule.columns : emptyColumns)[name]).map(
+                (column, index) => (
+                  <Droppable
+                    isDropDisabled={!!draggingDisabledId}
+                    key={column.id}
+                    droppableId={column.id}>
+                    {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+                      <div
+                        className="flex flex-col w-[25%] h-full overflow-x-hidden overflow-y-scroll bg-neutral-200  border-l border-r border-solid border-r-neutral-200 border-l-transparent "
+                        key={index}
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}>
+                        {fullTasks &&
+                          column.tasksIdsOrdered.map((item, index) => {
+                            const taskDetails = fullTasks[item];
+                            return (
+                              taskDetails && (
+                                <TaskCard
+                                  key={index}
+                                  task={taskDetails}
+                                  index={index}
+                                  blockadeReason={blockade}
+                                  popupTaskForm={() => popupTaskForm(taskDetails)}
+                                />
+                              )
+                            );
+                          })}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                )
+              )}
+            </DragDropContext>
+          }
+        </div>
+      </div>
     </>
   );
 };

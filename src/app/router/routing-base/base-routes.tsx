@@ -1,5 +1,5 @@
 import { LoadingSpinner } from "@@components/common";
-import { Suspense, lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
 
 const LoginPage = lazy(() => import("src/app/pages/base/auth/login-page"));

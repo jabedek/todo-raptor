@@ -25,14 +25,6 @@ type ValidationResultPart<P extends ValidationParts> = {
   [key in P]: ValidationResults[P];
 };
 
-const part: ValidationParts = "email";
-const result: ValidationResultPart<typeof part> = {
-  [part]: {
-    content: true,
-    length: true,
-  },
-};
-
 const validation: Record<ValidationParts, ValidationDetails> = {
   email: {
     lengthMin: 6,
@@ -51,7 +43,7 @@ const validation: Record<ValidationParts, ValidationDetails> = {
   },
 };
 
-export const getHint = (part: ValidationParts) => {
+export const getHint = (part: ValidationParts): string => {
   const { lengthMin, lengthMax, tests } = validation[part];
   const occurencesDescription = tests.map(({ description }) => `${description}`).join(", ");
   const length = `(${lengthMin}-${lengthMax})`;
@@ -69,12 +61,16 @@ export const validate = <P extends ValidationParts>(value: string, part: P): Val
   return { [part]: { content, length } } as ValidationResultPart<typeof part>;
 };
 
-export const validateInput = (validation: "password" | "email", value: string) => {
+export const validateInput = (validation: "password" | "email", value: string): boolean => {
   const validations = validate(value, validation)[validation];
   return validations.content && validations.length;
 };
 
-export const validateEmailPassword = (formEmail: string, formPassword: string, formConfirmPassword = formPassword) => {
+export const validateEmailPassword = (
+  formEmail: string,
+  formPassword: string,
+  formConfirmPassword = formPassword
+): { isValid: boolean; message: string } => {
   let isValid = true;
   let message = "";
   const { password } = validate(formPassword, "password");

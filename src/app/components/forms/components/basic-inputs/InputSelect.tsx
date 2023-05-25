@@ -1,32 +1,46 @@
 import { generateInputId } from "frotsi";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHandleOutclick } from "@@hooks";
 import { InputProps, InputSpecifics, InputWritten, SelectOption } from "@@components/forms";
 import { Icons } from "@@components/Layout";
+import { WrittenChangeEvent } from "./types";
 
-type Props = InputProps & {
+type Props<T extends unknown = unknown> = Omit<InputProps<T>, "changeFn"> & {
   inputTypeSpecs?: InputSpecifics;
-  options: SelectOption<any>[];
+  options: SelectOption<T>[];
   focus?: boolean;
   selectWidth?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  changeFn: (val, ...args: any) => void;
 };
 
-const InputSelect: React.FC<Props> = (props) => {
-  type Option = SelectOption<typeof props.options>;
-  const [focus, setfocus] = useState(false);
+const InputSelect: React.FC<Props> = ({
+  name,
+  options,
+  value,
+  disabled,
+  changeFn,
+  label,
+  required,
+  tailwindStyles,
+  focus,
+  selectWidth,
+}) => {
+  type Option = (typeof options)[0];
+  const [focused, setfocused] = useState(false);
   const [isOpened, setisOpened] = useState(false);
   const [currentOption, setcurrentOption] = useState<Option>();
-  const inputId = useRef(generateInputId(props.name, "select")).current;
+  const inputId = useRef(generateInputId(name, "select")).current;
   const refEl = useRef<HTMLDivElement>(null);
   const [customSelected, setcustomSelected] = useState(false);
   const [customValue, setcustomValue] = useState("");
   const [prefix, setprefix] = useState("");
 
   useEffect(() => {
-    const handleEnter = (e: KeyboardEvent) => {
+    const handleEnter = (e: KeyboardEvent): void => {
       if (e.key === "Enter") {
         const index = (e.target as HTMLDivElement).dataset["index"] || -1;
-        const option: Option = props.options[index];
+        const option: Option = options[index];
         if (option) {
           updateValue(option);
         }
@@ -43,55 +57,55 @@ const InputSelect: React.FC<Props> = (props) => {
   }, [refEl.current]);
 
   useEffect(() => {
-    const custom = props.options.find((option) => option.customWrite);
+    const custom = options.find((option) => option.customWrite);
     if (custom) {
       setprefix(custom.prefix || "");
     }
-  }, [props.options]);
+  }, [options]);
 
   useEffect(() => {
-    setcurrentOption(props.options.find((v) => props.value === v.value));
-  }, [props.value]);
+    setcurrentOption(options.find((v) => value === v.value));
+  }, [value]);
 
-  useHandleOutclick<HTMLDivElement>(refEl, (e: any) => {
-    setfocus(false);
+  useHandleOutclick<HTMLDivElement>(refEl, () => {
+    setfocused(false);
     setisOpened(false);
     refEl.current?.blur();
   });
 
-  const updateValue = (option: Option) => {
+  const updateValue = (option: Option): void => {
     setcurrentOption(option);
-    props.changeFn(option.value);
+    changeFn(option.value);
     setisOpened(false);
     setcustomSelected(!!option.customWrite);
   };
 
-  const handleClick = () => {
-    if (!props.disabled) {
-      setfocus(true);
+  const handleClick = (): void => {
+    if (!disabled) {
+      setfocused(true);
       setisOpened(!isOpened);
       refEl.current?.focus();
     }
   };
 
-  const handleCustomWrite = (val: string) => {
+  const handleCustomWrite = (val: string): void => {
     const prefixed = `${prefix}${val}`;
     setcustomValue(val);
-    props.changeFn(prefixed);
+    changeFn(prefixed);
   };
 
   return (
     <div
       ref={refEl}
       className={`app_flex_center  relative mb-8  app_input_top h-[40px] min-w-[150px] w-[fit-content] ${
-        props.disabled && "app_input_disabled"
-      } ${props.tailwindStyles}`}
+        disabled && "app_input_disabled"
+      } ${tailwindStyles}`}
       onClick={handleClick}>
       <div
         tabIndex={0}
-        autoFocus={!!props.focus}
+        autoFocus={!!focus}
         id={inputId}
-        className={`app_input peer ${focus ? "border-b-app_tertiary" : ""}   bg-transparent  px-1 my-1 ${props.selectWidth}`}>
+        className={`app_input peer ${focused ? "border-b-app_tertiary" : ""}   bg-transparent  px-1 my-1 ${selectWidth}`}>
         <div className="relative h-full flex items-center align-middle justify-between select-none text-[14px]">
           <span className={`${currentOption?.iconClass}`}>{currentOption?.label ?? "Select"}</span>
           <Icons.MdUnfoldMore className={`text-gray-700 transition-all duration-400 text-[18px] `} />
@@ -100,7 +114,7 @@ const InputSelect: React.FC<Props> = (props) => {
           className={` z-10 absolute  transition-all duration-400 
           ${isOpened ? "max-h-[155px]" : " max-h-0"} overflow-y-auto bg-white
           top-[112%] w-full  left-0 rounded-[3px]  drop-shadow-xl  `}>
-          {props.options?.map(({ label, value, iconClass, customWrite }, i) => (
+          {options?.map(({ label, value, iconClass, customWrite }, i) => (
             <div
               autoFocus={true}
               tabIndex={0}
@@ -128,18 +142,18 @@ const InputSelect: React.FC<Props> = (props) => {
           required
           type="text"
           name=""
-          changeFn={(val) => handleCustomWrite(val)}
+          changeFn={(event: WrittenChangeEvent, val: string) => handleCustomWrite(val)}
           label="Write custom role"
           value={customValue}
           autoComplete="on"
           tailwindStyles="ml-5 max-w-[150px] w-[150px]"
-          disabled={props.disabled}
+          disabled={disabled}
         />
       )}
       <label
         htmlFor={inputId}
-        className={` app_input_label ${props.required ? "required after:pl-1" : ""}`}>
-        {props.label}
+        className={` app_input_label ${required ? "required after:pl-1" : ""}`}>
+        {label}
       </label>
     </div>
   );

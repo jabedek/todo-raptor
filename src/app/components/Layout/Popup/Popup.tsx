@@ -1,15 +1,15 @@
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import "./Popup.scss";
 import { FormClearX } from "@@components/forms";
 import { useNavigate } from "react-router-dom";
 
-type PopupContext = {
+type PopupContextType = {
   popupElement: JSX.Element | undefined;
   showPopup: (popupElement: JSX.Element, refreshOnClose?: boolean) => void;
   hidePopup: () => void;
 };
 
-const PopupContext = createContext<PopupContext>({
+const PopupContext = createContext<PopupContextType>({
   popupElement: undefined,
   showPopup: (popupElement: JSX.Element, refreshOnClose?: boolean) => {},
   hidePopup: () => {},
@@ -31,14 +31,14 @@ const Popup: React.FC<Props> = ({ refreshOnClose, popupElement, hidePopup }) => 
   }, [popupElement]);
 
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => (["Escape", "Esc"].includes(e.key) ? hide() : undefined);
+    const handleEscape = (e: KeyboardEvent): void => (["Escape", "Esc"].includes(e.key) ? hide() : undefined);
     if (element) {
       window.addEventListener("keydown", handleEscape);
     }
     return () => window.removeEventListener("keydown", handleEscape);
   }, [element]);
 
-  const hide = (e?: React.MouseEvent, forced?: boolean) => {
+  const hide = (e?: React.MouseEvent, forced?: boolean): void => {
     if (e?.currentTarget === e?.target || forced) {
       sethiding(true);
       setTimeout(() => {
@@ -77,16 +77,16 @@ const Popup: React.FC<Props> = ({ refreshOnClose, popupElement, hidePopup }) => 
   );
 };
 
-const PopupProvider = ({ children }: any) => {
+const PopupProvider: React.FC<{ children: React.ReactElement }> = ({ children }): React.ReactElement => {
   const [popupElement, setpopupElement] = useState<JSX.Element>();
   const [refreshOnClose, setrefreshOnClose] = useState(false);
 
-  const showPopup = (popupElement: JSX.Element, refreshOnClose?: boolean) => {
+  const showPopup = (popupElement: JSX.Element, refreshOnClose?: boolean): void => {
     setpopupElement(popupElement);
     setrefreshOnClose(!!refreshOnClose);
   };
 
-  const hidePopup = () => setpopupElement(undefined);
+  const hidePopup = (): void => setpopupElement(undefined);
 
   return (
     <PopupContext.Provider value={{ popupElement, hidePopup, showPopup }}>
@@ -100,7 +100,7 @@ const PopupProvider = ({ children }: any) => {
   );
 };
 
-function usePopupContext() {
+function usePopupContext(): PopupContextType {
   return useContext(PopupContext);
 }
 

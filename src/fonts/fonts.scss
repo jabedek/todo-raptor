@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "Azeret Mono";
+  src: local("Azeret Mono"), url("./fonts/AzeretMono/AzeretMono-Regular.ttf") format("ttf"),
+    url("./fonts/AzeretMono/AzeretMono-Bold.ttf") format("ttf"), url("./fonts/AzeretMono/AzeretMono-Light.ttf") format("ttf");
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: local("Manrope"), url("./fonts/Manrope/Manrope-Regular.ttf") format("ttf"),
+    url("./fonts/Manrope/Manrope-Medium.ttf") format("ttf"), url("./fonts/Manrope/Manrope-Bold.ttf") format("ttf"),
+    url("./fonts/Manrope/Manrope-SemiBold.ttf") format("ttf"), url("./fonts/Manrope/Manrope-ExtraBold.ttf") format("ttf"),
+    url("./fonts/Manrope/Manrope-Light.ttf") format("ttf") url("./fonts/Manrope/Manrope-ExtraLight.ttf") format("ttf");
+}

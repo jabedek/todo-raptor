@@ -1,8 +1,7 @@
-import { Suspense, lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Outlet, RouteObject } from "react-router-dom";
 
 import { LoadingSpinner } from "@@components/common";
-import { Project } from "@@types";
 import { ProjectsAPI } from "src/app/api/firebase";
 import ProtectedRoute from "src/app/router/components/ProtectedRoute";
 
@@ -34,8 +33,8 @@ export const USER_ROUTE_PROJECTS: RouteObject = {
           <ProjectViewPage />
         </Suspense>
       ),
-      loader: async ({ params }): Promise<any> => ({
-        projectData: await ProjectsAPI.getProjectById(`${params.projectId}`),
+      loader: async ({ params }): Promise<unknown> => ({
+        projectData: await ProjectsAPI.getProjectById(params.projectId || ""),
         projectId: params.projectId,
       }),
     },

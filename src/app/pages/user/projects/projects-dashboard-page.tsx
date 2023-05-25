@@ -3,7 +3,7 @@ import { ProjectsTable } from "@@components/Projects";
 import { useUserValue } from "@@contexts";
 import { ProjectsFullData } from "@@types";
 import { Unsubscribe } from "firebase/auth";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useApiAccessValue } from "src/app/contexts/ApiAccessContext";
 
 let UNSUB_PROJECTS: Unsubscribe | undefined = undefined;
@@ -16,12 +16,17 @@ const ProjectsDashboardPage: React.FC = () => {
 
   useEffect(() => {
     unsubListener();
-
     if (user && canAccessAPI) {
-      ProjectsAPI.listenProjectsWithAssigneesData([...user.work.projectsIds], false, (data: ProjectsFullData, unsubFn) => {
-        UNSUB_PROJECTS = unsubFn;
-        setprojectsData(data);
-      });
+      ProjectsAPI.listenProjectsWithAssigneesData(
+        [...user.work.projectsIds],
+        false,
+        (data: ProjectsFullData | undefined, unsubFn: Unsubscribe | undefined) => {
+          if (data && unsubFn) {
+            UNSUB_PROJECTS = unsubFn;
+            setprojectsData(data);
+          }
+        }
+      ).catch((e) => console.error(e));
     } else {
       clearProjects();
     }
@@ -29,23 +34,25 @@ const ProjectsDashboardPage: React.FC = () => {
     return () => unsubListener();
   }, [user]);
 
-  const unsubListener = () => {
+  const unsubListener = (): void => {
     if (UNSUB_PROJECTS) {
       UNSUB_PROJECTS();
       UNSUB_PROJECTS = undefined;
     }
   };
 
-  const clearProjects = () =>
+  const clearProjects = (): void =>
     setprojectsData({
       active: [],
       archived: [],
     });
   return (
-    <ProjectsTable
-      projectsData={projectsData}
-      user={user}
-    />
+    <div className="app_flex_center flex-col">
+      <ProjectsTable
+        projectsData={projectsData}
+        user={user}
+      />
+    </div>
   );
 };
 

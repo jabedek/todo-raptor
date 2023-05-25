@@ -1,5 +1,5 @@
 import { Icons } from "@@components/Layout";
-import { useState, useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 
 type Props = { variant: "active" | "archived"; label?: string };
 

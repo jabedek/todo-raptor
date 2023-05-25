@@ -1,5 +1,5 @@
-import { TaskStatusShortName, TaskStatus } from "@@components/Tasks/visuals/task-visuals";
-import { FullProjectAssignee } from "@@types";
+import { TaskStatus, TaskStatusShortName } from "@@components/Tasks/visuals/task-visuals";
+import { FullAssignee } from "@@types";
 import { Flatten } from "frotsi";
 
 export type SimpleTask = {
@@ -15,7 +15,7 @@ export type SimpleTask = {
   closedAt: string;
 };
 
-export type FullTask = Flatten<SimpleTask & { statusDetails: TaskStatus } & { assigneeDetails: FullProjectAssignee | undefined }>;
+export type FullTask = Flatten<SimpleTask & { statusDetails: TaskStatus } & { assigneeDetails: FullAssignee | undefined }>;
 
 export type TasksSchedule<T = SimpleTask | FullTask> = {
   a_new: T[];

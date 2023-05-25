@@ -9,7 +9,7 @@ import ProjectList from "./ProjectsTable/ProjectsTableItem/ProjectList/ProjectLi
 import ProjectView from "./ProjectView/ProjectView";
 import ProjectViewHeader from "./ProjectView/ProjectViewHeader/ProjectViewHeader";
 import AssignToProjectForm from "./ProjectView/AssignToProjectForm/AssignToProjectForm";
-import ProjectAssigneeIcon from "./ProjectAssigneeIcon/ProjectAssigneeIcon";
+import AssigneeIcon from "./AssigneeIcon/AssigneeIcon";
 import TaskCard from "./ProjectView/tabs/ProjectSchedule/TaskCard/TaskCard";
 
 import { getUserDisplayName } from "./projects-utils";
@@ -26,7 +26,7 @@ export {
   ProjectsTableHeader,
   ProjectsTableBody,
   ProjectsTableItem,
-  ProjectAssigneeIcon,
+  AssigneeIcon,
   //
   ProjectView,
   ProjectViewHeader,

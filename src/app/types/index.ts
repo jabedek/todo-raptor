@@ -1,16 +1,16 @@
-import { SimpleTask, FullTask, TasksSchedule } from "./Tasks";
+import { FullTask, SimpleTask, TasksSchedule } from "./Tasks";
 import {
+  FullAssignee,
   Project,
-  SimpleProjectAssignee,
-  FullProjectAssignee,
-  ProjectAssigneesRegistry,
+  AssigneesRegistry,
+  ProjectsFullData,
+  ProjectWithAssigneesRegistry,
+  SimpleAssignee,
   UnboundAssignee,
   UnboundAssigneesRegistry,
-  ProjectWithAssigneesRegistry,
-  ProjectsFullData,
 } from "./Projects";
-import { ContactInvitation, Contact } from "./Contacts";
-import { User, AuthenticationDetails, ContactsDetails, PersonalDetails, WorkDetails, UserFieldUpdate } from "./Users";
+import { Contact, ContactInvitation } from "./Contacts";
+import { AuthenticationDetails, ContactsDetails, PersonalDetails, User, UserFieldUpdate, WorkDetails } from "./Users";
 import { IdEmailPair } from "./common";
 export type {
   SimpleTask,
@@ -19,10 +19,10 @@ export type {
 
   //
   Project,
-  SimpleProjectAssignee,
-  FullProjectAssignee,
+  SimpleAssignee,
+  FullAssignee,
   UnboundAssignee,
-  ProjectAssigneesRegistry,
+  AssigneesRegistry,
   UnboundAssigneesRegistry,
   ProjectWithAssigneesRegistry,
   ProjectsFullData,

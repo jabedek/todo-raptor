@@ -1,4 +1,5 @@
-export function getTagWidth(lettersAmount = 0) {
-  const Azeret_Mono_width = 7.8;
-  return 36 + lettersAmount * Azeret_Mono_width;
+export const AZERET_MONO_WIDTH = 7.8;
+
+export function getTagWidth(lettersAmount = 0): number {
+  return 36 + lettersAmount * AZERET_MONO_WIDTH;
 }

@@ -1,9 +1,8 @@
-import { AppAPICode, AuthAPI, MetadataAPI } from "@@api/firebase";
-import { createContext, useContext, useEffect, useState } from "react";
+import { MetadataAPI } from "@@api/firebase";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useUserValue } from "./UserContext";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { StorageItem } from "../types/enums";
-import { User } from "../types/Users";
 import { User as FirebaseAuthUser } from "firebase/auth";
 
 /**
@@ -11,14 +10,14 @@ import { User as FirebaseAuthUser } from "firebase/auth";
  * * `mustProvideCode` - checks if logged user has provided valid code (with exceptions - `no code emails`)
  * * `mustVerifyEmail` - checks if logged user has verified his email after registration (with exceptions - `no code emails`)
  * */
-type ApiAccessContext = {
+type ApiAccessContextType = {
   canAccessAPI: boolean | undefined;
   shouldPingUser: boolean;
   hasProvided: LackingValidations;
   checkProvidedCode: CheckProvidedCodeFn;
 };
 
-export type CheckProvidedCodeFn = (email: string, code: string) => Promise<any>;
+export type CheckProvidedCodeFn = (email: string, code: string) => Promise<LackingValidations>;
 
 export type LackingValidations = {
   validAppCode: boolean | undefined;
@@ -30,14 +29,15 @@ const initValidations: LackingValidations = {
   verifiedEmail: undefined,
 };
 
-export const ApiAccessContext = createContext<ApiAccessContext>({
+export const ApiAccessContext = createContext<ApiAccessContextType>({
   canAccessAPI: undefined,
   shouldPingUser: false,
   hasProvided: { ...initValidations },
-  checkProvidedCode: (email: string, code: string) => new Promise(() => {}),
+  /* eslint-disable-next-line */
+  checkProvidedCode: (email: string, code: string): Promise<LackingValidations> => new Promise(() => {}),
 });
 
-const APIAccessProvider = ({ children }: any) => {
+const APIAccessProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const [canAccessAPI, setcanAccessAPI] = useState(false);
   const [hasProvided, sethasProvided] = useState<LackingValidations>({ ...initValidations });
   const [shouldPingUser, setshouldPingUser] = useState(false);
@@ -60,7 +60,11 @@ const APIAccessProvider = ({ children }: any) => {
     }
   }, [hasProvided.validAppCode, hasProvided.verifiedEmail]);
 
-  const checkWhatToProvide = async (firebaseAuthUser: FirebaseAuthUser) => {
+  const checkWhatToProvide = (firebaseAuthUser: FirebaseAuthUser): void => {
+    checkValidity(firebaseAuthUser).catch((e) => console.error(e));
+  };
+
+  const checkValidity = async (firebaseAuthUser: FirebaseAuthUser): Promise<void> => {
     const email = firebaseAuthUser.email;
 
     if (email) {
@@ -82,9 +86,8 @@ const APIAccessProvider = ({ children }: any) => {
     }
   };
 
-  const checkProvidedCode = async (email: string, code: string) => {
+  const checkProvidedCode = async (email: string, code: string): Promise<LackingValidations> => {
     const newState = await MetadataAPI.getFullCodeValidity({ emailValue: email, codeValue: code });
-    console.log(newState);
 
     if (newState.validAppCode) {
       setItemLocalStorage(code);
@@ -94,7 +97,7 @@ const APIAccessProvider = ({ children }: any) => {
     return newState;
   };
 
-  const setItemLocalStorage = (code: string) => setItem(StorageItem.CODE, code);
+  const setItemLocalStorage = (code: string): void => setItem(StorageItem.CODE, code);
 
   return (
     <ApiAccessContext.Provider value={{ canAccessAPI, shouldPingUser, checkProvidedCode, hasProvided }}>
@@ -103,7 +106,7 @@ const APIAccessProvider = ({ children }: any) => {
   );
 };
 
-function useApiAccessValue() {
+function useApiAccessValue(): ApiAccessContextType {
   return useContext(ApiAccessContext);
 }
 

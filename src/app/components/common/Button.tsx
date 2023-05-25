@@ -22,7 +22,7 @@ const Button: React.FC<Props> = (props) => {
   const currentStyle = props.formStyle === "primary" ? primaryStyle : secondaryStyle;
   const [style, setStyle] = useState(currentStyle);
 
-  const handleClick = (e?: React.FormEvent<HTMLButtonElement>) => {
+  const handleClick = (e?: React.FormEvent<HTMLButtonElement>): void => {
     e?.preventDefault();
 
     if (props?.clickFn) {

@@ -1,10 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useLayoutEffect, useEffect } from "react";
-import { CallbackFn } from "frotsi";
+import { useLayoutEffect, useState } from "react";
 
-import { Project, FullProjectAssignee, ProjectWithAssigneesRegistry, User } from "@@types";
-import { usePopupContext, Icons } from "@@components/Layout";
-import { DeleteProjectForm, ProjectList, ProjectAssigneeIcon, ProjectsVisuals } from "@@components/Projects";
+import { ProjectWithAssigneesRegistry, User } from "@@types";
+import { Icons } from "@@components/Layout";
+import { AssigneeIcon, ProjectList } from "@@components/Projects";
 
 type Props = {
   project: ProjectWithAssigneesRegistry;
@@ -15,14 +14,13 @@ const AVATARS_LIMIT = 5;
 const TAGS_CHARS_LIMIT = 30;
 
 const ProjectsTableItem: React.FC<Props> = ({ project, user }) => {
-  const { showPopup } = usePopupContext();
   const navigate = useNavigate();
   const [userIsCreator, setuserIsCreator] = useState(false);
   const [userIsManager, setuserIsManager] = useState(false);
   const [tagsLimited, settagsLimited] = useState<string[]>([]);
 
   useLayoutEffect(() => {
-    const checkTagsCombinedLength = () => {
+    const checkTagsCombinedLength = (): void => {
       let charsLength = 0;
       let lastIndex = 0;
 
@@ -84,14 +82,14 @@ const ProjectsTableItem: React.FC<Props> = ({ project, user }) => {
             {Object.entries(project.assigneesRegistry)
               .slice(0, AVATARS_LIMIT)
               .map(([assigneeId, assignee], i) => (
-                <ProjectAssigneeIcon
+                <AssigneeIcon
                   assignee={assignee}
                   key={i + "_" + assigneeId}
                   tailwindStyles="ml-[-5px]"
                 />
               ))}
             {project.assignees.length > AVATARS_LIMIT && (
-              <ProjectAssigneeIcon
+              <AssigneeIcon
                 assignee={"..."}
                 key={1000}
                 tailwindStyles="ml-[-5px]"
