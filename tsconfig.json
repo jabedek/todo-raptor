@@ -17,7 +17,7 @@
     "noEmit": true,
     "noImplicitAny": false,
     "jsx": "react-jsx",
-    "types": ["vite/client"],
+    "types": ["vite/client", "jest"],
     "baseUrl": "./",
     "paths": {
       "@@api/*": ["src/app/api/*"],
@@ -28,7 +28,14 @@
       "@@types": ["src/app/types/index"]
     }
   },
-  "include": ["src", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "include": [
+    "src",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "jest.config.json"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }],
   "exclude": ["node_modules"]
 }

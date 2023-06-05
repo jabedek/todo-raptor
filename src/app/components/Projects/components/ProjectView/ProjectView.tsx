@@ -36,7 +36,7 @@ enum ListenerDataName {
   all = "all",
 }
 
-const editingRoles = ["manager", "product-owner"];
+const editingRoles = ["manager", "product_owner"];
 
 export const ProjectView: React.FC<Props> = ({ projectData, projectId }) => {
   const Listeners = new ListenersHandler("ProjectView");

@@ -2,8 +2,8 @@ import { SelectOption } from "@@components/forms";
 
 /* ### Projects ### */
 const ProjectRoleShortNames = [
-  "manager", // only 1 but can be changed
-  "product_owner", // only 1 and can not be changed
+  "manager", // only 1 per project but can be changed
+  "product_owner", // only 1 per project and can not be changed
   "vice_manager",
   "team_leader",
   "analyst",

@@ -9,6 +9,7 @@
     "dev": "vite --port 8000",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "jest",
     "up-patch": "npm version patch --no-git-tag-version",
     "up-minor": "npm version minor --no-git-tag-version",
     "up-major": "npm version major --no-git-tag-version",
@@ -34,7 +35,9 @@
     "vite-require": "^0.2.3"
   },
   "devDependencies": {
+    "@jest/globals": "^29.5.0",
     "@total-typescript/ts-reset": "^0.4.2",
+    "@types/jest": "^29.5.2",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
@@ -51,6 +54,7 @@
     "react-test-renderer": "^18.2.0",
     "sass": "^1.62.0",
     "tailwindcss": "^3.3.1",
+    "ts-jest": "^29.1.0",
     "typescript": "^4.9.3",
     "vite": "^4.2.0",
     "vite-plugin-zip-file": "^2.0.0",
