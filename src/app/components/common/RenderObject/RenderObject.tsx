@@ -8,7 +8,7 @@ type Props = {
   tailwindStyles?: string;
 };
 
-const RenderObject: React.FC<Props> = ({ data, notNested, tailwindStyles }) => {
+export const RenderObject: React.FC<Props> = ({ data, notNested, tailwindStyles }) => {
   const [objectData, setobjectData] = useState("");
 
   useEffect(() => {
@@ -24,5 +24,3 @@ const RenderObject: React.FC<Props> = ({ data, notNested, tailwindStyles }) => {
 
   return <div className={`render-object ${tailwindStyles}`}>{objectData ? objectData : "undefined"}</div>;
 };
-
-export default RenderObject;

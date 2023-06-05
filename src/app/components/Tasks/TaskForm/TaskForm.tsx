@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { generateDocumentId, generateInputId } from "frotsi";
 
+import { TasksAPI } from "@@api/firebase";
+import { Project, ProjectWithAssigneesRegistry, ScheduleAction, SimpleAssignee, SimpleTask } from "@@types";
 import {
   ConfirmDialog,
   FormWrapper,
@@ -11,21 +13,12 @@ import {
   ResultDisplayer,
   SelectOption,
   TagItem,
+  WrittenChangeEvent,
 } from "@@components/forms";
-import { Project, ProjectWithAssigneesRegistry, SimpleAssignee, SimpleTask } from "@@types";
 import { Button } from "@@components/common";
-import { TasksAPI } from "@@api/firebase";
-import {
-  getStatusGroup,
-  TASK_LISTS_OPTIONS,
-  TASK_STATUSES_OPTIONS,
-  TaskListType,
-  TaskStatusShortName,
-} from "../visuals/task-visuals";
+import { getStatusGroup, TASK_LISTS_OPTIONS, TASK_STATUSES_OPTIONS, TaskListType, TaskStatusShortName } from "@@components/Tasks";
 import { usePopupContext } from "@@components/Layout";
-import { getShortId } from "../task-utils";
-import { ScheduleAction } from "src/app/types/Schedule";
-import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
+import { getShortId } from "@@utils/id";
 
 type Props = {
   project: ProjectWithAssigneesRegistry | undefined;
@@ -33,7 +26,7 @@ type Props = {
   taskList: TaskListType;
 };
 
-const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
+export const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
   type Option = SelectOption<SimpleAssignee>;
   const [id, setid] = useState("");
   const [title, settitle] = useState("");
@@ -315,5 +308,3 @@ const TaskForm: React.FC<Props> = ({ project, task, taskList }) => {
     </FormWrapper>
   );
 };
-
-export default TaskForm;

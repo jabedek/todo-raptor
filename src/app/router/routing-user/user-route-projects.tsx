@@ -3,7 +3,7 @@ import { Outlet, RouteObject } from "react-router-dom";
 
 import { LoadingSpinner } from "@@components/common";
 import { ProjectsAPI } from "src/app/api/firebase";
-import ProtectedRoute from "src/app/router/components/ProtectedRoute";
+import { ProtectedRoute } from "src/app/router/components/ProtectedRoute";
 
 const ProjectsDashboardPage = lazy(() => import("src/app/pages/user/projects/projects-dashboard-page"));
 const ProjectViewPage = lazy(() => import("src/app/pages/user/projects/project-view-page"));

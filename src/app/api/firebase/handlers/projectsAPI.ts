@@ -54,7 +54,7 @@ const listenScheduleColumns = async (project: Project, cb: ListenerCb<Schedule<S
   });
 };
 
-const getScheduleColumnsTasks = async (
+const getScheduleFullTasks = async (
   schedule: Schedule<SimpleColumn>,
   fullAssignees: Record<string, FullAssignee>
 ): Promise<Schedule<FullColumn<FullTask>>> => {
@@ -305,7 +305,6 @@ const userAsAssigneeBond = async (
 const ProjectsAPI = {
   saveNewProject,
   getProjectById,
-  listenProjectsWithAssigneesData,
   deleteProjectCompletely,
   getAvailableContactsForAssigneeship,
   updateProject,
@@ -315,11 +314,13 @@ const ProjectsAPI = {
   //
   getProjectFullAssignees,
   //
-  listenScheduleColumns,
-  getScheduleColumnsTasks,
+  getScheduleFullTasks,
   getScheduleById,
   deleteScheduleWithTasks,
   archiveProjectCompletely,
+  //
+  listenProjectsWithAssigneesData,
+  listenScheduleColumns,
 };
 
 export { ProjectsAPI };

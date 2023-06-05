@@ -1,7 +1,6 @@
-import { InputProps, InputSpecifics, InputWrittenType } from "@@components/forms";
 import { generateInputId } from "frotsi";
 import { useRef, useState } from "react";
-import { WrittenChangeEvent } from "./types";
+import { InputProps, InputSpecifics, InputWrittenType, WrittenChangeEvent } from "@@components/forms";
 
 type Props = Omit<InputProps, "changeFn" | "value"> & {
   type: InputWrittenType;
@@ -16,81 +15,94 @@ type Props = Omit<InputProps, "changeFn" | "value"> & {
   changeFn: (event: WrittenChangeEvent, val: string) => void;
 };
 
-const InputWritten: React.FC<Props> = (props) => {
+export const InputWritten: React.FC<Props> = ({
+  name,
+  type,
+  changeFn,
+  changeSideEffectFn,
+  value,
+  pattern,
+  required,
+  disabled,
+  invalid,
+  tailwindStyles,
+  hint,
+  inputTypeSpecs,
+  autoComplete,
+  label,
+}) => {
   const [focus, setfocus] = useState(false);
-  const inputId = useRef(generateInputId(props.name, props.type)).current;
+  const inputId = useRef(generateInputId(name, type)).current;
 
   const handleChange = (e: WrittenChangeEvent): void => {
     e.preventDefault();
     const newValue = e.target.value;
-    props.changeFn(e, newValue);
-    if (props.changeSideEffectFn) {
-      props.changeSideEffectFn(inputId, e);
+    changeFn(e, newValue);
+    if (changeSideEffectFn) {
+      changeSideEffectFn(inputId, e);
     }
   };
 
   return (
     <div
-      className={`app_flex_center  relative mb-8 app_input_top h-fit min-h-[40px] min-w-[150px] w-[fit-content] ${props.tailwindStyles}`}
+      className={`app_flex_center  relative mb-8 app_input_top h-fit min-h-[40px] min-w-[150px] w-[fit-content] ${tailwindStyles}`}
       onFocus={() => setfocus(true)}
       onBlur={() => setfocus(false)}>
-      {/* {props.invalid ? "invalid" : "valid"} */}
-      {props.type !== "textarea" && (
+      {/* {invalid ? "invalid" : "valid"} */}
+      {type !== "textarea" && (
         <input
           tabIndex={0}
-          autoFocus={!!props.focus}
-          autoComplete={props.autoComplete || `new-password`}
+          autoFocus={!!focus}
+          autoComplete={autoComplete || `new-password`}
           id={inputId}
-          type={props.type}
-          name={props.name}
-          value={"" || props.value}
+          type={type}
+          name={name}
+          value={"" || value}
           onChange={(e) => handleChange(e)}
-          minLength={props.inputTypeSpecs?.minLength}
-          maxLength={props.inputTypeSpecs?.maxLength}
-          className={`app_input peer bg-transparent w-full ${props.invalid ? "app_input_invalid" : ""}`}
+          minLength={inputTypeSpecs?.minLength}
+          maxLength={inputTypeSpecs?.maxLength}
+          className={`app_input peer bg-transparent w-full ${invalid ? "app_input_invalid" : ""}`}
           placeholder=" "
-          required={props.required}
-          pattern={props.pattern}
-          disabled={props.disabled}
+          required={required}
+          pattern={pattern}
+          disabled={disabled}
         />
       )}
-      {props.type === "textarea" && (
+      {type === "textarea" && (
         <textarea
           tabIndex={0}
-          autoFocus={!!props.focus}
-          autoComplete={props.autoComplete || `new-password`}
+          autoFocus={!!focus}
+          autoComplete={autoComplete || `new-password`}
           id={inputId}
-          name={props.name}
-          value={props.value}
+          name={name}
+          value={value}
           onChange={(e) => handleChange(e)}
-          minLength={props.inputTypeSpecs?.minLength}
-          maxLength={props.inputTypeSpecs?.maxLength}
+          minLength={inputTypeSpecs?.minLength}
+          maxLength={inputTypeSpecs?.maxLength}
           className={`app_input peer bg-transparent min-h-[35px] h-[35px] text-[14px] w-full `}
           placeholder=" "
-          required={props.required}
-          disabled={props.disabled}
+          required={required}
+          disabled={disabled}
         />
       )}
       <label
         htmlFor={inputId}
-        className={`app_input_label  whitespace-nowrap ${props.required ? "after:pl-1" : ""}`}>
-        {props.label || ""}
+        className={`app_input_label  whitespace-nowrap ${required ? "after:pl-1" : ""}`}>
+        {label || ""}
       </label>
 
-      {props.inputTypeSpecs && (
+      {inputTypeSpecs && (
         <div className={`app_input_info`}>
           <span>{length}</span>
         </div>
       )}
 
-      {props.hint && focus && (
+      {hint && focus && (
         <p
           className={`absolute top-[105%] hidden text-[11px] text-gray-900 bg-gray-200 shadow-lg py-1 px-3 rounded-sm h-[40px] min-w-[200px] leading-[14px] peer-hover:flex peer-hover:z-20`}>
-          {props.hint}
+          {hint}
         </p>
       )}
     </div>
   );
 };
-
-export default InputWritten;

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 import { AuthAPI, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
 import { User } from "@@types";
+import { ListenersHandler } from "@@api/firebase/listeners-handler";
 
 type UserContextType = {
   firebaseAuthUser: FirebaseAuthUser | undefined | null;
@@ -16,54 +17,46 @@ export const UserContext = createContext<UserContextType>({
   logout: () => {},
 });
 
-let UNSUB_AUTH: Unsubscribe | undefined = undefined;
-let UNSUB_USER: Unsubscribe | undefined = undefined;
-
 const UserProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const Listeners = new ListenersHandler("UserProvider");
   const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser | undefined | null>();
   const [user, setuser] = useState<User | undefined>(undefined);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    listenToFirebaseAuthState();
     setfirebaseAuthUser(AuthAPI.getCurrentFirebaseAuthUser());
-    unsubListener("all");
-
-    AuthAPI.listenToFirebaseAuthState(async (change: FirebaseUserStateChange, unsub0: Unsubscribe | undefined) => {
-      const firebaseAuthUser: FirebaseAuthUser = change.auth;
-      UNSUB_AUTH = unsub0;
-      setfirebaseAuthUser(firebaseAuthUser);
-      if (!firebaseAuthUser) {
-        clear();
-      }
-    });
-
-    return () => unsubListener("all");
+    return () => Listeners.unsubAll();
   }, []);
 
   useEffect(() => {
-    unsubListener("userData");
-
     if (firebaseAuthUser) {
-      UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: User | undefined, unsub1: Unsubscribe | undefined) => {
-        if (data && unsub1) {
-          UNSUB_USER = unsub1;
+      listenToUserData(firebaseAuthUser);
+    }
+    return () => Listeners.unsub("userData");
+  }, [firebaseAuthUser]);
+
+  const listenToFirebaseAuthState = (): void => {
+    AuthAPI.listenToFirebaseAuthState(async (change: FirebaseUserStateChange, unsub: Unsubscribe | undefined) => {
+      const firebaseAuthUser: FirebaseAuthUser = change.auth;
+      if (firebaseAuthUser && unsub) {
+        Listeners.sub("authData", unsub);
+        setfirebaseAuthUser(firebaseAuthUser);
+      } else {
+        clear();
+      }
+    });
+  };
+
+  const listenToUserData = (firebaseAuthUser: FirebaseAuthUser): void => {
+    if (firebaseAuthUser) {
+      UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: User | undefined, unsub: Unsubscribe | undefined) => {
+        if (data && unsub) {
+          Listeners.sub("userData", unsub);
           putUser(data);
         }
       }).catch((e) => console.error(e));
-    }
-
-    return () => unsubListener("userData");
-  }, [firebaseAuthUser]);
-
-  const unsubListener = (name: "auth" | "userData" | "all"): void => {
-    if (["auth", "all"].includes(name) && UNSUB_AUTH) {
-      UNSUB_AUTH();
-      UNSUB_AUTH = undefined;
-    }
-    if (["userData", "all"].includes(name) && UNSUB_USER) {
-      UNSUB_USER();
-      UNSUB_USER = undefined;
     }
   };
 

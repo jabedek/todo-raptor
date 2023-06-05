@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { CallbackFn } from "frotsi";
-import FormWrapper from "./FormWrapper";
+
 import { Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
-import { useState } from "react";
-import InputCheckbox from "../basic-inputs/InputCheckbox";
+import { FormWrapper, InputCheckbox } from "@@components/forms";
 
 type Props = {
   submitFn: CallbackFn;
@@ -13,7 +13,7 @@ type Props = {
   irreversible?: boolean;
 };
 
-const ConfirmDialog: React.FC<Props> = ({ submitFn, whatAction, extraActionCheck, closeOnSuccess, irreversible }) => {
+export const ConfirmDialog: React.FC<Props> = ({ submitFn, whatAction, extraActionCheck, closeOnSuccess, irreversible }) => {
   type Option = { value: string; label: string; checked: boolean };
 
   const { hidePopup } = usePopupContext();
@@ -55,5 +55,3 @@ const ConfirmDialog: React.FC<Props> = ({ submitFn, whatAction, extraActionCheck
     </FormWrapper>
   );
 };
-
-export default ConfirmDialog;

@@ -18,19 +18,19 @@ type Props = Flatten<
   }
 >;
 
-const InputCheckbox: React.FC<Props> = (props) => {
+export const InputCheckbox: React.FC<Props> = ({ options, changeFn, label, orientation, name, required, disabled }) => {
   const [values, setvalues] = useState<CheckboxOption[]>([]);
 
   useEffect(() => {
-    setvalues(props.options);
+    setvalues(options);
 
-    const checkedValueIndex = props.options.findIndex((v) => v.value === true);
+    const checkedValueIndex = options.findIndex((v) => v.value === true);
 
     if (checkedValueIndex > -1) {
-      const checkedOption = props.options[checkedValueIndex];
-      props.changeFn(checkedOption?.value);
+      const checkedOption = options[checkedValueIndex];
+      changeFn(checkedOption?.value);
     }
-  }, [props]);
+  }, [options]);
 
   const updateValue = (option: CheckboxOption): void => {
     const newOptions = [...values];
@@ -41,20 +41,20 @@ const InputCheckbox: React.FC<Props> = (props) => {
     });
 
     setvalues(newOptions);
-    props.changeFn(newOptions);
+    changeFn(newOptions);
   };
 
   return (
     <div className={`relative pt-[20px] w-full`}>
       <h1 className={` pb-2 app_input_checkbox_title `}>
-        {props.label && (
+        {label && (
           <>
-            {props.label}
-            {props.required ? " *" : ""}
+            {label}
+            {required ? " *" : ""}
           </>
         )}
       </h1>
-      <div className={` w-full ${props.orientation === "horizontal" ? "flex gap-5" : ""}`}>
+      <div className={` w-full ${orientation === "horizontal" ? "flex gap-5" : ""}`}>
         {values?.map((o, i) => {
           const value = "" + o.value;
           const optionId = `${i}-${value}`;
@@ -67,19 +67,19 @@ const InputCheckbox: React.FC<Props> = (props) => {
                 tabIndex={0}
                 id={optionId}
                 type="checkbox"
-                name={props.name}
+                name={name}
                 checked={o.checked}
                 value={value || "[not defined]"}
                 onChange={() => updateValue(o)}
                 className={`app_input_checkbox peer`}
-                required={props.required}
-                disabled={props.disabled || o.notselectable || (!o.customWrite && !value)}
+                required={required}
+                disabled={disabled || o.notselectable || (!o.customWrite && !value)}
               />
 
               <label
                 htmlFor={optionId}
                 className={` app_input_label_option_checkbox min-w-[100px] Xtext-ellipsis Xoverflow-hidden Xwhitespace-nowrap 
-                ${props.required ? "after:pl-1" : ""}`}>
+                ${required ? "after:pl-1" : ""}`}>
                 {o.label}
               </label>
             </div>
@@ -89,5 +89,3 @@ const InputCheckbox: React.FC<Props> = (props) => {
     </div>
   );
 };
-
-export default InputCheckbox;

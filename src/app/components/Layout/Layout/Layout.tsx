@@ -9,7 +9,7 @@ type Props = {
 
 const PACKAGE_VERSION = import.meta.env.PACKAGE_VERSION;
 
-const Layout: React.FC<Props> = (props) => {
+export const Layout: React.FC<Props> = ({ children }) => {
   const [sidebarOpen, setsidebarOpen] = useState(false);
 
   return (
@@ -21,7 +21,7 @@ const Layout: React.FC<Props> = (props) => {
           isVisible={sidebarOpen}
           clickFn={setsidebarOpen}
         />
-        <Page>{props.children}</Page>
+        <Page>{children}</Page>
       </main>
 
       <footer className="fixed bottom-1 right-3 rounded-md bg-gray-200 opacity-40 px-2 font-app_mono text-sm">
@@ -30,5 +30,3 @@ const Layout: React.FC<Props> = (props) => {
     </div>
   );
 };
-
-export default Layout;

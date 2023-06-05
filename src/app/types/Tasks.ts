@@ -17,11 +17,4 @@ export type SimpleTask = {
 
 export type FullTask = Flatten<SimpleTask & { statusDetails: TaskStatus } & { assigneeDetails: FullAssignee | undefined }>;
 
-export type TasksSchedule<T = SimpleTask | FullTask> = {
-  a_new: T[];
-  b_working: T[];
-  c_checking: T[];
-  d_done: T[];
-};
-
 export type FullTasksRegistry = Record<string, FullTask>;

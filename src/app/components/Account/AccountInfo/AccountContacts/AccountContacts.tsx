@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { usePopupContext } from "@@components/Layout";
+
 import { Contact, ContactInvitation, User } from "@@types";
 import { ContactsAPI } from "@@api/firebase";
+import { usePopupContext, Icons } from "@@components/Layout";
 import { Button } from "@@components/common";
-import { Icons } from "@@components/Layout";
 import { ContactForm, ContactItem } from "@@components/Account";
 
 type Props = { user: User | undefined; contacts: Contact[] };
 
-const AccountContacts: React.FC<Props> = ({ user, contacts }) => {
+export const AccountContacts: React.FC<Props> = ({ user, contacts }) => {
   const [invitesSent, setinvitesSent] = useState<ContactInvitation[]>([]);
   const [invitesReceived, setinvitesReceived] = useState<ContactInvitation[]>([]);
 
@@ -108,5 +108,3 @@ const AccountContacts: React.FC<Props> = ({ user, contacts }) => {
     </>
   );
 };
-
-export default AccountContacts;

@@ -1,4 +1,6 @@
-import { FullTask, SimpleTask, TasksSchedule } from "./Tasks";
+import { StorageItem } from "./enums";
+import { FullTask, SimpleTask, FullTasksRegistry } from "./Tasks";
+
 import {
   FullAssignee,
   Project,
@@ -8,15 +10,19 @@ import {
   SimpleAssignee,
   UnboundAssignee,
   UnboundAssigneesRegistry,
+  ProjectBlockade,
 } from "./Projects";
+
+import { Schedule, SimpleColumn, FullColumn, ScheduleAction, ScheduleColumnType, ScheduleColumns } from "./Schedule";
+import { ApiAccessContextType, CheckProvidedCodeFn, LackingValidations } from "./ApiAccess";
 import { Contact, ContactInvitation } from "./Contacts";
 import { AuthenticationDetails, ContactsDetails, PersonalDetails, User, UserFieldUpdate, WorkDetails } from "./Users";
 import { IdEmailPair } from "./common";
+
 export type {
   SimpleTask,
   FullTask,
-  TasksSchedule,
-
+  FullTasksRegistry,
   //
   Project,
   SimpleAssignee,
@@ -26,6 +32,14 @@ export type {
   UnboundAssigneesRegistry,
   ProjectWithAssigneesRegistry,
   ProjectsFullData,
+  ProjectBlockade,
+  //
+  Schedule,
+  SimpleColumn,
+  FullColumn,
+  ScheduleAction,
+  ScheduleColumnType,
+  ScheduleColumns,
   //
   ContactInvitation,
   Contact,
@@ -36,4 +50,10 @@ export type {
   WorkDetails,
   UserFieldUpdate,
   IdEmailPair,
+  //
+  ApiAccessContextType,
+  CheckProvidedCodeFn,
+  LackingValidations,
 };
+
+export { StorageItem };

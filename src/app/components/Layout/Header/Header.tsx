@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
 import { CallbackFn } from "frotsi";
 import { Link } from "react-router-dom";
 
 import { Logo } from "@@components/Layout";
 import { useUserValue } from "@@contexts";
-import { useEffect, useState } from "react";
 
 type Props = { path: string; name: string; clickFn?: CallbackFn };
 
@@ -27,7 +27,7 @@ const HeaderNavLink: React.FC<Props> = ({ path, name, clickFn }) => {
   }
 };
 
-const Header: React.FC = () => {
+export const Header: React.FC = () => {
   const { firebaseAuthUser, user, logout } = useUserValue();
   const [isAuth, setisAuth] = useState(false);
 
@@ -77,5 +77,3 @@ const Header: React.FC = () => {
     </header>
   );
 };
-
-export default Header;

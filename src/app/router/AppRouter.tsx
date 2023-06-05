@@ -2,7 +2,7 @@ import { createBrowserRouter, RouteObject } from "react-router-dom";
 
 import { BASE_ROUTES } from "src/app/router/routing-base/base-routes";
 import { USER_ROUTES } from "src/app/router/routing-user/user-routes";
-import RootRoute from "./components/RootRoute";
+import { RootRoute } from "./components/RootRoute";
 
 const APP_ROUTES: RouteObject[] = [
   {

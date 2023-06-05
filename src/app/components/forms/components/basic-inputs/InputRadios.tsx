@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { InputProps, InputWritten, SelectOption } from "@@components/forms";
-import { InputChangeEvent, WrittenChangeEvent } from "./types";
+import { InputProps, InputWritten, SelectOption, InputChangeEvent, WrittenChangeEvent } from "@@components/forms";
 
 type RadioOption<T> = SelectOption<T> & {
   default?: boolean;
@@ -13,23 +12,23 @@ type Props = Omit<InputProps, "value"> & {
   orientation?: "horizontal" | "vertical";
 };
 
-const InputRadios: React.FC<Props> = (props) => {
+export const InputRadios: React.FC<Props> = ({ options, changeFn, label, orientation, name, required, disabled }) => {
   const [valueWritten, setValueWritten] = useState("");
   const [selectedWrite, setSelectedWrite] = useState(false);
   const [checkedID, setCheckedID] = useState("");
 
   useEffect(() => {
-    const checkedValueIndex = props.options.findIndex((v) => v.default === true);
+    const checkedValueIndex = options.findIndex((v) => v.default === true);
     if (checkedValueIndex > -1) {
-      const checkedOption = props.options[checkedValueIndex];
-      props.changeFn(checkedOption?.value);
+      const checkedOption = options[checkedValueIndex];
+      changeFn(checkedOption?.value);
       const id = `${checkedValueIndex}-${checkedOption?.value as string}`;
       setCheckedID(id);
       if (checkedOption.customWrite) {
         setSelectedWrite(true);
       }
     }
-  }, [props.options[0].label, props.options[0].value]);
+  }, [options[0].label, options[0].value]);
 
   const updateValueRadio = (e: React.ChangeEvent<HTMLInputElement>, option: RadioOption<unknown>): void => {
     const val = e.currentTarget.value;
@@ -39,11 +38,11 @@ const InputRadios: React.FC<Props> = (props) => {
       if (option.customWrite === true) {
         setSelectedWrite(true);
         if (valueWritten.length > 0) {
-          props.changeFn(option?.prefix + valueWritten);
+          changeFn(option?.prefix + valueWritten);
         }
       } else {
         setSelectedWrite(false);
-        props.changeFn(val);
+        changeFn(val);
       }
     }
   };
@@ -51,21 +50,21 @@ const InputRadios: React.FC<Props> = (props) => {
   const updateValueWritten = (e: WrittenChangeEvent, prefix = ""): void => {
     const value = e.currentTarget.value;
     setValueWritten(value);
-    props.changeFn(prefix + value);
+    changeFn(prefix + value);
   };
 
   return (
     <div className={`relative pt-[20px] w-full`}>
       <h1 className={` pb-2 app_radios_title `}>
-        {props.label && (
+        {label && (
           <>
-            {props.label}
-            {props.required ? " *" : ""}
+            {label}
+            {required ? " *" : ""}
           </>
         )}
       </h1>
-      <div className={` w-full ${props.orientation === "horizontal" ? "flex gap-5" : ""}`}>
-        {props.options?.map((o, i) => {
+      <div className={` w-full ${orientation === "horizontal" ? "flex gap-5" : ""}`}>
+        {options?.map((o, i) => {
           const value = "" + o.value;
           const optionId = `${i}-${value}`;
 
@@ -77,19 +76,19 @@ const InputRadios: React.FC<Props> = (props) => {
                 tabIndex={0}
                 id={optionId}
                 type="radio"
-                name={props.name}
+                name={name}
                 checked={checkedID === optionId}
                 value={value || "[not defined]"}
                 onChange={(e: InputChangeEvent) => updateValueRadio(e, o)}
                 className={`app_input_radio peer`}
-                required={props.required}
-                disabled={props.disabled || o.notselectable || (!o.customWrite && !value)}
+                required={required}
+                disabled={disabled || o.notselectable || (!o.customWrite && !value)}
               />
 
               <label
                 htmlFor={optionId}
                 className={` app_input_label_radio min-w-[100px] Xtext-ellipsis Xoverflow-hidden Xwhitespace-nowrap 
-                ${props.required ? "after:pl-1" : ""}`}>
+                ${required ? "after:pl-1" : ""}`}>
                 {o.label}
               </label>
 
@@ -98,7 +97,7 @@ const InputRadios: React.FC<Props> = (props) => {
                   <InputWritten
                     disabled={!selectedWrite}
                     type="text"
-                    name={props.name}
+                    name={name}
                     value={valueWritten}
                     tailwindStyles="w-full"
                     label=""
@@ -113,5 +112,3 @@ const InputRadios: React.FC<Props> = (props) => {
     </div>
   );
 };
-
-export default InputRadios;

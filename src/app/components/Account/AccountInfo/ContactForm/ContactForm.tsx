@@ -4,11 +4,10 @@ import { useState } from "react";
 import { ContactsAPI, UsersAPI } from "@@api/firebase";
 import { ContactInvitation, UserFieldUpdate } from "@@types";
 import { useUserValue } from "@@contexts";
-import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
+import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer, WrittenChangeEvent } from "@@components/forms";
 import { Button } from "@@components/common";
-import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
-const ContactForm: React.FC = () => {
+export const ContactForm: React.FC = () => {
   const { user } = useUserValue();
   const [email, setemail] = useState("");
   const [message, setmessage] = useState<ResultDisplay>();
@@ -123,5 +122,3 @@ const ContactForm: React.FC = () => {
     </FormWrapper>
   );
 };
-
-export default ContactForm;

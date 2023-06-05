@@ -2,9 +2,8 @@ import { generateInputId } from "frotsi";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import "./InputTags.scss";
-import { FormClearX, InputProps, TagItem } from "@@components/forms";
+import { FormClearX, InputProps, InputTag, TagItem } from "@@components/forms";
 import { getTagWidth } from "./helpers";
-import InputTag from "./InputTag/InputTag";
 
 type Props = Omit<InputProps, "changeFn" | "value"> & {
   values: TagItem[];
@@ -12,23 +11,23 @@ type Props = Omit<InputProps, "changeFn" | "value"> & {
   changeFn: (val: TagItem[]) => void;
 };
 
-const InputTags: React.FC<Props> = (props) => {
-  const inputId = useRef(generateInputId(props.name, props.name)).current;
+export const InputTags: React.FC<Props> = ({ values, hint, changeFn, name, label, disabled, required }) => {
+  const inputId = useRef(generateInputId(name, name)).current;
   const ref = useRef<HTMLInputElement>(null);
 
   const [width, setwidth] = useState(`0px`);
 
-  const [values, setvalues] = useState<TagItem[]>([]);
+  const [innerValues, setinnerValues] = useState<TagItem[]>([]);
   const [newTag, setnewTag] = useState<TagItem>();
-  const [disabled, setdisabled] = useState(false);
+  const [innerDisabled, setinnerDisabled] = useState(false);
 
   useEffect(() => {
-    setdisabled(!!props.disabled);
-  }, [props.disabled]);
+    setinnerDisabled(!!innerDisabled);
+  }, [disabled]);
 
   useEffect(() => {
-    setvalues([...props.values]);
-  }, [props.values]);
+    setinnerValues([...values]);
+  }, [values]);
 
   useLayoutEffect(() => {
     const lettersWidth = getTagWidth(newTag?.value.length);
@@ -51,7 +50,7 @@ const InputTags: React.FC<Props> = (props) => {
 
   const handleClick = (): void => {
     if (!disabled) {
-      const tagId = generateInputId(props.name, "tag");
+      const tagId = generateInputId(name, "tag");
       setnewTag({ temporaryId: tagId, value: "" });
     }
   };
@@ -63,7 +62,7 @@ const InputTags: React.FC<Props> = (props) => {
   };
 
   const handleBlur = (): void => {
-    const newValues: TagItem[] = [...values].filter((v: TagItem) => v.value && v.temporaryId);
+    const newValues: TagItem[] = [...innerValues].filter((v: TagItem) => v.value && v.temporaryId);
     if (newTag?.temporaryId && newTag.value) {
       newValues.push({ ...newTag });
     }
@@ -103,8 +102,8 @@ const InputTags: React.FC<Props> = (props) => {
   };
 
   const updateValues = (values: TagItem[]): void => {
-    setvalues(values);
-    props.changeFn(values);
+    setinnerValues(values);
+    changeFn(values);
   };
 
   return (
@@ -113,8 +112,8 @@ const InputTags: React.FC<Props> = (props) => {
       ref={ref}
       tabIndex={0}
       className={`${inputId} app_input_tags_wrapper   relative flex flex-wrap items-center content-start  justify-start my-5  min-h-[130px] min-w-[300px]  w-full border-[1px] border-solid border-gray-300
-      ${props.label && props.label.length > 0 && "app_input_top"}
-      ${!!props?.disabled && "bg-slate-300"}`}>
+      ${label && label.length > 0 && "app_input_top"}
+      ${!!disabled && "bg-slate-300"}`}>
       {values.length > 0 &&
         values.map((val, i) => {
           return (
@@ -143,19 +142,19 @@ const InputTags: React.FC<Props> = (props) => {
         </div>
       )}
 
-      {!values.length && !newTag && (
+      {!innerValues.length && !newTag && (
         <div
           className="tag absolute h-[32px] top-[8px] text-sm text-gray-300"
           onClick={handleClick}>
           Click to add a tag...
         </div>
       )}
-      {props.label && props.label.length > 0 && (
+      {label && label.length > 0 && (
         <label
           htmlFor={inputId}
           onClick={handleClick}
-          className={`${inputId} peer app_input_label top-[-30px] whitespace-nowrap ${props.required ? "after:pl-1" : ""}`}>
-          {props.label}
+          className={`${inputId} peer app_input_label top-[-30px] whitespace-nowrap ${required ? "after:pl-1" : ""}`}>
+          {label}
         </label>
       )}
 
@@ -168,14 +167,12 @@ const InputTags: React.FC<Props> = (props) => {
         </div>
       )}
 
-      {props.hint && (
+      {hint && (
         <p
           className={`${inputId} absolute top-[0%] hidden text-[11px] text-gray-900 bg-gray-200 shadow-lg py-1 px-3 rounded-sm h-[40px] min-w-[200px] leading-[14px] peer-hover:flex peer-hover:z-20`}>
-          {props.hint}
+          {hint}
         </p>
       )}
     </div>
   );
 };
-
-export default InputTags;

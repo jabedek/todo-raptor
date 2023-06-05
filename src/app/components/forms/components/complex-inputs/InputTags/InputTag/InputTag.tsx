@@ -9,7 +9,7 @@ type Props = {
   item: TagItem;
 };
 
-const InputTag: React.FC<Props> = ({ deleteFn, item }) => {
+export const InputTag: React.FC<Props> = ({ deleteFn, item }) => {
   const [width, setwidth] = useState(`0px`);
 
   useEffect(() => {
@@ -39,5 +39,3 @@ const InputTag: React.FC<Props> = ({ deleteFn, item }) => {
     </div>
   );
 };
-
-export default InputTag;

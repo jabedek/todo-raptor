@@ -7,7 +7,7 @@ type Props = {
   tailwindStyles?: string;
 };
 
-const FormWrapper: React.FC<Props> = ({ title, children, tailwindStyles, submitFn }) => {
+export const FormWrapper: React.FC<Props> = ({ title, children, tailwindStyles, submitFn }) => {
   return (
     <form
       onSubmit={submitFn}
@@ -18,5 +18,3 @@ const FormWrapper: React.FC<Props> = ({ title, children, tailwindStyles, submitF
     </form>
   );
 };
-
-export default FormWrapper;

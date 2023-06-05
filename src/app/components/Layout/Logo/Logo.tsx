@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import logo from "../../../../assets/images/logo.png";
 
-const Logo: React.FC = () => (
+export const Logo: React.FC = () => (
   <Link to="/">
     <div className="w-[50px] h-[50px] flex  ">
       <img
@@ -16,5 +16,3 @@ const Logo: React.FC = () => (
     </div>
   </Link>
 );
-
-export default Logo;

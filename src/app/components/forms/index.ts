@@ -1,16 +1,23 @@
-import { ResultDisplay } from "./components/common/ResultDisplayer/ResultDisplayer";
-import FormClearX from "./components/form-buttons/FormClearX";
+import { ResultDisplay } from "./components/common/ResultDisplayer";
+import { FormClearX } from "./components/common/FormClearX";
 
-import FormWrapper from "./components/common/FormWrapper";
-import ResultDisplayer from "./components/common/ResultDisplayer/ResultDisplayer";
-import ConfirmDialog from "./components/common/ConfirmDialog";
+import { FormWrapper } from "./components/common/FormWrapper";
+import { ResultDisplayer } from "./components/common/ResultDisplayer";
+import { ConfirmDialog } from "./components/common/ConfirmDialog";
 
-import InputDate from "./components/basic-inputs/InputDate";
-import InputRadios from "./components/basic-inputs/InputRadios";
-import InputSelect from "./components/basic-inputs/InputSelect";
-import InputWritten from "./components/basic-inputs/InputWritten";
+import { InputDate } from "./components/basic-inputs/InputDate";
+import { InputRadios } from "./components/basic-inputs/InputRadios";
+import { InputSelect } from "./components/basic-inputs/InputSelect";
+import { InputWritten } from "./components/basic-inputs/InputWritten";
+
+import { TagItem } from "@@components/forms/components/complex-inputs/InputTags/types";
+import { InputTag } from "@@components/forms/components/complex-inputs/InputTags/InputTag/InputTag";
+import { InputTags } from "@@components/forms/components/complex-inputs/InputTags/InputTags";
+import { InputCheckbox } from "./components/basic-inputs/InputCheckbox";
 
 import {
+  WrittenChangeEvent,
+  InputChangeEvent,
   InputChoiceType,
   InputDateTimeType,
   InputProps,
@@ -18,10 +25,10 @@ import {
   InputType,
   InputWrittenType,
   SelectOption,
-} from "./components/basic-inputs/types";
-import { TagItem } from "@@components/forms/components/complex-inputs/InputTags/types";
-import InputTags from "@@components/forms/components/complex-inputs/InputTags/InputTags";
-import InputCheckbox from "./components/basic-inputs/InputCheckbox";
+  TextareaChangeEvent,
+} from "@@components/forms/components/basic-inputs/types";
+
+import { getHint, validate, validateEmailPassword, validateInput } from "./simple-validation";
 
 export {
   //
@@ -32,22 +39,30 @@ export {
   InputSelect,
   InputWritten,
   InputTags,
+  InputTag,
   //
   FormWrapper,
   ResultDisplayer,
   ConfirmDialog,
 
   //
+  getHint,
+  validate,
+  validateEmailPassword,
+  validateInput,
 };
 
 export type {
-  InputDateTimeType,
+  WrittenChangeEvent,
+  InputChangeEvent,
   InputChoiceType,
-  InputWrittenType,
+  InputDateTimeType,
   InputProps,
   InputSpecifics,
   InputType,
+  InputWrittenType,
   SelectOption,
+  TextareaChangeEvent,
   //
   ResultDisplay,
   TagItem,

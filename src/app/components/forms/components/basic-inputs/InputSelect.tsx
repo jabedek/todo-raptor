@@ -1,9 +1,9 @@
 import { generateInputId } from "frotsi";
 import { useEffect, useRef, useState } from "react";
+
 import { useHandleOutclick } from "@@hooks";
-import { InputProps, InputSpecifics, InputWritten, SelectOption } from "@@components/forms";
+import { InputProps, InputSpecifics, InputWritten, SelectOption, WrittenChangeEvent } from "@@components/forms";
 import { Icons } from "@@components/Layout";
-import { WrittenChangeEvent } from "./types";
 
 type Props<T extends unknown = unknown> = Omit<InputProps<T>, "changeFn"> & {
   inputTypeSpecs?: InputSpecifics;
@@ -14,7 +14,7 @@ type Props<T extends unknown = unknown> = Omit<InputProps<T>, "changeFn"> & {
   changeFn: (val, ...args: any) => void;
 };
 
-const InputSelect: React.FC<Props> = ({
+export const InputSelect: React.FC<Props> = ({
   name,
   options,
   value,
@@ -158,5 +158,3 @@ const InputSelect: React.FC<Props> = ({
     </div>
   );
 };
-
-export default InputSelect;

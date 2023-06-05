@@ -3,7 +3,7 @@ type Props = {
   colors?: string;
 };
 
-const LoadingSpinner: React.FC<Props> = ({ size, colors }) => {
+export const LoadingSpinner: React.FC<Props> = ({ size, colors }) => {
   let tailwindClass = "";
   if (!colors) {
     colors = "border-app_tertiary border-t-app_primary";
@@ -32,5 +32,3 @@ const LoadingSpinner: React.FC<Props> = ({ size, colors }) => {
     </div>
   ) : null;
 };
-
-export default LoadingSpinner;

@@ -2,17 +2,17 @@ import { Children, JSXElementConstructor, ReactElement, ReactFragment, useLayout
 
 type Props = {
   children: React.ReactNode;
-  for: string;
+  forGroup: string;
 };
 
 type ReactDivElement = ReactElement<JSXElementConstructor<HTMLDivElement>>;
 type LocalChildElement = number | string | ReactFragment | ReactDivElement;
 
-const SidePanel: React.FC<Props> = (props) => {
+export const SidePanel: React.FC<Props> = ({ forGroup, children }) => {
   const [divTop, setdivTop] = useState<ReactDivElement>();
   const [divBottom, setdivBottom] = useState<ReactDivElement>();
   useLayoutEffect(() => {
-    const [d0, d1, ...rest] = Children.toArray(props.children) as LocalChildElement[] as ReactDivElement[];
+    const [d0, d1, ...rest] = Children.toArray(children) as LocalChildElement[] as ReactDivElement[];
 
     if (d0 && d1) {
       if (d0?.type === "div") {
@@ -35,7 +35,7 @@ const SidePanel: React.FC<Props> = (props) => {
         `Only 2 <div> elements can be shown in SidePanel - header and body. Passing more elements will not cause it to display more.`
       );
     }
-  }, [props]);
+  }, [forGroup, children]);
 
   const handleError = (child: { which: "d0" | "d1" | "both"; type: string }): void => {
     switch (child.which) {
@@ -61,12 +61,10 @@ const SidePanel: React.FC<Props> = (props) => {
 
   return (
     <>
-      <div className={`side-panel side-panel--${props.for} flex flex-col bg-white justify-between h-auto `}>
+      <div className={`side-panel side-panel--${forGroup} flex flex-col bg-white justify-between h-auto `}>
         <div className="w-full side-top">{divTop}</div>
         <div className="w-full side-bottom">{divBottom}</div>
       </div>
     </>
   );
 };
-
-export default SidePanel;

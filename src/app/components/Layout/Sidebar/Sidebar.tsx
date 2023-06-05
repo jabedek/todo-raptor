@@ -1,11 +1,12 @@
 import { CallbackFn } from "frotsi";
 import { Icons } from "../preloaded-icons";
+
 type Props = {
   isVisible: boolean;
   clickFn: CallbackFn;
 };
 
-const Sidebar: React.FC<Props> = ({ isVisible, clickFn }) => (
+export const Sidebar: React.FC<Props> = ({ isVisible, clickFn }) => (
   <>
     <div
       className={`${isVisible ? "left-0" : "-left-[220px]"} delay-200 transition-all duration-200
@@ -28,5 +29,3 @@ const Sidebar: React.FC<Props> = ({ isVisible, clickFn }) => (
       onClick={() => clickFn(false)}></div>
   </>
 );
-
-export default Sidebar;

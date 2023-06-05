@@ -3,12 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { UserCredential } from "firebase/auth";
 
 import { AuthAPI } from "@@api/firebase";
-import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer } from "@@components/forms";
+import {
+  FormWrapper,
+  InputWritten,
+  ResultDisplay,
+  ResultDisplayer,
+  getHint,
+  validateEmailPassword,
+  validateInput,
+  WrittenChangeEvent,
+} from "@@components/forms";
 import { Button } from "@@components/common";
-import { getHint, validateEmailPassword, validateInput } from "@@components/forms/simple-validation";
-import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
-const LoginForm: React.FC = () => {
+export const LoginForm: React.FC = () => {
   type FormValidity = keyof typeof validity;
   const [password, setpassword] = useState("");
   const [email, setemail] = useState("");
@@ -103,5 +110,3 @@ const LoginForm: React.FC = () => {
     </FormWrapper>
   );
 };
-
-export default LoginForm;

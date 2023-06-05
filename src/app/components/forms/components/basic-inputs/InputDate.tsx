@@ -8,41 +8,50 @@ type Props = InputProps & {
   focus?: boolean;
 };
 
-const InputDate: React.FC<Props> = (props) => {
-  const inputId = useRef(generateInputId(props.name, props.type || "date")).current;
+export const InputDate: React.FC<Props> = ({
+  name,
+  type,
+  changeFn,
+  changeSideEffectFn,
+  value,
+  required,
+  disabled,
+  inputTypeSpecs,
+  label,
+  focus,
+}) => {
+  const inputId = useRef(generateInputId(name, type || "date")).current;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.currentTarget.value; // YYYY-MM-DD
-    props.changeFn(value);
+    changeFn(value);
   };
 
   return (
-    <div className={`${inputId} sticky mt-4 my-1 w-full ${props.label && props.label.length > 0 && "app_input_top"}`}>
+    <div className={`${inputId} sticky mt-4 my-1 w-full ${label && label.length > 0 && "app_input_top"}`}>
       <input
         tabIndex={0}
-        autoFocus={!!props.focus}
+        autoFocus={!!focus}
         autoCorrect="new-password"
         id={inputId}
-        type={props.type}
-        name={props.name}
-        value={props.value}
+        type={type}
+        name={name}
+        value={value}
         onChange={handleChange}
         className={`${inputId} app_input peer bg-transparent`}
         placeholder=" "
-        min={props.inputTypeSpecs?.minTime || "09:00"}
-        max={props.inputTypeSpecs?.maxTime || "17:00"}
-        required={props.required}
-        disabled={props.disabled}
+        min={inputTypeSpecs?.minTime || "09:00"}
+        max={inputTypeSpecs?.maxTime || "17:00"}
+        required={required}
+        disabled={disabled}
       />
-      {props.label && props.label.length > 0 && (
+      {label && label.length > 0 && (
         <label
           htmlFor={inputId}
-          className={`${inputId} app_input_label ${props.required ? "after:pl-1" : ""}`}>
-          {props.label}
+          className={`${inputId} app_input_label ${required ? "after:pl-1" : ""}`}>
+          {label}
         </label>
       )}
     </div>
   );
 };
-
-export default InputDate;

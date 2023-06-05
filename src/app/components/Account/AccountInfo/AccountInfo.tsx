@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { InputWritten } from "@@components/forms";
+import { User } from "@@types";
+import { UsersAPI } from "@@api/firebase";
+import { useContactsValue, useUserValue } from "@@contexts";
+import { InputWritten, WrittenChangeEvent } from "@@components/forms";
 import { usePopupContext } from "@@components/Layout";
 import { Button } from "@@components/common";
 import { AccountContacts, UserVerification } from "@@components/Account";
-import { useContactsValue, useUserValue } from "@@contexts";
-import { User } from "@@types";
-import { UsersAPI } from "@@api/firebase";
-import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
-const AccountInfo: React.FC = () => {
+export const AccountInfo: React.FC = () => {
   const { user, firebaseAuthUser } = useUserValue();
   const { contacts } = useContactsValue();
   const { showPopup } = usePopupContext();
@@ -129,5 +128,3 @@ const AccountInfo: React.FC = () => {
     </>
   );
 };
-
-export default AccountInfo;

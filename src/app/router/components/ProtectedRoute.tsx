@@ -1,14 +1,15 @@
 import { Navigate, useNavigate } from "react-router-dom";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
+import { LackingValidations } from "@@types";
 import { LoadingSpinner } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
-import { useUserValue } from "src/app/contexts/UserContext";
 import { AppCodeForm } from "@@components/Account";
-import { LackingValidations, useApiAccessValue } from "src/app/contexts/ApiAccessContext";
+import { useApiAccessValue, useUserValue } from "@@contexts";
 
 type Props = { children: React.ReactNode; path: string; logPath?: string };
 
-const ProtectedRoute: React.FC<Props> = ({ children }) => {
+export const ProtectedRoute: React.FC<Props> = ({ children }) => {
   const { firebaseAuthUser, user } = useUserValue();
   const { shouldPingUser, hasProvided, canAccessAPI, checkProvidedCode } = useApiAccessValue();
   const [canRoute, setcanRoute] = useState<"checking" | boolean>("checking");
@@ -99,5 +100,3 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
     </>
   );
 };
-
-export default ProtectedRoute;

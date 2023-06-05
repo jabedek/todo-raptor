@@ -1,12 +1,14 @@
 import { memo, useEffect, useState } from "react";
+
 import "./ContactItem.scss";
 import { ContactInvitation } from "@@types";
-import { DateFormats, DateFormatter } from "@@utils/date-formatter";
 import { ContactsAPI } from "@@api/firebase";
+import { DateFormats, DateFormatter } from "@@utils/date-formatter";
 import { Icons } from "@@components/Layout";
 
 type Props = { invitation: ContactInvitation; perspectiveOf: "sender" | "receiver" };
-const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
+
+const ContactItemComponent: React.FC<Props> = ({ invitation, perspectiveOf }) => {
   const date = DateFormatter.formatToString(new Date().toISOString(), DateFormats["YYYY-MM-DD"]);
   const [subject, setSubject] = useState<{ status: string; message: string }>();
 
@@ -69,7 +71,7 @@ const ContactItem: React.FC<Props> = ({ invitation, perspectiveOf }) => {
   );
 };
 
-export default memo(ContactItem, (oldProps, newProps) => {
+export const ContactItem = memo(ContactItemComponent, (oldProps, newProps) => {
   const { id: oldId, status: oldStatus } = oldProps.invitation;
   const { id: newId, status: newStatus } = newProps.invitation;
   return oldId === newId && oldStatus === newStatus;

@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { User as FirebaseAuthUser } from "firebase/auth";
 
-import { ResultDisplay, ResultDisplayer } from "@@components/forms";
-import { Button } from "@@components/common";
 import { AuthAPI } from "@@api/firebase";
 import { useUserValue } from "@@contexts";
+import { ResultDisplay, ResultDisplayer } from "@@components/forms";
+import { Button } from "@@components/common";
 
 type Props = { firebaseUser: FirebaseAuthUser | null | undefined };
 
-const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
+export const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
   const { user } = useUserValue();
   const [message, setmessage] = useState<ResultDisplay | undefined>(undefined);
   const [wait, setwait] = useState(0);
@@ -106,5 +106,3 @@ const UserVerification: React.FC<Props> = ({ firebaseUser }) => {
     </div>
   );
 };
-
-export default UserVerification;

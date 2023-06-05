@@ -29,7 +29,7 @@ export type TasksLists = {
 export type SimpleAssignee = Flatten<IdEmailPair & { role: ProjectRoleShortName }>;
 export type FullAssignee = DeepFlatten<SimpleAssignee & Partial<PersonalDetails> & { roleDetails?: ProjectRole }>;
 export type AssigneesRegistry = Record<string, FullAssignee>;
-export type ProjectWithAssigneesRegistry = Flatten<Project & { assigneesRegistry: AssigneesRegistry }>;
+export type ProjectWithAssigneesRegistry = Project & { assigneesRegistry: AssigneesRegistry };
 
 export type UnboundAssignee = Flatten<IdEmailPair & Partial<PersonalDetails>>;
 export type UnboundAssigneesRegistry = Record<string, UnboundAssignee>;
@@ -38,3 +38,10 @@ export type ProjectsFullData = {
   active: ProjectWithAssigneesRegistry[];
   archived: ProjectWithAssigneesRegistry[];
 };
+
+export type ProjectBlockade =
+  | "block block-archived"
+  | "block block-cancelled"
+  | "block block-completed"
+  | "block block-dragging"
+  | undefined;

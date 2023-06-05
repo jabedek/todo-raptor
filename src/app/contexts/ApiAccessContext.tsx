@@ -1,28 +1,11 @@
-import { MetadataAPI } from "@@api/firebase";
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useUserValue } from "./UserContext";
-import { useLocalStorage } from "../hooks/useLocalStorage";
-import { StorageItem } from "../types/enums";
 import { User as FirebaseAuthUser } from "firebase/auth";
 
-/**
- * * `canAccessAPI` - only true if both `mustProvideCode` and `mustVerifyEmail` are true
- * * `mustProvideCode` - checks if logged user has provided valid code (with exceptions - `no code emails`)
- * * `mustVerifyEmail` - checks if logged user has verified his email after registration (with exceptions - `no code emails`)
- * */
-type ApiAccessContextType = {
-  canAccessAPI: boolean | undefined;
-  shouldPingUser: boolean;
-  hasProvided: LackingValidations;
-  checkProvidedCode: CheckProvidedCodeFn;
-};
-
-export type CheckProvidedCodeFn = (email: string, code: string) => Promise<LackingValidations>;
-
-export type LackingValidations = {
-  validAppCode: boolean | undefined;
-  verifiedEmail: boolean | undefined;
-};
+import { MetadataAPI } from "@@api/firebase";
+import { useUserValue } from "@@contexts";
+import { useLocalStorage } from "@@hooks";
+import { LackingValidations, ApiAccessContextType, StorageItem } from "@@types";
 
 const initValidations: LackingValidations = {
   validAppCode: undefined,
