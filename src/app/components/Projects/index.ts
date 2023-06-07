@@ -5,8 +5,8 @@ import { ProjectsTable } from "./components/ProjectsTable/ProjectsTable";
 import { ProjectsTableHeader } from "./components/ProjectsTable/ProjectsTableHeader/ProjectsTableHeader";
 import { ProjectsTableBody } from "./components/ProjectsTable/ProjectsTableBody/ProjectsTableBody";
 import { ProjectsTableItem } from "./components/ProjectsTable/ProjectsTableItem/ProjectsTableItem";
+import { ProjectStatus } from "./components/ProjectsTable/ProjectsTableItem/ProjectStatus/ProjectStatus";
 import { ProjectBadge } from "./components/ProjectsTable/ProjectsTableHeader/ProjectBadge/ProjectBadge";
-import { ProjectList } from "./components/ProjectsTable/ProjectsTableItem/ProjectList/ProjectList";
 import { AssigneeIcon } from "./components/AssigneeIcon/AssigneeIcon";
 import { ProjectView } from "./components/ProjectView/ProjectView";
 import { ProjectViewHeader } from "./components/ProjectView/ProjectViewHeader/ProjectViewHeader";
@@ -18,8 +18,9 @@ import { getUserDisplayName, getScheduleColumnsEmpty, transformColumnTo } from "
 
 import {
   ProjectStatusName,
-  PROJECT_STATUSES_OPTIONS,
   ProjectRoleShortName,
+  getProjectRoleDetails,
+  PROJECT_STATUSES_OPTIONS,
   PROJECT_ROLES_OPTIONS,
 } from "./visuals/project-visuals";
 
@@ -27,7 +28,7 @@ export {
   ProjectForm,
   DeleteProjectForm,
   ProjectBadge,
-  ProjectList,
+  ProjectStatus,
   //
   ProjectsTable,
   ProjectsTableHeader,
@@ -45,6 +46,7 @@ export {
   PROJECT_STATUSES_OPTIONS,
   PROJECT_ROLES_OPTIONS,
   //
+  getProjectRoleDetails,
   getUserDisplayName,
   getScheduleColumnsEmpty,
   transformColumnTo,

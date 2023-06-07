@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+
 import { ProjectsAPI } from "@@api/firebase";
-import { Button } from "@@components/common";
-import { FormWrapper, InputSelect, ResultDisplay, ResultDisplayer, SelectOption } from "@@components/forms";
-import { Contact, IdEmailPair, ProjectWithAssigneesRegistry, User } from "@@types";
+import { FormWrapper, InputSelect, ResultDisplay, ResultDisplayer, SelectOption, Button } from "@@components/common";
+import { Contact, IdEmailPair, FullProject, User } from "@@types";
 import { PROJECT_ROLES_OPTIONS, ProjectRoleShortName } from "@@components/Projects/visuals/project-visuals";
 type Props = {
   user: User | undefined;
-  project: ProjectWithAssigneesRegistry | undefined;
+  project: FullProject | undefined;
 };
 
 export const AssignToProjectForm: React.FC<Props> = ({ user, project }) => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { generateDocumentId, generateInputId } from "frotsi";
 
 import { TasksAPI } from "@@api/firebase";
-import { Project, ProjectWithAssigneesRegistry, ScheduleAction, SimpleAssignee, SimpleTask } from "@@types";
+import { Project, FullProject, ScheduleAction, SimpleAssignee, SimpleTask } from "@@types";
 import {
   ConfirmDialog,
   FormWrapper,
@@ -14,14 +14,14 @@ import {
   SelectOption,
   TagItem,
   WrittenChangeEvent,
-} from "@@components/forms";
-import { Button } from "@@components/common";
+  Button,
+} from "@@components/common";
 import { getStatusGroup, TASK_LISTS_OPTIONS, TASK_STATUSES_OPTIONS, TaskListType, TaskStatusShortName } from "@@components/Tasks";
 import { usePopupContext } from "@@components/Layout";
 import { getShortId } from "@@utils/id";
 
 type Props = {
-  project: ProjectWithAssigneesRegistry | undefined;
+  project: FullProject | undefined;
   task?: SimpleTask;
   taskList: TaskListType;
 };

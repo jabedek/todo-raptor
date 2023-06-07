@@ -22,5 +22,9 @@ export const RenderObject: React.FC<Props> = ({ data, notNested, tailwindStyles 
     []
   );
 
-  return <div className={`render-object ${tailwindStyles}`}>{objectData ? objectData : "undefined"}</div>;
+  return (
+    <div className={`render-object bg-neutral-800 bg-opacity-20`}>
+      <span className={` ${tailwindStyles}`}>{objectData ? objectData : "undefined"}</span>
+    </div>
+  );
 };

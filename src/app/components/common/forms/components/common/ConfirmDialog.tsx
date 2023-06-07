@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { CallbackFn } from "frotsi";
 
-import { Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
-import { FormWrapper, InputCheckbox } from "@@components/forms";
+import { FormWrapper, InputCheckbox, Button } from "@@components/common";
 
 type Props = {
   submitFn: CallbackFn;

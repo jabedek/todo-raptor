@@ -1,6 +1,6 @@
 import { generateInputId } from "frotsi";
 import { useRef, useState } from "react";
-import { InputProps, InputSpecifics, InputWrittenType, WrittenChangeEvent } from "@@components/forms";
+import { InputProps, InputSpecifics, InputWrittenType, WrittenChangeEvent } from "@@components/common";
 
 type Props = Omit<InputProps, "changeFn" | "value"> & {
   type: InputWrittenType;

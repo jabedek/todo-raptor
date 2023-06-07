@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useLayoutEffect, useState } from "react";
 
-import { ProjectWithAssigneesRegistry, User } from "@@types";
+import { FullProject, User } from "@@types";
 import { Icons } from "@@components/Layout";
-import { AssigneeIcon, ProjectList } from "@@components/Projects";
+import { AssigneeIcon, ProjectStatus } from "@@components/Projects";
 
 type Props = {
-  project: ProjectWithAssigneesRegistry;
+  project: FullProject;
   user: User | undefined;
 };
 
@@ -99,7 +99,7 @@ export const ProjectsTableItem: React.FC<Props> = ({ project, user }) => {
 
           <div className="flex w-full justify-between items-center px-[10px]">
             {/* # Status */}
-            <ProjectList
+            <ProjectStatus
               status={project.status}
               userIsCreator={userIsCreator}
               userIsManager={userIsManager}

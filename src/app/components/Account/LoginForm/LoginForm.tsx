@@ -12,8 +12,8 @@ import {
   validateEmailPassword,
   validateInput,
   WrittenChangeEvent,
-} from "@@components/forms";
-import { Button } from "@@components/common";
+  Button,
+} from "@@components/common";
 
 export const LoginForm: React.FC = () => {
   type FormValidity = keyof typeof validity;

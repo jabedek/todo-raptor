@@ -1,22 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Unsubscribe } from "firebase/auth";
 
 import "./ProjectView.scss";
 import { useUserValue, useApiAccessValue } from "@@contexts";
 import { ListenersHandler, ProjectsAPI, TasksAPI } from "@@api/firebase";
-import {
-  FullAssignee,
-  FullTask,
-  Project,
-  ProjectBlockade,
-  ProjectsFullData,
-  ProjectWithAssigneesRegistry,
-  SimpleTask,
-} from "@@types";
-import { Button, SidePanel } from "@@components/common";
+import { FullAssignee, FullTask, ProjectBlockade, ProjectsSeparated, FullProject, SimpleTask } from "@@types";
 import { usePopupContext } from "@@components/Layout";
-import { ConfirmDialog, FormClearX } from "@@components/forms";
+import { ConfirmDialog, FormClearX, Button, SidePanel } from "@@components/common";
 import {
   AssignToProjectForm,
   AssigneeIcon,
@@ -27,8 +18,10 @@ import {
 } from "@@components/Projects";
 import { TaskForm, TaskListType, enrichTasksWithAssignees } from "@@components/Tasks";
 import { getShortId } from "@@utils/id";
+import { RendersCounter } from "@@components/common/dev";
+import { log } from "console";
 
-type Props = { projectData: Project | undefined; projectId: string };
+type Props = { projectId: string };
 
 enum ListenerDataName {
   tasks_backlog = "tasks_backlog",
@@ -38,11 +31,11 @@ enum ListenerDataName {
 
 const editingRoles = ["manager", "product_owner"];
 
-export const ProjectView: React.FC<Props> = ({ projectData, projectId }) => {
-  const Listeners = new ListenersHandler("ProjectView");
+export const ProjectView: React.FC<Props> = ({ projectId }) => {
+  const Listeners = new ListenersHandler("ProjectView", true);
   const [tab, settab] = useState<TaskListType>("schedule");
   const [tasksBacklog, settasksBacklog] = useState<FullTask[]>([]);
-  const [project, setproject] = useState<ProjectWithAssigneesRegistry>();
+  const [project, setproject] = useState<FullProject>();
   const { user } = useUserValue();
   const { canAccessAPI } = useApiAccessValue();
   const { showPopup } = usePopupContext();
@@ -51,17 +44,17 @@ export const ProjectView: React.FC<Props> = ({ projectData, projectId }) => {
   const [blockadeReason, setblockadeReason] = useState<ProjectBlockade>();
 
   useEffect(() => {
-    if (projectData !== undefined) {
-      if (user && canAccessAPI) {
-        listenProjectsWithAssigneesData(projectData);
-      }
+    console.log(projectId, user, canAccessAPI);
+
+    if (projectId !== undefined && user && canAccessAPI) {
+      listenProjectsWithAssigneesData(projectId);
     } else {
-      Listeners.unsub(ListenerDataName.all);
+      Listeners.unsubAll();
       navigate("/projects");
     }
 
     return () => Listeners.unsubAll();
-  }, [projectId, projectData]);
+  }, [projectId, user, canAccessAPI]);
 
   useEffect(() => {
     if (project && user) {
@@ -69,11 +62,19 @@ export const ProjectView: React.FC<Props> = ({ projectData, projectId }) => {
       if (assignee) {
         const hasEditingRole = editingRoles.includes(assignee.role);
         setcurrentUserCanEdit(hasEditingRole);
-      } else {
-        navigate("/projects");
       }
     }
   }, [project, user]);
+
+  useEffect(() => {
+    if (project) {
+      if (tab === "backlog") {
+        listenToProjectOtherTasks(project);
+      } else {
+        Listeners.unsub(ListenerDataName.tasks_backlog);
+      }
+    }
+  }, [tab]);
 
   useEffect(() => {
     let reason: ProjectBlockade;
@@ -93,31 +94,34 @@ export const ProjectView: React.FC<Props> = ({ projectData, projectId }) => {
     setblockadeReason(reason);
   }, [project?.archived, project?.status]);
 
-  useEffect(() => {
-    if (project) {
-      if (tab === "backlog") {
-        listenToProjectOtherTasks(project);
-      } else {
-        Listeners.unsub(ListenerDataName.tasks_backlog);
-      }
-    }
-  }, [tab]);
+  const listenProjectsWithAssigneesData = (projectId: string): void => {
+    console.log("listenProjectsWithAssigneesData", projectId);
 
-  const listenProjectsWithAssigneesData = (projectData: Project): void => {
-    ProjectsAPI.listenProjectsWithAssigneesData(
-      [projectData.id],
-      true,
-      (data: ProjectsFullData | undefined, unsubProject: Unsubscribe | undefined) => {
-        if (data && unsubProject) {
-          Listeners.sub(ListenerDataName.project, unsubProject);
-          const project = projectData?.archived ? data.archived[0] : data.active[0];
-          setproject(project);
-        }
+    ProjectsAPI.listenFullProject(projectId, (data: FullProject | undefined, unsub: Unsubscribe | undefined) => {
+      console.log("l", data);
+
+      if (data && unsub) {
+        Listeners.sub(ListenerDataName.project, unsub);
+        setproject(data);
       }
-    ).catch((e) => console.error(e));
+    }).catch((e) => console.error(e));
+
+    // ProjectsAPI.listenProjectsWithAssigneesData(
+    //   [projectId],
+    //   true,
+    //   (data: ProjectsSeparated | undefined, unsubProject: Unsubscribe | undefined) => {
+    //     console.log("l", data);
+
+    //     if (data && unsubProject) {
+    //       Listeners.sub(ListenerDataName.project, unsubProject);
+    //       const project = data.active[0] ?? data.archived[0];
+    //       setproject(project);
+    //     }
+    //   }
+    // ).catch((e) => console.error(e));
   };
 
-  const listenToProjectOtherTasks = (project: ProjectWithAssigneesRegistry): void => {
+  const listenToProjectOtherTasks = (project: FullProject): void => {
     TasksAPI.listenToProjectOtherTasks(
       project,
       (tasksData: SimpleTask[] | undefined, unsubtasksBacklog: Unsubscribe | undefined) => {
@@ -138,13 +142,16 @@ export const ProjectView: React.FC<Props> = ({ projectData, projectId }) => {
     }
   };
 
-  const popupAssignToProjectForm = (): void =>
-    showPopup(
-      <AssignToProjectForm
-        user={user}
-        project={project}
-      />
-    );
+  const popupAssignToProjectForm = useCallback(
+    () =>
+      showPopup(
+        <AssignToProjectForm
+          user={user}
+          project={project}
+        />
+      ),
+    []
+  );
 
   const popupConfirmDialog = (data: FullAssignee): void =>
     showPopup(
@@ -164,12 +171,15 @@ export const ProjectView: React.FC<Props> = ({ projectData, projectId }) => {
       />
     );
 
-  const popupProjectForm = (project: ProjectWithAssigneesRegistry): void => showPopup(<ProjectForm project={project} />);
+  const popupProjectForm = (project: FullProject): void => {
+    showPopup(<ProjectForm project={project} />);
+  };
 
   return (
     <>
       {project && (
         <div className={`project-view-wrapper flex flex-col rounded-[14px] overflow-hidden  ${blockadeReason}`}>
+          <RendersCounter componentName="ProjectView" />
           <div className="project-view justify-center font-app_primary bg-[rgba(241,241,241,1)] flex ">
             {/* Side - Left */}
 

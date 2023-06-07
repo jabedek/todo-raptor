@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { InputProps, InputWritten, SelectOption, InputChangeEvent, WrittenChangeEvent } from "@@components/forms";
+import { InputProps, InputWritten, SelectOption, InputChangeEvent, WrittenChangeEvent } from "@@components/common";
 
 type RadioOption<T> = SelectOption<T> & {
   default?: boolean;

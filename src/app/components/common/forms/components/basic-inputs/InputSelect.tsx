@@ -2,7 +2,7 @@ import { generateInputId } from "frotsi";
 import { useEffect, useRef, useState } from "react";
 
 import { useHandleOutclick } from "@@hooks";
-import { InputProps, InputSpecifics, InputWritten, SelectOption, WrittenChangeEvent } from "@@components/forms";
+import { InputProps, InputSpecifics, InputWritten, SelectOption, WrittenChangeEvent } from "@@components/common";
 import { Icons } from "@@components/Layout";
 
 type Props<T extends unknown = unknown> = Omit<InputProps<T>, "changeFn"> & {

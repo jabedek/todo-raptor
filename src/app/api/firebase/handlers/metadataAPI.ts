@@ -3,7 +3,7 @@ import { FirebaseDB } from "../firebase-config";
 import { AppAPICode, AppAPINoCodeEmail } from "../types";
 import { isCodeValid, isNoCodeEmailValid } from "../utils";
 import { AuthAPI } from "./authAPI";
-import { LackingValidations } from "src/app/contexts/ApiAccessContext";
+import { LackingValidations } from "@@types";
 
 export const CHECK_ACCESS = import.meta.env.VITE_REACT_APP_CHECK_ACCESS === "yes";
 

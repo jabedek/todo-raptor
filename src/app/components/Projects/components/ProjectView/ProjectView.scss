@@ -23,6 +23,7 @@ $body-width: 680px;
 .project-view-wrapper {
   height: 800px;
   min-width: 900px;
+  width: 100%;
 }
 
 .block {
@@ -138,7 +139,7 @@ $body-width: 680px;
       gap: 0px;
       padding: 6px;
       height: calc(100% - $header-height);
-      width: 100%;
+      width: auto;
       min-width: $body-width;
       overflow-y: scroll;
     }

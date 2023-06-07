@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
 
 import "./ProjectsTable.scss";
-import { ProjectWithAssigneesRegistry, User, ProjectsFullData } from "@@types";
+import { FullProject, User, ProjectsSeparated } from "@@types";
 import { Button, SidePanel } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
 import { ProjectForm, ProjectsTableBody, ProjectsTableHeader } from "@@components/Projects";
+import { RendersCounter } from "@@components/common/dev";
 
 interface Props {
-  projectsData: ProjectsFullData | undefined;
+  projectsData: ProjectsSeparated | undefined;
   user: User | undefined;
 }
 
 export const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
   const [tab, settab] = useState<"active" | "archived">("active");
-  const [activeCollection, setactiveCollection] = useState<ProjectWithAssigneesRegistry[]>([]);
+  const [activeCollection, setactiveCollection] = useState<FullProject[]>([]);
   const { showPopup } = usePopupContext();
 
-  const popupProject = (): void => {
-    showPopup(<ProjectForm />);
-  };
+  const popupProject = (): void => showPopup(<ProjectForm />);
 
   useEffect(() => {
     if (projectsData) {
@@ -29,6 +28,7 @@ export const ProjectsTable: React.FC<Props> = ({ projectsData, user }) => {
   return (
     <>
       <div className="projects-table-wrapper flex flex-col rounded-[14px] overflow-hidden">
+        <RendersCounter componentName="ProjectsTable" />
         <div className="projects-table font-app_primary bg-[rgba(241,241,241,1)] flex ">
           {/* Main */}
           <div className="projects-table__main flex flex-col justify-between">

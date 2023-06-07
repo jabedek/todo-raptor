@@ -3,8 +3,7 @@ import { User as FirebaseAuthUser } from "firebase/auth";
 
 import { AuthAPI } from "@@api/firebase";
 import { useUserValue } from "@@contexts";
-import { ResultDisplay, ResultDisplayer } from "@@components/forms";
-import { Button } from "@@components/common";
+import { ResultDisplay, ResultDisplayer, Button } from "@@components/common";
 
 type Props = { firebaseUser: FirebaseAuthUser | null | undefined };
 

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { generateInputId } from "frotsi";
-import { InputDateTimeType, InputProps, InputSpecifics } from "@@components/forms";
+import { InputDateTimeType, InputProps, InputSpecifics } from "@@components/common";
 
 type Props = InputProps & {
   type: InputDateTimeType;

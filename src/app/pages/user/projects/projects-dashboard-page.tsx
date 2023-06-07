@@ -1,11 +1,10 @@
-import { ProjectsAPI } from "@@api/firebase";
-import { ListenersHandler } from "@@api/firebase/listeners-handler";
-import { ProjectsTable } from "@@components/Projects";
-import { useUserValue } from "@@contexts";
-import { ProjectsFullData } from "@@types";
-import { Unsubscribe } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { useApiAccessValue } from "src/app/contexts/ApiAccessContext";
+import { Unsubscribe } from "firebase/auth";
+
+import { ProjectsAPI, ListenersHandler } from "@@api/firebase";
+import { ProjectsTable } from "@@components/Projects";
+import { useUserValue, useApiAccessValue } from "@@contexts";
+import { ProjectsSeparated } from "@@types";
 
 enum ListenerDataName {
   project = "project",
@@ -16,14 +15,14 @@ const ProjectsDashboardPage: React.FC = () => {
   const { user } = useUserValue();
 
   const { canAccessAPI } = useApiAccessValue();
-  const [projectsData, setprojectsData] = useState<ProjectsFullData>({ active: [], archived: [] });
+  const [projectsData, setprojectsData] = useState<ProjectsSeparated>({ active: [], archived: [] });
 
   useEffect(() => {
     if (user && canAccessAPI) {
       ProjectsAPI.listenProjectsWithAssigneesData(
         [...user.work.projectsIds],
         false,
-        (data: ProjectsFullData | undefined, unsubFn: Unsubscribe | undefined) => {
+        (data: ProjectsSeparated | undefined, unsubFn: Unsubscribe | undefined) => {
           if (data && unsubFn) {
             Listeners.sub(ListenerDataName.project, unsubFn);
             setprojectsData(data);

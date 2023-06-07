@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import { Layout } from "@@components/Layout";
-import { APIAccessProvider, UserProvider } from "src/app/contexts";
-import { PopupProvider } from "@@components/Layout";
+
+import { APIAccessProvider, UserProvider } from "@@contexts";
+import { Layout, PopupProvider } from "@@components/Layout";
 
 export function RootRoute(): JSX.Element {
   return (

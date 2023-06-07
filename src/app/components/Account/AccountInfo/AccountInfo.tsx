@@ -3,9 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { User } from "@@types";
 import { UsersAPI } from "@@api/firebase";
 import { useContactsValue, useUserValue } from "@@contexts";
-import { InputWritten, WrittenChangeEvent } from "@@components/forms";
+import { InputWritten, WrittenChangeEvent, Button } from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
-import { Button } from "@@components/common";
 import { AccountContacts, UserVerification } from "@@components/Account";
 
 export const AccountInfo: React.FC = () => {

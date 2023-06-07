@@ -1,7 +1,19 @@
-import { STATUS_GROUP_NAMES, TASK_STATUSES_GROUPS } from "@@components/Tasks/visuals/task-visuals";
-import { FullTask, SimpleTask } from "@@types";
-import { FullColumn, ScheduleColumns, ScheduleColumnType, SimpleColumn } from "src/app/types/Schedule";
-import { PersonalDetails } from "src/app/types/Users";
+import { STATUS_GROUP_NAMES, TASK_STATUSES_GROUPS } from "@@components/Tasks";
+import {
+  FullTask,
+  Project,
+  SimpleTask,
+  PersonalDetails,
+  User,
+  FullColumn,
+  ScheduleColumns,
+  ScheduleColumnType,
+  SimpleColumn,
+  SimpleAssignee,
+  FullAssignee,
+  AssigneesRegistry,
+} from "@@types";
+import { getProjectRoleDetails } from "@@components/Projects";
 
 export const getUserDisplayName = (user: { email: string } & Partial<Pick<PersonalDetails, "names">>): string => {
   let display = "";
@@ -65,4 +77,19 @@ export const transformColumnTo = (
   }
 
   return column;
+};
+
+export const enrichProjectAssignees = (assignees: SimpleAssignee[], users: User[]): AssigneesRegistry => {
+  const assigneesRegistry: AssigneesRegistry = {};
+
+  assignees.forEach((assignee) => {
+    const user = users.find((user) => user.authentication.id === assignee.id);
+    assigneesRegistry[assignee.id] = {
+      ...assignee,
+      names: user?.personal.names,
+      roleDetails: getProjectRoleDetails(assignee.role),
+    };
+  });
+
+  return assigneesRegistry;
 };

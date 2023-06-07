@@ -15,6 +15,8 @@ export const AssigneeIcon: React.FC<Props> = ({ assignee, tailwindStyles }) => {
   const [assigneeStyles, setassigneeStyles] = useState("");
 
   useEffect(() => {
+    console.log(assignee);
+
     if (assignee) {
       if (assignee !== "...") {
         if (assignee.names) {

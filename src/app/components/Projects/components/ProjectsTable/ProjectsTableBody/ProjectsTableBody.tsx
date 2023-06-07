@@ -1,8 +1,8 @@
-import { ProjectWithAssigneesRegistry, User } from "@@types";
+import { FullProject, User } from "@@types";
 import { ProjectsTableItem } from "@@components/Projects";
 
 type Props = {
-  projects: ProjectWithAssigneesRegistry[];
+  projects: FullProject[];
   user: User | undefined;
 };
 

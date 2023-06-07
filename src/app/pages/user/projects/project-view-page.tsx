@@ -1,4 +1,3 @@
-import React from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { ProjectView } from "@@components/Projects";
@@ -9,10 +8,7 @@ const ProjectViewPage: React.FC = () => {
 
   return (
     <div className="app_flex_center flex-col">
-      <ProjectView
-        projectData={routeData.projectData}
-        projectId={routeData.projectId}
-      />
+      <ProjectView projectId={routeData.projectId} />
     </div>
   );
 };

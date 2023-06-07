@@ -1,7 +1,7 @@
 import { Flatten } from "frotsi";
 import { useEffect, useState } from "react";
 
-import { InputProps, SelectOption } from "@@components/forms";
+import { InputProps, SelectOption } from "@@components/common";
 
 type CheckboxOption = Flatten<
   SelectOption<unknown> & {

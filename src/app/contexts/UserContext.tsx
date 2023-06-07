@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
-import { AuthAPI, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
+
+import { AuthAPI, FirebaseUserStateChange, UsersAPI, ListenersHandler } from "@@api/firebase";
 import { User } from "@@types";
-import { ListenersHandler } from "@@api/firebase/listeners-handler";
 
 type UserContextType = {
   firebaseAuthUser: FirebaseAuthUser | undefined | null;

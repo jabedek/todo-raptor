@@ -2,7 +2,7 @@ import { generateInputId } from "frotsi";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import "./InputTags.scss";
-import { FormClearX, InputProps, InputTag, TagItem } from "@@components/forms";
+import { FormClearX, InputProps, InputTag, TagItem } from "@@components/common";
 import { getTagWidth } from "./helpers";
 
 type Props = Omit<InputProps, "changeFn" | "value"> & {

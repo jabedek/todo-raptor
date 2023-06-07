@@ -11,7 +11,7 @@ import {
   ScheduleColumns,
   SimpleColumn,
   FullTask,
-  ProjectWithAssigneesRegistry,
+  FullProject,
   SimpleTask,
   ProjectBlockade,
 } from "@@types";
@@ -22,7 +22,7 @@ import { getTaskStatusDetails, STATUS_GROUP_NAMES } from "@@components/Tasks";
 window["__react-beautiful-dnd-disable-dev-warnings"] = true;
 
 type Props = {
-  project: ProjectWithAssigneesRegistry | undefined;
+  project: FullProject | undefined;
   popupTaskForm: (task?: SimpleTask) => void;
   blockadeReason: ProjectBlockade;
 };

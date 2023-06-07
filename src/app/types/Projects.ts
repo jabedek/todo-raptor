@@ -21,22 +21,23 @@ export type Project = {
   closedAt: string;
 };
 
+export type FullProject = Project & { assigneesRegistry: AssigneesRegistry };
+
 export type TasksLists = {
   scheduleId: string;
   backlog: string[];
 };
 
 export type SimpleAssignee = Flatten<IdEmailPair & { role: ProjectRoleShortName }>;
-export type FullAssignee = DeepFlatten<SimpleAssignee & Partial<PersonalDetails> & { roleDetails?: ProjectRole }>;
-export type AssigneesRegistry = Record<string, FullAssignee>;
-export type ProjectWithAssigneesRegistry = Project & { assigneesRegistry: AssigneesRegistry };
-
 export type UnboundAssignee = Flatten<IdEmailPair & Partial<PersonalDetails>>;
-export type UnboundAssigneesRegistry = Record<string, UnboundAssignee>;
+export type FullAssignee = DeepFlatten<SimpleAssignee & Partial<PersonalDetails> & { roleDetails?: ProjectRole }>;
 
-export type ProjectsFullData = {
-  active: ProjectWithAssigneesRegistry[];
-  archived: ProjectWithAssigneesRegistry[];
+export type UnboundAssigneesRegistry = Record<string, UnboundAssignee>;
+export type AssigneesRegistry = Record<string, FullAssignee>;
+
+export type ProjectsSeparated = {
+  active: FullProject[];
+  archived: FullProject[];
 };
 
 export type ProjectBlockade =

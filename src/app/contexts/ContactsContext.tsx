@@ -1,9 +1,9 @@
-import { ContactsAPI } from "@@api/firebase";
-import { Contact, User } from "@@types";
-import { Unsubscribe } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useUserValue } from "./UserContext";
-import { ListenersHandler } from "@@api/firebase/listeners-handler";
+import { Unsubscribe } from "firebase/auth";
+
+import { ContactsAPI, ListenersHandler } from "@@api/firebase";
+import { Contact, User } from "@@types";
+import { useUserValue } from "@@contexts";
 
 type ContactsDataContextType = {
   contacts: Contact[];

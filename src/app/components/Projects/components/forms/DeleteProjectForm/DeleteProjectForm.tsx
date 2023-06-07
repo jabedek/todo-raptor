@@ -1,10 +1,8 @@
 import { CallbackFn } from "frotsi";
 import { useState } from "react";
 
-import { FormWrapper, InputWritten } from "@@components/forms";
+import { FormWrapper, InputWritten, Button, WrittenChangeEvent } from "@@components/common";
 import { Project } from "@@types";
-import { Button } from "@@components/common";
-import { WrittenChangeEvent } from "@@components/forms/components/basic-inputs/types";
 
 type Props = { project: Project; deleteFn: CallbackFn };
 

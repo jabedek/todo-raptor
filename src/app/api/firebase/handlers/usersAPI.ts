@@ -2,6 +2,7 @@ import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 import {
   UpdateData,
   arrayRemove,
+  arrayUnion,
   collection,
   doc,
   getDoc,
@@ -83,6 +84,12 @@ const updateUserFull = async (user: User): Promise<void> => {
   updateDoc(doc(FirebaseDB, "users", user.authentication.id), user).catch((e) => console.error(e));
 };
 
+const addUserTask = async (userId: string, taskId: string): Promise<void> =>
+  updateDoc(doc(FirebaseDB, "users", userId), { "work.tasksIds": arrayUnion(taskId) });
+
+const addUserProject = async (userId: string, projectId: string): Promise<void> =>
+  updateDoc(doc(FirebaseDB, "users", userId), { "work.projectsIds": arrayUnion(projectId) });
+
 const removeUserTask = async (userId: string, taskId: string): Promise<void> =>
   updateDoc(doc(FirebaseDB, "users", userId), { "work.tasksIds": arrayRemove(taskId) });
 
@@ -128,6 +135,9 @@ const UsersAPI = {
   getUsersById,
 
   listenToUserData,
+
+  addUserTask,
+  addUserProject,
   removeUserTask,
   removeUserProject,
 };

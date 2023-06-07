@@ -1,4 +1,4 @@
-import { SelectOption } from "@@components/forms";
+import { SelectOption } from "@@components/common";
 
 /* ### Projects ### */
 const ProjectRoleShortNames = [

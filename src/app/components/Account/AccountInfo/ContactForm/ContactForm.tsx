@@ -4,8 +4,7 @@ import { useState } from "react";
 import { ContactsAPI, UsersAPI } from "@@api/firebase";
 import { ContactInvitation, UserFieldUpdate } from "@@types";
 import { useUserValue } from "@@contexts";
-import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer, WrittenChangeEvent } from "@@components/forms";
-import { Button } from "@@components/common";
+import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer, WrittenChangeEvent, Button } from "@@components/common";
 
 export const ContactForm: React.FC = () => {
   const { user } = useUserValue();

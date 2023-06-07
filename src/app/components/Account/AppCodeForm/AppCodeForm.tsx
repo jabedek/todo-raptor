@@ -3,8 +3,7 @@ import { useState } from "react";
 
 import { AuthAPI } from "@@api/firebase";
 import { LackingValidations, User } from "@@types";
-import { Button } from "@@components/common";
-import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer, WrittenChangeEvent } from "@@components/forms";
+import { FormWrapper, InputWritten, ResultDisplay, ResultDisplayer, WrittenChangeEvent, Button } from "@@components/common";
 
 type Props = {
   user: User | undefined;

@@ -1,4 +1,4 @@
-import { SelectOption } from "@@components/forms";
+import { SelectOption } from "@@components/common";
 
 /* ### Tasks ### */
 const taskStatusShortNames = ["new", "progress", "blocked", "review", "tests", "done", "cancelled"] as const;

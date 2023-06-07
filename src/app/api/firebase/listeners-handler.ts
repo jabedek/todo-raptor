@@ -3,9 +3,7 @@ type DataName = string;
 type HandlerAction = "sub" | "unsub";
 
 export class ListenersHandler {
-  private handlingFor = "";
-
-  constructor(handlingFor: string) {
+  constructor(public handlingFor: string, public devLogs = false) {
     this.handlingFor = handlingFor;
   }
 
@@ -14,14 +12,17 @@ export class ListenersHandler {
   sub(name: DataName, unsubFn: Unsubscribe): void {
     this.unsub(name);
     const fullName = `${this.handlingFor}.${name}`;
-    this.log("sub", fullName);
+    if (this.devLogs) {
+      this.log("sub", fullName);
+    }
     this.listeners.set(fullName, unsubFn);
   }
 
   unsub(name: DataName): void {
     const fullName = `${this.handlingFor}.${name}`;
-    this.log("unsub", fullName);
-
+    if (this.devLogs) {
+      this.log("unsub", fullName);
+    }
     const unsubFn = this.listeners.get(fullName);
     if (unsubFn) {
       unsubFn();
@@ -30,6 +31,9 @@ export class ListenersHandler {
   }
 
   unsubAll(): void {
+    if (this.devLogs) {
+      this.log("unsubAll", this.handlingFor);
+    }
     this.listeners.forEach((unsubFn, key) => {
       if (key.includes(this.handlingFor) && unsubFn) {
         unsubFn();
@@ -38,7 +42,7 @@ export class ListenersHandler {
     });
   }
 
-  private log(action: HandlerAction, fullName: string): void {
+  private log(action: HandlerAction | "unsubAll", fullName: string): void {
     const fullAction = action === "sub" ? action.padEnd(5, " ") : action;
     console.log(fullAction, " => ", fullName);
   }

@@ -1,5 +1,5 @@
+import { StorageItem } from "@@types";
 import { useState } from "react";
-import { StorageItem } from "../types/enums";
 
 /**
  * This hook allows to easily store and retrieve data from localStorage.

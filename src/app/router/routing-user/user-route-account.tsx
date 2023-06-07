@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { RouteObject } from "react-router-dom";
+
 import { LoadingSpinner } from "@@components/common";
 import { ContactsProvider } from "@@contexts";
 import { ProtectedRoute } from "src/app/router/components/ProtectedRoute";

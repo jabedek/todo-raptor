@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 
 import { Icons } from "@@components/Layout";
 import { getUserDisplayName } from "@@components/Projects";
-import { FullTask, FullTasksRegistry, ProjectWithAssigneesRegistry, SimpleTask } from "@@types";
+import { FullTask, FullTasksRegistry, FullProject, SimpleTask } from "@@types";
 import { getShortId } from "@@utils/id";
 
 type Props = {
-  project: ProjectWithAssigneesRegistry | undefined;
+  project: FullProject | undefined;
   tasks: FullTask[];
   popupTaskForm: (task?: SimpleTask) => void;
 };
 
 export const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm }) => {
   const [fullTasksRegistry, setfullTasksRegistry] = useState<FullTasksRegistry>();
+
   useEffect(() => {
     const registry: FullTasksRegistry = {};
     tasks.forEach((t) => {
@@ -29,6 +30,7 @@ export const ProjectBacklog: React.FC<Props> = ({ project, tasks, popupTaskForm 
 
   return (
     <div className="task-card flex w-full h-full">
+      {/* <RendersCounter componentName="ProjectBacklog" /> */}
       <div className="flex flex-col w-full h-full">
         {fullTasksRegistry &&
           project?.tasksLists.backlog.map(

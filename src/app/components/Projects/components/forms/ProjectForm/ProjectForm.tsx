@@ -1,8 +1,8 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { generateDocumentId, generateInputId } from "frotsi";
 import { useNavigate } from "react-router-dom";
 
-import { Project, ProjectWithAssigneesRegistry, Schedule, SimpleAssignee, SimpleColumn, User, UserFieldUpdate } from "@@types";
+import { Project, FullProject, Schedule, SimpleAssignee, SimpleColumn, User, UserFieldUpdate } from "@@types";
 import { ProjectsAPI, UsersAPI } from "@@api/firebase";
 import { useUserValue } from "@@contexts";
 import {
@@ -16,9 +16,9 @@ import {
   SelectOption,
   TagItem,
   WrittenChangeEvent,
-} from "@@components/forms";
+  Button,
+} from "@@components/common";
 import { usePopupContext } from "@@components/Layout";
-import { Button } from "@@components/common";
 import {
   getScheduleColumnsEmpty,
   ProjectStatusName,
@@ -27,9 +27,10 @@ import {
   PROJECT_ROLES_OPTIONS,
 } from "@@components/Projects";
 import { getShortId } from "@@utils/id";
+import { arrayUnion } from "firebase/firestore";
 
 type Props = {
-  project?: ProjectWithAssigneesRegistry | undefined;
+  project?: FullProject | undefined;
 };
 
 export const ProjectForm: React.FC<Props> = ({ project }) => {
@@ -64,38 +65,18 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
   }, [projectManager]);
 
   useEffect(() => {
+    clearNewProjectInfo();
+    setformMode("new");
     if (project) {
-      const { names, roleDetails, ...simpleManager } = project.assigneesRegistry[project.managerId];
-      const manager: SimpleAssignee = simpleManager;
-      setformMode("edit");
-      setprojectTitle(project.title);
-      setprojectManager(manager);
-      setid(project.id);
-      setProjectDescription(project.description);
-      setprojectTags(project.tags.map((value) => ({ value, temporaryId: generateInputId("project-tags", "tag") })));
-    } else {
-      setformMode("new");
-
-      setid(`proj_${generateDocumentId()}`);
+      loadEditedProject(project);
     }
-  }, [project]);
 
-  useLayoutEffect(() => {
     if (user) {
-      const options: SelectOption<SimpleAssignee>[] = getAssigneesOptions(user, project);
-      setprojectManagerOptions(options);
-
-      if (formMode === "new") {
-        setprojectManager(options[0].value);
-      }
-
-      if (formMode === "edit" && project) {
-        setprojectManager(options.find(({ value }) => value.id === `${project.managerId}`)?.value ?? undefined);
-      }
+      setAssigneesOptions(user, project);
     }
-  }, [formMode, user]);
+  }, [project, formMode]);
 
-  const getAssigneesOptions = (user: User, project?: ProjectWithAssigneesRegistry): Option[] => {
+  const setAssigneesOptions = (user: User, project?: FullProject): void => {
     let options: Option[] = [];
 
     if (!project) {
@@ -116,10 +97,18 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
       }));
     }
 
-    return options;
+    setprojectManagerOptions(options);
+
+    if (formMode === "new") {
+      setprojectManager(options[0].value);
+    }
+
+    if (formMode === "edit" && project) {
+      setprojectManager(options.find(({ value }) => value.id === `${project.managerId}`)?.value ?? undefined);
+    }
   };
 
-  const popupConfirmDialog = (fullProject: ProjectWithAssigneesRegistry, action: "delete" | "archive"): void => {
+  const popupConfirmDialog = useCallback((fullProject: FullProject, action: "delete" | "archive"): void => {
     const { assigneesRegistry, ...project } = fullProject;
     const whatAction = action === "delete" ? "delete project and archive related tasks" : "archive project and related tasks";
     const extraAction =
@@ -134,6 +123,17 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
         closeOnSuccess={true}
       />
     );
+  }, []);
+
+  const loadEditedProject = (project: FullProject): void => {
+    const { names, roleDetails, ...simpleManager } = project.assigneesRegistry[project.managerId];
+    const manager: SimpleAssignee = simpleManager;
+    setprojectTitle(project.title);
+    setprojectManager(manager);
+    setid(project.id);
+    setProjectDescription(project.description);
+    setprojectTags(project.tags.map((value) => ({ value, temporaryId: generateInputId("project-tags", "tag") })));
+    setformMode("edit");
   };
 
   const deleteProject = (data: Project, deleteTasks: boolean): void => {
@@ -193,7 +193,17 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
         columns: getScheduleColumnsEmpty("simple"),
       };
 
-      saveNewProject(newProject, newSchedule, user);
+      Promise.all([
+        ProjectsAPI.saveNewProject(newProject, newSchedule),
+        UsersAPI.addUserProject(user.authentication.id, newProject.id),
+      ])
+        .then(() => {
+          clearEditProjectInfo();
+          hidePopup();
+          console.log(`projects/${newProject.id}`);
+          navigate(`projects/${newProject.id}`);
+        })
+        .catch((e) => console.error(e));
     }
   };
 
@@ -220,53 +230,31 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
         newProject.closedAt = new Date().toISOString();
       }
 
-      updateProject(newProject);
-    }
-  };
+      if (userNewRole && project) {
+        const newCurrentUser = newProject.assignees.find((a) => a.id === project.managerId);
+        const newManager = newProject.assignees.find((a) => a.id === newProject.managerId);
 
-  const updateProject = (updatedProject: Project): void => {
-    if (userNewRole && project) {
-      const newCurrentUser = updatedProject.assignees.find((a) => a.id === project.managerId);
-      const newManager = updatedProject.assignees.find((a) => a.id === updatedProject.managerId);
-
-      if (newCurrentUser && newManager) {
-        newCurrentUser.role = userNewRole;
-        newManager.role = "manager";
+        if (newCurrentUser && newManager) {
+          newCurrentUser.role = userNewRole;
+          newManager.role = "manager";
+        }
       }
+
+      ProjectsAPI.updateProject(newProject).then(
+        () => {
+          clearEditProjectInfo();
+          hidePopup();
+          console.log(`projects/${newProject.id}`);
+          navigate(`projects/${newProject.id}`, {});
+        },
+        () => {}
+      );
     }
-
-    ProjectsAPI.updateProject(updatedProject).then(
-      () => {
-        clear();
-        hidePopup();
-      },
-      () => {}
-    );
-  };
-
-  const saveNewProject = (newProject: Project, newSchedule: Schedule<SimpleColumn>, user: User): void => {
-    const fieldsToUpdate: UserFieldUpdate[] = [
-      {
-        fieldPath: "work.projectsIds",
-        value: [...user.work.projectsIds, newProject.id],
-      },
-    ];
-
-    ProjectsAPI.saveNewProject(newProject, newSchedule)
-      .then(() => {
-        clear();
-
-        UsersAPI.updateUserFieldsById(user.authentication.id, fieldsToUpdate)
-          .then(() => {
-            clear();
-            hidePopup();
-          })
-          .catch((e) => console.error(e));
-      })
-      .catch((e) => console.error(e));
   };
 
   const handleSubmit = (): void => {
+    console.log("handleSubmit", formMode);
+
     if (formMode === "new") {
       handleSubmitNewProject();
     } else {
@@ -274,7 +262,7 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
     }
   };
 
-  const resetForm = (): void => {
+  const clearNewProjectInfo = (): void => {
     setid(`proj_${generateDocumentId()}`);
     setprojectManager(undefined);
     setprojectTitle("");
@@ -282,7 +270,7 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
     setprojectTags([]);
   };
 
-  const clear = (): void => {
+  const clearEditProjectInfo = (): void => {
     setprojectTitle("");
     setProjectDescription("");
     setprojectTags([]);
@@ -291,7 +279,7 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
   return (
     <FormWrapper
       title={`${formMode === "new" ? "Create project" : `Editing project: #${project?.title}`}`}
-      submitFn={handleSubmitNewProject}
+      submitFn={handleSubmit}
       tailwindStyles="w-[500px] min-h-[600px] max-h-[900px]">
       <p className=" w-fit text-[10px] my-2 text-gray-500 font-app_mono flex items-end">{getShortId(id)}</p>
       <InputWritten
@@ -373,7 +361,7 @@ export const ProjectForm: React.FC<Props> = ({ project }) => {
         {formMode === "new" && (
           <Button
             formStyle="secondary"
-            clickFn={resetForm}>
+            clickFn={clearNewProjectInfo}>
             Clear
           </Button>
         )}

@@ -1,8 +1,8 @@
 import { memo, useEffect, useState } from "react";
 
-import "./ContactItem.scss";
 import { ContactInvitation } from "@@types";
 import { ContactsAPI } from "@@api/firebase";
+import "./ContactItem.scss";
 import { DateFormats, DateFormatter } from "@@utils/date-formatter";
 import { Icons } from "@@components/Layout";
 

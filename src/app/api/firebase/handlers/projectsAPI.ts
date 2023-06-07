@@ -20,8 +20,8 @@ import {
   FullTask,
   Project,
   AssigneesRegistry,
-  ProjectsFullData,
-  ProjectWithAssigneesRegistry,
+  ProjectsSeparated,
+  FullProject,
   SimpleAssignee,
   UnboundAssigneesRegistry,
   User,
@@ -31,6 +31,8 @@ import { UsersAPI } from "./usersAPI";
 import { TasksAPI } from "./tasksAPI";
 import { FullColumn, Schedule, SimpleColumn } from "src/app/types/Schedule";
 import { ListenerCb } from "../types";
+import { assert } from "console";
+import { enrichProjectAssignees } from "@@components/Projects/projects-utils";
 
 export const ProjectsRef = collection(FirebaseDB, "projects");
 export const ProjectsSchedulesColumnsRef = collection(FirebaseDB, "schedules");
@@ -82,10 +84,58 @@ const getScheduleFullTasks = async (
   });
 };
 
+const listenFullProject = async (projectId: string, cb: ListenerCb<FullProject>) => {
+  // 1. Get project data.
+  // 2. listen to whole project data
+  // 3.
+  //    3.0 listen to users (`names` can change)
+  //    3.1 listen to assignees data & enrich it with `names` and `roleDetails`
+  // 4. return full project
+
+  const projectRef = doc(FirebaseDB, "projects", projectId);
+
+  const unsub1: Unsubscribe = onSnapshot(projectRef, (docSnapshot) => {
+    const project: Project | undefined = docSnapshot.exists() ? (docSnapshot.data() as Project) : undefined;
+    const assignees = project?.assignees;
+    if (project && assignees?.length) {
+      const usersIds = (assignees || []).map(({ id }) => id);
+      const usersRef = query(collection(FirebaseDB, "users"), where("id", "array-contains", usersIds));
+
+      const unsub2: Unsubscribe = onSnapshot(usersRef, (usersSnapshot) => {
+        const users: User[] = [];
+        usersSnapshot.forEach((doc) => users.push(doc.data() as User));
+        const fullProject: FullProject = { ...project, assigneesRegistry: enrichProjectAssignees(assignees, users) };
+        cb(fullProject, () => {
+          unsub1();
+          unsub2();
+        });
+      });
+    }
+
+    // cb(project, unsub);
+  });
+};
+
+const getUnboundAssigneesData = async (ids: string[]): Promise<UnboundAssigneesRegistry> => {
+  return UsersAPI.getUsersById(ids).then((users = []) => {
+    const assignees: UnboundAssigneesRegistry = {};
+
+    users.forEach((user) => {
+      assignees[user.authentication.id] = {
+        id: user.authentication.id,
+        email: user.authentication.email,
+        names: user.personal.names,
+      };
+    });
+
+    return assignees;
+  });
+};
+
 const listenProjectsWithAssigneesData = async (
   projectsIds: string[],
   getArchived: boolean,
-  cb: ListenerCb<ProjectsFullData>
+  cb: ListenerCb<ProjectsSeparated>
 ): Promise<void> => {
   if (!projectsIds.length) {
     cb(undefined, undefined);
@@ -98,7 +148,7 @@ const listenProjectsWithAssigneesData = async (
     const projects: Project[] = [];
     querySnapshot.forEach((doc) => projects.push(doc.data() as Project));
 
-    const newProjectsData: ProjectsFullData = {
+    const newProjectsData: ProjectsSeparated = {
       active: [],
       archived: [],
     };
@@ -119,28 +169,18 @@ const listenProjectsWithAssigneesData = async (
       uniqueIds = [...new Set([...archivedAssigneedIds, ...activeAssigneedIds])];
     }
 
-    UsersAPI.getUsersById(uniqueIds)
-      .then((users = []) => {
-        const assignees: UnboundAssigneesRegistry = {};
-
-        users.forEach((user) => {
-          assignees[user.authentication.id] = {
-            id: user.authentication.id,
-            email: user.authentication.email,
-            names: user.personal.names,
-          };
-        });
-
-        const projectsWithRegistry: ProjectWithAssigneesRegistry[] = newProjectsData.active.map((project) => {
+    getUnboundAssigneesData(uniqueIds)
+      .then((unboundAssignees: UnboundAssigneesRegistry) => {
+        const projectsWithRegistry: FullProject[] = newProjectsData.active.map((project) => {
           const assigneesRegistry: AssigneesRegistry = {};
           project.assignees.forEach((assignee) => {
             const { id, role } = assignee;
-            assigneesRegistry[id] = { ...assignees[id], role, roleDetails: getProjectRoleDetails(role) };
+            assigneesRegistry[id] = { ...unboundAssignees[id], role, roleDetails: getProjectRoleDetails(role) };
           });
           return { ...project, assigneesRegistry };
         });
 
-        const projectData: ProjectsFullData = {
+        const projectData: ProjectsSeparated = {
           active: projectsWithRegistry,
           archived: newProjectsData.archived,
         };
@@ -277,16 +317,16 @@ const getAvailableContactsForAssigneeship = async (user: User, project: Project)
   );
 };
 
-const updateProject = async (project: Project): Promise<void> => updateDoc(doc(FirebaseDB, "projects", project.id), project);
+const updateProject = async (project: Project): Promise<void> => {
+  console.log(project.title);
+
+  return updateDoc(doc(FirebaseDB, "projects", project.id), project);
+};
 
 const updateSchedule = async (schedule: Schedule<SimpleColumn>): Promise<void> =>
   updateDoc(doc(FirebaseDB, "schedules", schedule.id), schedule);
 
-const userAsAssigneeBond = async (
-  assignee: SimpleAssignee,
-  project: ProjectWithAssigneesRegistry,
-  variant: "make" | "break"
-): Promise<void> => {
+const userAsAssigneeBond = async (assignee: SimpleAssignee, project: FullProject, variant: "make" | "break"): Promise<void> => {
   const { assigneesRegistry, ...simpleProject } = project;
   if (variant === "make") {
     simpleProject.assignees.push(assignee);
@@ -298,7 +338,7 @@ const userAsAssigneeBond = async (
     UsersAPI.updateUserFieldsById(assignee.id, [
       { fieldPath: "work.projectsIds", value: variant === "make" ? arrayUnion(project.id) : arrayRemove(project.id) },
     ]),
-    updateProject(simpleProject),
+    updateProject(simpleProject as Project),
   ]).then(() => {});
 };
 
@@ -313,6 +353,7 @@ const ProjectsAPI = {
   getAssigneesDataByProjectId,
   //
   getProjectFullAssignees,
+  getUnboundAssigneesData,
   //
   getScheduleFullTasks,
   getScheduleById,
@@ -321,6 +362,7 @@ const ProjectsAPI = {
   //
   listenProjectsWithAssigneesData,
   listenScheduleColumns,
+  listenFullProject,
 };
 
 export { ProjectsAPI };

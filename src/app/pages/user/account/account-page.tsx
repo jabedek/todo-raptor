@@ -1,5 +1,3 @@
-import React from "react";
-
 import { AccountInfo } from "@@components/Account";
 
 const AccountPage: React.FC = () => {

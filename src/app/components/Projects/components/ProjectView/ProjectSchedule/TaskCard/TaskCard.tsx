@@ -34,15 +34,17 @@ export const TaskCard: React.FC<Props> = ({ task, index, popupTaskForm, blockade
           }
           py-2 select-none flex flex-col items-center align-center justify-between p-2 transition-all duration-200 h-[100px] w-full bg-neutral-100 hover:bg-app_light border border-solid border-transparent border-b border-b-solid border-b-neutral-300`}
           key={task.id}>
-          <div className={` ${task.statusDetails.styleClasses[0]} mx-[0px]  w-full h-[20px] text-[13px] flex justify-between`}>
+          <div className={` w-full flex h-[18px]  text-[13px] align-center items-center justify-between font-extrabold `}>
+            <span className="h-[18px] app_ellipsis_inline w-full">{task.title}</span>
+          </div>
+
+          <div
+            className={` ${task.statusDetails.styleClasses[0]} mx-[0px]  my-2 w-full h-[20px] text-[13px] flex justify-between`}>
             <p>{task.statusDetails.fullName}</p>
 
             <div className={`flex items-center align-center h-full  min-w-[30px]  pl-2 `}>
               <AssigneeIcon assignee={task.assigneeDetails} />
             </div>
-          </div>
-          <div className={` w-full flex h-[18px]  my-2 text-[12px] align-center items-center justify-between font-extrabold `}>
-            <span className="h-[18px] app_ellipsis_inline w-full">{task.title}</span>
           </div>
 
           <div className="flex w-full justify-between  h-[26px]">

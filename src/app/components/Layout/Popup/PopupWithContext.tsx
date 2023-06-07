@@ -2,7 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import "./Popup.scss";
-import { FormClearX } from "@@components/forms";
+import { FormClearX } from "@@components/common";
+import { RendersCounter } from "@@components/common/dev";
 
 type PopupContextType = {
   popupElement: JSX.Element | undefined;
@@ -91,6 +92,7 @@ const PopupProvider: React.FC<{ children: React.ReactElement }> = ({ children })
 
   return (
     <PopupContext.Provider value={{ popupElement, hidePopup, showPopup }}>
+      <RendersCounter componentName="PopupProvider" />
       <Popup
         refreshOnClose={refreshOnClose}
         popupElement={popupElement}
