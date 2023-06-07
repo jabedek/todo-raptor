@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Unsubscribe } from "firebase/auth";
 
-import { ProjectsAPI, ListenersHandler } from "@@api/firebase";
+import { ProjectsAPI } from "@@api/firebase";
 import { ProjectsTable } from "@@components/Projects";
 import { useUserValue, useApiAccessValue } from "@@contexts";
 import { ProjectsSeparated } from "@@types";
@@ -9,9 +9,9 @@ import { ProjectsSeparated } from "@@types";
 enum ListenerDataName {
   project = "project",
 }
+let UNSUB_PROJECTS: Unsubscribe | undefined = undefined;
 
 const ProjectsDashboardPage: React.FC = () => {
-  const Listeners = new ListenersHandler("ProjectsDashboardPage");
   const { user } = useUserValue();
 
   const { canAccessAPI } = useApiAccessValue();
@@ -19,22 +19,34 @@ const ProjectsDashboardPage: React.FC = () => {
 
   useEffect(() => {
     if (user && canAccessAPI) {
-      ProjectsAPI.listenProjectsWithAssigneesData(
-        [...user.work.projectsIds],
-        false,
-        (data: ProjectsSeparated | undefined, unsubFn: Unsubscribe | undefined) => {
-          if (data && unsubFn) {
-            Listeners.sub(ListenerDataName.project, unsubFn);
-            setprojectsData(data);
-          }
-        }
-      ).catch((e) => console.error(e));
+      listenProjectsWithAssigneesData([...user.work.projectsIds]);
     } else {
       clearProjects();
     }
 
-    return () => Listeners.unsub(ListenerDataName.project);
+    return () => unsubListener();
   }, [user]);
+
+  const listenProjectsWithAssigneesData = (projectsIds: string[]): void => {
+    unsubListener();
+    ProjectsAPI.listenProjectsWithAssigneesData(
+      projectsIds,
+      false,
+      (data: ProjectsSeparated | undefined, unsub: Unsubscribe | undefined) => {
+        if (data && unsub) {
+          UNSUB_PROJECTS = unsub;
+          setprojectsData(data);
+        }
+      }
+    ).catch((e) => console.error(e));
+  };
+
+  const unsubListener = (): void => {
+    if (UNSUB_PROJECTS) {
+      UNSUB_PROJECTS();
+      UNSUB_PROJECTS = undefined;
+    }
+  };
 
   const clearProjects = (): void =>
     setprojectsData({

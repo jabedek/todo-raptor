@@ -126,18 +126,17 @@ const updateContactsBond = async (userId0: string, userId1: string, variant: "ma
 const listenToUserContactsData = async (user: User, cb: ListenerCb<Contact[]>): Promise<void> => {
   if (!user.contacts.contactsIds.length) {
     cb(undefined, undefined);
-  }
-
-  const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", [...user.contacts.contactsIds]));
-
-  const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-    const docs: Contact[] = [];
-    querySnapshot.forEach((doc) => {
-      const { authentication } = doc.data() as User;
-      docs.push({ id: authentication.id, email: `${authentication.email}` });
+  } else {
+    const queryRef = query(collection(FirebaseDB, "users"), where("authentication.id", "in", [...user.contacts.contactsIds]));
+    const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+      const docs: Contact[] = [];
+      querySnapshot.forEach((doc) => {
+        const { authentication } = doc.data() as User;
+        docs.push({ id: authentication.id, email: `${authentication.email}` });
+      });
+      cb(docs, unsub);
     });
-    cb(docs, unsub);
-  });
+  }
 };
 
 const ContactsAPI = {

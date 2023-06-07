@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Unsubscribe } from "firebase/auth";
 
-import { ContactsAPI, ListenersHandler } from "@@api/firebase";
+import { ContactsAPI } from "@@api/firebase";
 import { Contact, User } from "@@types";
 import { useUserValue } from "@@contexts";
 
@@ -10,13 +10,14 @@ type ContactsDataContextType = {
   clearContacts: () => void;
 };
 
+let UNSUB_CONTACTS: Unsubscribe | undefined = undefined;
+
 const ContactsDataContext = createContext<ContactsDataContextType>({
   contacts: [],
   clearContacts: () => {},
 });
 
 const ContactsProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  const Listeners = new ListenersHandler("ContactsProvider");
   const [contacts, setcontacts] = useState<Contact[]>([]);
 
   const { user } = useUserValue();
@@ -28,16 +29,24 @@ const ContactsProvider: React.FC<{ children: React.ReactElement }> = ({ children
       clearContacts();
     }
 
-    return () => Listeners.unsubAll();
+    return () => unsubListener();
   }, [user?.contacts.contactsIds]);
 
   const listenToUserContactsData = (user: User): void => {
-    ContactsAPI.listenToUserContactsData(user, (data: Contact[] | undefined, unsubFn: Unsubscribe | undefined) => {
-      if (data && unsubFn) {
-        Listeners.sub("contacts", unsubFn);
+    unsubListener();
+    ContactsAPI.listenToUserContactsData(user, (data: Contact[] | undefined, unsub: Unsubscribe | undefined) => {
+      if (data && unsub) {
+        UNSUB_CONTACTS = unsub;
         setcontacts(data);
       }
     }).catch((e) => console.error(e));
+  };
+
+  const unsubListener = (): void => {
+    if (UNSUB_CONTACTS) {
+      UNSUB_CONTACTS();
+      UNSUB_CONTACTS = undefined;
+    }
   };
 
   const clearContacts = (): void => setcontacts([]);

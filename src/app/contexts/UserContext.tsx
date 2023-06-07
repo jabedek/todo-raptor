@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User as FirebaseAuthUser, Unsubscribe } from "firebase/auth";
 
-import { AuthAPI, FirebaseUserStateChange, UsersAPI, ListenersHandler } from "@@api/firebase";
+import { AuthAPI, FirebaseUserStateChange, UsersAPI } from "@@api/firebase";
 import { User } from "@@types";
 
 type UserContextType = {
@@ -17,8 +17,10 @@ export const UserContext = createContext<UserContextType>({
   logout: () => {},
 });
 
+let UNSUB_AUTH: Unsubscribe | undefined = undefined;
+let UNSUB_USER: Unsubscribe | undefined = undefined;
+
 const UserProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  const Listeners = new ListenersHandler("UserProvider");
   const [firebaseAuthUser, setfirebaseAuthUser] = useState<FirebaseAuthUser | undefined | null>();
   const [user, setuser] = useState<User | undefined>(undefined);
 
@@ -27,21 +29,22 @@ const UserProvider: React.FC<{ children: React.ReactElement }> = ({ children }) 
   useEffect(() => {
     listenToFirebaseAuthState();
     setfirebaseAuthUser(AuthAPI.getCurrentFirebaseAuthUser());
-    return () => Listeners.unsubAll();
+
+    return () => unsubListener("all");
   }, []);
 
   useEffect(() => {
     if (firebaseAuthUser) {
       listenToUserData(firebaseAuthUser);
     }
-    return () => Listeners.unsub("userData");
+    return () => unsubListener("userData");
   }, [firebaseAuthUser]);
 
   const listenToFirebaseAuthState = (): void => {
     AuthAPI.listenToFirebaseAuthState(async (change: FirebaseUserStateChange, unsub: Unsubscribe | undefined) => {
       const firebaseAuthUser: FirebaseAuthUser = change.auth;
       if (firebaseAuthUser && unsub) {
-        Listeners.sub("authData", unsub);
+        UNSUB_AUTH = unsub;
         setfirebaseAuthUser(firebaseAuthUser);
       } else {
         clear();
@@ -53,10 +56,21 @@ const UserProvider: React.FC<{ children: React.ReactElement }> = ({ children }) 
     if (firebaseAuthUser) {
       UsersAPI.listenToUserData(firebaseAuthUser.uid, (data: User | undefined, unsub: Unsubscribe | undefined) => {
         if (data && unsub) {
-          Listeners.sub("userData", unsub);
+          UNSUB_USER = unsub;
           putUser(data);
         }
       }).catch((e) => console.error(e));
+    }
+  };
+
+  const unsubListener = (name: "auth" | "userData" | "all"): void => {
+    if (["auth", "all"].includes(name) && UNSUB_AUTH) {
+      UNSUB_AUTH();
+      UNSUB_AUTH = undefined;
+    }
+    if (["userData", "all"].includes(name) && UNSUB_USER) {
+      UNSUB_USER();
+      UNSUB_USER = undefined;
     }
   };
 

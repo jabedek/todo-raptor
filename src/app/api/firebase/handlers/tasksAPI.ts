@@ -19,6 +19,7 @@ import { getTaskStatusDetails } from "@@components/Tasks/visuals/task-visuals";
 import { Schedule, ScheduleAction, SimpleColumn } from "src/app/types/Schedule";
 import { handlePromiseError } from "../utils";
 import { ListenerCb } from "../types";
+import { log } from "console";
 
 const TasksRef = collection(FirebaseDB, "tasks");
 
@@ -146,14 +147,14 @@ const listenToProjectOtherTasks = async (project: Project, cb: ListenerCb<Simple
   const tasksIds = [...project.tasksLists.backlog];
   if (!tasksIds.length) {
     cb(undefined, undefined);
+  } else {
+    const queryRef = query(TasksRef, where("id", "in", tasksIds));
+    const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+      const tasksBacklog: SimpleTask[] = [];
+      querySnapshot.forEach((doc) => tasksBacklog.push(doc.data() as SimpleTask));
+      cb(tasksBacklog, unsub);
+    });
   }
-
-  const queryRef = query(TasksRef, where("id", "in", tasksIds));
-  const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-    const tasksBacklog: SimpleTask[] = [];
-    querySnapshot.forEach((doc) => tasksBacklog.push(doc.data() as SimpleTask));
-    cb(tasksBacklog, unsub);
-  });
 };
 
 const fetchTasksDataOrdered = async (tasksIds: string[], fullAssignees: Record<string, FullAssignee>): Promise<FullTask[]> => {

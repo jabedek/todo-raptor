@@ -31,7 +31,6 @@ import { UsersAPI } from "./usersAPI";
 import { TasksAPI } from "./tasksAPI";
 import { FullColumn, Schedule, SimpleColumn } from "src/app/types/Schedule";
 import { ListenerCb } from "../types";
-import { assert } from "console";
 import { enrichProjectAssignees } from "@@components/Projects/projects-utils";
 
 export const ProjectsRef = collection(FirebaseDB, "projects");
@@ -84,14 +83,7 @@ const getScheduleFullTasks = async (
   });
 };
 
-const listenFullProject = async (projectId: string, cb: ListenerCb<FullProject>) => {
-  // 1. Get project data.
-  // 2. listen to whole project data
-  // 3.
-  //    3.0 listen to users (`names` can change)
-  //    3.1 listen to assignees data & enrich it with `names` and `roleDetails`
-  // 4. return full project
-
+const listenFullProject = async (projectId: string, cb: ListenerCb<FullProject>): Promise<void> => {
   const projectRef = doc(FirebaseDB, "projects", projectId);
 
   const unsub1: Unsubscribe = onSnapshot(projectRef, (docSnapshot) => {
@@ -111,8 +103,6 @@ const listenFullProject = async (projectId: string, cb: ListenerCb<FullProject>)
         });
       });
     }
-
-    // cb(project, unsub);
   });
 };
 
@@ -139,56 +129,56 @@ const listenProjectsWithAssigneesData = async (
 ): Promise<void> => {
   if (!projectsIds.length) {
     cb(undefined, undefined);
-  }
+  } else {
+    const userProjectsIds = [...projectsIds];
+    const queryRef = query(ProjectsRef, where("id", "in", userProjectsIds));
 
-  const userProjectsIds = [...projectsIds];
-  const queryRef = query(ProjectsRef, where("id", "in", userProjectsIds));
+    const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+      const projects: Project[] = [];
+      querySnapshot.forEach((doc) => projects.push(doc.data() as Project));
 
-  const unsub: Unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-    const projects: Project[] = [];
-    querySnapshot.forEach((doc) => projects.push(doc.data() as Project));
+      const newProjectsData: ProjectsSeparated = {
+        active: [],
+        archived: [],
+      };
+      projects.forEach((project) => {
+        if (project.archived) {
+          newProjectsData.archived.push({ ...project, assigneesRegistry: {} });
+        } else {
+          newProjectsData.active.push({ ...project, assigneesRegistry: {} });
+        }
+      });
 
-    const newProjectsData: ProjectsSeparated = {
-      active: [],
-      archived: [],
-    };
-    projects.forEach((project) => {
-      if (project.archived) {
-        newProjectsData.archived.push({ ...project, assigneesRegistry: {} });
-      } else {
-        newProjectsData.active.push({ ...project, assigneesRegistry: {} });
+      const activeAssignees = [...newProjectsData.active.map(({ assignees, id }) => ({ assignees, projectId: id }))];
+      const activeAssigneedIds = [...activeAssignees.map(({ assignees }) => assignees.map(({ id }) => id))].flat();
+      let uniqueIds = [...new Set(activeAssigneedIds)];
+      if (getArchived) {
+        const archivedAssignees = [...newProjectsData.archived.map(({ assignees, id }) => ({ assignees, projectId: id }))];
+        const archivedAssigneedIds = [...archivedAssignees.map(({ assignees }) => assignees.map(({ id }) => id))].flat();
+        uniqueIds = [...new Set([...archivedAssigneedIds, ...activeAssigneedIds])];
       }
-    });
 
-    const activeAssignees = [...newProjectsData.active.map(({ assignees, id }) => ({ assignees, projectId: id }))];
-    const activeAssigneedIds = [...activeAssignees.map(({ assignees }) => assignees.map(({ id }) => id))].flat();
-    let uniqueIds = [...new Set(activeAssigneedIds)];
-    if (getArchived) {
-      const archivedAssignees = [...newProjectsData.archived.map(({ assignees, id }) => ({ assignees, projectId: id }))];
-      const archivedAssigneedIds = [...archivedAssignees.map(({ assignees }) => assignees.map(({ id }) => id))].flat();
-      uniqueIds = [...new Set([...archivedAssigneedIds, ...activeAssigneedIds])];
-    }
-
-    getUnboundAssigneesData(uniqueIds)
-      .then((unboundAssignees: UnboundAssigneesRegistry) => {
-        const projectsWithRegistry: FullProject[] = newProjectsData.active.map((project) => {
-          const assigneesRegistry: AssigneesRegistry = {};
-          project.assignees.forEach((assignee) => {
-            const { id, role } = assignee;
-            assigneesRegistry[id] = { ...unboundAssignees[id], role, roleDetails: getProjectRoleDetails(role) };
+      getUnboundAssigneesData(uniqueIds)
+        .then((unboundAssignees: UnboundAssigneesRegistry) => {
+          const projectsWithRegistry: FullProject[] = newProjectsData.active.map((project) => {
+            const assigneesRegistry: AssigneesRegistry = {};
+            project.assignees.forEach((assignee) => {
+              const { id, role } = assignee;
+              assigneesRegistry[id] = { ...unboundAssignees[id], role, roleDetails: getProjectRoleDetails(role) };
+            });
+            return { ...project, assigneesRegistry };
           });
-          return { ...project, assigneesRegistry };
-        });
 
-        const projectData: ProjectsSeparated = {
-          active: projectsWithRegistry,
-          archived: newProjectsData.archived,
-        };
+          const projectData: ProjectsSeparated = {
+            active: projectsWithRegistry,
+            archived: newProjectsData.archived,
+          };
 
-        cb(projectData, unsub);
-      })
-      .catch((e) => console.error(e));
-  });
+          cb(projectData, unsub);
+        })
+        .catch((e) => console.error(e));
+    });
+  }
 };
 
 const getScheduleById = async (scheduleId: string): Promise<Schedule<SimpleColumn> | undefined> => {

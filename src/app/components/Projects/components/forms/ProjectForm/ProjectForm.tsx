@@ -27,7 +27,6 @@ import {
   PROJECT_ROLES_OPTIONS,
 } from "@@components/Projects";
 import { getShortId } from "@@utils/id";
-import { arrayUnion } from "firebase/firestore";
 
 type Props = {
   project?: FullProject | undefined;

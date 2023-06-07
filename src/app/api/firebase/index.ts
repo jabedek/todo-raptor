@@ -1,4 +1,3 @@
-import { ListenersHandler } from "./listeners-handler";
 import { FirebaseApp, FirebaseAuth, FirebaseDB } from "./firebase-config";
 import { ProjectsRef } from "./handlers/projectsAPI";
 import { AuthAPI } from "./handlers/authAPI";
@@ -28,7 +27,6 @@ export {
   TasksAPI,
   ContactsAPI,
   //
-  ListenersHandler,
   //
   handlePromiseError,
   isCodeValid,

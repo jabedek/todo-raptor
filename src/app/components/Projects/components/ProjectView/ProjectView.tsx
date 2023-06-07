@@ -4,7 +4,7 @@ import { Unsubscribe } from "firebase/auth";
 
 import "./ProjectView.scss";
 import { useUserValue, useApiAccessValue } from "@@contexts";
-import { ListenersHandler, ProjectsAPI, TasksAPI } from "@@api/firebase";
+import { ProjectsAPI, TasksAPI } from "@@api/firebase";
 import { FullAssignee, FullTask, ProjectBlockade, ProjectsSeparated, FullProject, SimpleTask } from "@@types";
 import { usePopupContext } from "@@components/Layout";
 import { ConfirmDialog, FormClearX, Button, SidePanel } from "@@components/common";
@@ -31,8 +31,10 @@ enum ListenerDataName {
 
 const editingRoles = ["manager", "product_owner"];
 
+let UNSUB_PROJECT: Unsubscribe | undefined = undefined;
+let UNSUB_TASKS_BACKLOG: Unsubscribe | undefined = undefined;
+
 export const ProjectView: React.FC<Props> = ({ projectId }) => {
-  const Listeners = new ListenersHandler("ProjectView", true);
   const [tab, settab] = useState<TaskListType>("schedule");
   const [tasksBacklog, settasksBacklog] = useState<FullTask[]>([]);
   const [project, setproject] = useState<FullProject>();
@@ -49,11 +51,10 @@ export const ProjectView: React.FC<Props> = ({ projectId }) => {
     if (projectId !== undefined && user && canAccessAPI) {
       listenProjectsWithAssigneesData(projectId);
     } else {
-      Listeners.unsubAll();
       navigate("/projects");
     }
 
-    return () => Listeners.unsubAll();
+    return () => unsubListener("all");
   }, [projectId, user, canAccessAPI]);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export const ProjectView: React.FC<Props> = ({ projectId }) => {
       if (tab === "backlog") {
         listenToProjectOtherTasks(project);
       } else {
-        Listeners.unsub(ListenerDataName.tasks_backlog);
+        return () => unsubListener("tasks_backlog");
       }
     }
   }, [tab]);
@@ -94,39 +95,39 @@ export const ProjectView: React.FC<Props> = ({ projectId }) => {
     setblockadeReason(reason);
   }, [project?.archived, project?.status]);
 
+  const unsubListener = (name: "tasks_backlog" | "project" | "all"): void => {
+    if (["tasks_backlog", "all"].includes(name) && UNSUB_TASKS_BACKLOG) {
+      UNSUB_TASKS_BACKLOG();
+      UNSUB_TASKS_BACKLOG = undefined;
+    }
+    if (["project", "all"].includes(name) && UNSUB_PROJECT) {
+      UNSUB_PROJECT();
+      UNSUB_PROJECT = undefined;
+    }
+  };
+
   const listenProjectsWithAssigneesData = (projectId: string): void => {
-    console.log("listenProjectsWithAssigneesData", projectId);
-
-    ProjectsAPI.listenFullProject(projectId, (data: FullProject | undefined, unsub: Unsubscribe | undefined) => {
-      console.log("l", data);
-
-      if (data && unsub) {
-        Listeners.sub(ListenerDataName.project, unsub);
-        setproject(data);
+    unsubListener("project");
+    ProjectsAPI.listenProjectsWithAssigneesData(
+      [projectId],
+      true,
+      (data: ProjectsSeparated | undefined, unsubProject: Unsubscribe | undefined) => {
+        if (data && unsubProject) {
+          UNSUB_PROJECT = unsubProject;
+          const project = data.active[0] ?? data.archived[0];
+          setproject(project);
+        }
       }
-    }).catch((e) => console.error(e));
-
-    // ProjectsAPI.listenProjectsWithAssigneesData(
-    //   [projectId],
-    //   true,
-    //   (data: ProjectsSeparated | undefined, unsubProject: Unsubscribe | undefined) => {
-    //     console.log("l", data);
-
-    //     if (data && unsubProject) {
-    //       Listeners.sub(ListenerDataName.project, unsubProject);
-    //       const project = data.active[0] ?? data.archived[0];
-    //       setproject(project);
-    //     }
-    //   }
-    // ).catch((e) => console.error(e));
+    ).catch((e) => console.error(e));
   };
 
   const listenToProjectOtherTasks = (project: FullProject): void => {
+    unsubListener("tasks_backlog");
     TasksAPI.listenToProjectOtherTasks(
       project,
       (tasksData: SimpleTask[] | undefined, unsubtasksBacklog: Unsubscribe | undefined) => {
         if (tasksData && unsubtasksBacklog) {
-          Listeners.sub(ListenerDataName.tasks_backlog, unsubtasksBacklog);
+          UNSUB_TASKS_BACKLOG = unsubtasksBacklog;
           const tasksWithDetailsData: FullTask[] = enrichTasksWithAssignees(project.assigneesRegistry, tasksData);
           settasksBacklog(tasksWithDetailsData);
         }

@@ -15,7 +15,7 @@ import {
   SimpleTask,
   ProjectBlockade,
 } from "@@types";
-import { ProjectsAPI, TasksAPI, ListenersHandler } from "@@api/firebase";
+import { ProjectsAPI, TasksAPI } from "@@api/firebase";
 import { TaskCard, getScheduleColumnsEmpty, transformColumnTo } from "@@components/Projects";
 import { getTaskStatusDetails, STATUS_GROUP_NAMES } from "@@components/Tasks";
 
@@ -32,8 +32,9 @@ enum ListenerDataName {
   all = "all",
 }
 
+let UNSUB_TASKS_SCHEDULE: Unsubscribe | undefined = undefined;
+
 export const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, blockadeReason }) => {
-  const Listeners = new ListenersHandler("ProjectSchedule");
   const emptyColumns = getScheduleColumnsEmpty("full");
   const [draggingDisabledId, setdraggingDisabledId] = useState<string>();
   const [simpleSchedule, setsimpleSchedule] = useState<Schedule<SimpleColumn>>();
@@ -52,8 +53,6 @@ export const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, block
         })
         .catch((e) => console.error(e));
     }
-
-    return () => Listeners.unsubAll();
   }, [project]);
 
   useEffect(() => {
@@ -78,15 +77,23 @@ export const ProjectSchedule: React.FC<Props> = ({ project, popupTaskForm, block
   }, [blockadeReason, draggingDisabledId]);
 
   const listenScheduleColumns = (projectData: Project): void => {
+    unsubListener("tasks_schedule");
     ProjectsAPI.listenScheduleColumns(
       projectData,
       async (data: Schedule<SimpleColumn> | undefined, unsubSchedule: Unsubscribe | undefined) => {
         if (data && unsubSchedule) {
-          Listeners.sub(ListenerDataName.tasks_schedule, unsubSchedule);
+          UNSUB_TASKS_SCHEDULE = unsubSchedule;
           setsimpleSchedule(data);
         }
       }
     ).catch((e) => console.error(e));
+  };
+
+  const unsubListener = (name: "tasks_schedule"): void => {
+    if (["tasks_schedule", "all"].includes(name) && UNSUB_TASKS_SCHEDULE) {
+      UNSUB_TASKS_SCHEDULE();
+      UNSUB_TASKS_SCHEDULE = undefined;
+    }
   };
 
   const onDragEnd = (result: DropResult, simpleSchedule: Schedule<SimpleColumn> | undefined): void => {
